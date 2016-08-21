@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Collections.Concurrent;
 using Re_translator.ServerEntities;
+using System.Collections.Generic;
 
 namespace server
 {
@@ -16,28 +17,42 @@ namespace server
     public class Server
     {
         int ThreadCount = 0;
+        public static List<ServerEntity> ClientList = new List<ServerEntity>();
         public static ConcurrentDictionary<string, ConcurrentQueue<string>> dick = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
         ManualResetEvent tcpClientConnected = new ManualResetEvent(false);
 
-        ServerEntity StartAuthorization()
-        {
-            StringBuilder sb = new StringBuilder();
+        //ServerEntity StartAuthorization()
+        //{
+        //    StringBuilder sb = new StringBuilder();
 
-            using (NetworkStream stream = temp.client.GetStream())
-            {
-                int i;
-                while ((i = stream.ReadByte()) != -1)
-                {
-                    sb.Append((char)i);
-                }
-                Console.WriteLine(sb.ToString());
-                Console.WriteLine("Client accepted");
-            }
-            return new UserEntity();
-        }
+        //    using (NetworkStream stream = temp.client.GetStream())
+        //    {
+        //        int i;
+        //        while ((i = stream.ReadByte()) != -1)
+        //        {
+        //            sb.Append((char)i);
+        //        }
+        //        Console.WriteLine(sb.ToString());
+        //        Console.WriteLine("Client accepted");
+        //    }
+        //    return new UserEntity();
+        //}
+
         void ProcessIncomingData(object obj)
         {
-            StartAuthorization();
+            //try
+            //{
+                //StartAuthorization();
+                ///DoWork
+            //}
+            //catch
+            //{
+                ///Exception
+            //}
+            //finally
+            //{
+                ///Restart Thread
+            //}
             ThreadObj temp = (ThreadObj)obj;
             TcpClient client = temp.client;
             var ThreadNumber = temp.ThreadNUmber;
@@ -58,20 +73,21 @@ namespace server
                     Console.WriteLine("Thread " + ThreadNumber + " waiting");
                     Thread.Sleep(300);
                 }
-                //string reply = "ack: " + sb.ToString() + '\0';
-                //stream.Write(Encoding.ASCII.GetBytes(reply), 0, reply.Length);
             }
         }
 
 
         void ProcessIncomingConnection(IAsyncResult ar)
         {
+     
             ThreadObj temp = new ThreadObj();
             temp.ThreadNUmber = ++ThreadCount;
-
+            ///Проверять авторизацию до создания нового потока не вариант.
+            //Thread.Sleep(3000);
             TcpListener listener = (TcpListener)ar.AsyncState;
             temp.client = listener.EndAcceptTcpClient(ar);
 
+            //Проверка наличия айпи в белом листе
             //var oipi = ((IPEndPoint)temp.client.Client.RemoteEndPoint).Address.ToString();
             //if(ipTable.Compare(oipi)){
             ThreadPool.QueueUserWorkItem(ProcessIncomingData, temp);
@@ -80,26 +96,19 @@ namespace server
             tcpClientConnected.Set();
         }
 
-        string ip1 = "192.168.1.10";
-        string ip2 = "192.168.11.0";
-        string ip3 = "192.168.1.100";
-        public void Start()
+
+        public void initInnerThreads()
+        {
+
+        }
+
+        public void StartProxy()
         {
             IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5000);
             //IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, Int32.Parse(tbPortNumber.Text));
             TcpListener listener = new TcpListener(endpoint);
-            int minWorker, minIOC;
-            // Get the current settings.
-            ThreadPool.GetMinThreads(out minWorker, out minIOC);
 
-            //int MaxThreadsCount = Environment.ProcessorCount * 4;
-            //// Установим максимальное количество рабочих потоков
-            //ThreadPool.SetMaxThreads(MaxThreadsCount, MaxThreadsCount);
-            ////ThreadPool.SetMinThreads()
-            Console.WriteLine(String.Compare(ip1, ip2));
-            Console.WriteLine(String.Compare(ip2, ip3));
-            Console.WriteLine(minWorker);
-            Console.WriteLine(minIOC);
+            Console.WriteLine("Server Started... Waiting for connection...");
             listener.Start();
 
             while (true)
@@ -116,7 +125,7 @@ namespace server
         static void Main(string[] args)
         {
             Server s = new Server();
-            s.Start();
+            s.StartProxy();
         }
     }
 }

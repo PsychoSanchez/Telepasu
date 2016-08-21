@@ -6,11 +6,20 @@ using System.Threading.Tasks;
 
 namespace Re_translator.ServerEntities
 {
-    public enum ServerRole {
+    public enum UserRole {
         Admin,
         User,
         SuperUser,
         Manager,
         Guest
+    }
+    public enum MessageType
+    {
+        AsteriskAction,
+        AsteriskEvent,
+        AsteriskResponse,
+        ChatMessage,
+        SqlMessage,
+        InnerMessage
     }
 }
