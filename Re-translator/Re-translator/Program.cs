@@ -14,12 +14,15 @@ namespace server
         public TcpClient client;
         public int ThreadNUmber;
     }
-    public class Server
+    public class Proxy
     {
+        IPEndPoint endpoint;
+        TcpListener listener;
         int ThreadCount = 0;
         public static List<ServerEntity> ClientList = new List<ServerEntity>();
         public static ConcurrentDictionary<string, ConcurrentQueue<string>> dick = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
         ManualResetEvent tcpClientConnected = new ManualResetEvent(false);
+        bool StopProxy = false;
 
         //ServerEntity StartAuthorization()
         //{
@@ -42,16 +45,16 @@ namespace server
         {
             //try
             //{
-                //StartAuthorization();
-                ///DoWork
+            //StartAuthorization();
+            ///DoWork
             //}
             //catch
             //{
-                ///Exception
+            ///Exception
             //}
             //finally
             //{
-                ///Restart Thread
+            ///Restart Thread
             //}
             ThreadObj temp = (ThreadObj)obj;
             TcpClient client = temp.client;
@@ -79,7 +82,7 @@ namespace server
 
         void ProcessIncomingConnection(IAsyncResult ar)
         {
-     
+
             ThreadObj temp = new ThreadObj();
             temp.ThreadNUmber = ++ThreadCount;
             ///Проверять авторизацию до создания нового потока не вариант.
@@ -102,21 +105,79 @@ namespace server
 
         }
 
-        public void StartProxy()
+        public void Start()
         {
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5000);
             //IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, Int32.Parse(tbPortNumber.Text));
-            TcpListener listener = new TcpListener(endpoint);
+            init();
 
-            Console.WriteLine("Server Started... Waiting for connection...");
-            listener.Start();
-
-            while (true)
+            while (!StopProxy)
             {
-                tcpClientConnected.Reset();
-                listener.BeginAcceptTcpClient(new AsyncCallback(ProcessIncomingConnection), listener);
-                tcpClientConnected.WaitOne();
+                AcceptClient();
             }
+        }
+        public void Stop()
+        {
+            StopProxy = true;
+            listener.Stop();
+
+            //// НЕ ЗАБЫТЬ ПЕРЕПИСАТЬ АРХИТЕКТУРУ ПОД CANCELLATION TOKENS
+            CancellationTokenSource cts = new CancellationTokenSource();
+
+            for (int i = 0; i < 100; i++)
+            {
+                ThreadPool.QueueUserWorkItem(s =>
+                {
+                    CancellationToken token = (CancellationToken)s;
+                    if (token.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    Console.WriteLine("Output2");
+                    token.WaitHandle.WaitOne(1000);
+                }, cts.Token);
+            }
+            cts.Cancel();
+            /////
+        }
+        /// <summary>
+        /// Инициализация подключения к сереверу
+        /// </summary>
+        public void init()
+        {
+            endpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5000)
+            listener = new TcpListener(endpoint);
+            listener.Start();
+            Console.WriteLine("#Server initialized...");
+        }
+        /// <summary>
+        /// Функция посадки клиента
+        /// </summary>
+        public void AcceptClient()
+        {
+            Console.WriteLine("#Waiting for client...");
+            tcpClientConnected.Reset();
+            if (StopProxy)
+            {
+                return;
+            }
+            listener.BeginAcceptTcpClient(new AsyncCallback(ProcessIncomingConnection), listener);
+            tcpClientConnected.WaitOne();
+        }
+        /// <summary>
+        /// Функция подключения к астериску
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        public bool ConnectAsterisk(string username, string password, string ip, int port)
+        {
+            return true;
+        }
+        public bool ConnectAsterisk(string username, string password, string domain)
+        {
+            return true;
         }
     }
 
@@ -124,8 +185,37 @@ namespace server
     {
         static void Main(string[] args)
         {
-            Server s = new Server();
-            s.StartProxy();
+            Proxy serv = new Proxy();
+            bool exit = false;
+            while (!exit)
+            {
+                string value = Console.ReadLine();
+                switch (value.ToLower())
+                {
+                    case "accept":
+                    case "accept client":
+                        serv.AcceptClient();
+                        break;
+                    case "init":
+                    case "start":
+                    case "start server":
+                        serv.init();
+                        break;
+                    case "connect asterisk":
+                        serv.ConnectAsterisk("mark", "1488", "127.0.0.1", 5038);
+                        break;
+                    case "restart":
+                        break;
+                    case "exit":
+                        exit = true;
+                        Console.WriteLine("#Application is going to close now");
+                        break;
+                    default:
+                        ;
+                        break;
+                }
+            }
+            Thread.Sleep(5000);
         }
     }
 }
