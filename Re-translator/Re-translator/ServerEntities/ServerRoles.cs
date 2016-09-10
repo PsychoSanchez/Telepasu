@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Re_translator.ServerEntities
+namespace Proxy.ServerEntities
 {
     public enum UserRole {
         Admin,
@@ -15,11 +15,9 @@ namespace Re_translator.ServerEntities
     }
     public enum MessageType
     {
-        AsteriskAction,
-        AsteriskEvent,
-        AsteriskResponse,
-        ChatMessage,
+        AsteriskMessage, // Сообщение от сервера, отправить всем клиентам
+        ChatMessage, // Сообщение от чата, доставить конкретным пользователям
         SqlMessage,
-        InnerMessage
+        InnerMessage // Сообщение от админпанели для управления.
     }
 }

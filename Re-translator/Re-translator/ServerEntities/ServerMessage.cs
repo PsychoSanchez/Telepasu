@@ -1,4 +1,4 @@
-﻿namespace Re_translator.ServerEntities
+﻿namespace Proxy.ServerEntities
 {
     public abstract class ServerMessage
     {

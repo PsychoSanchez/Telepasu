@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Proxy.ServerEntities.UserEntities
+namespace Re_translator
 {
-    class HardUserEntity 
+    class Logger
     {
     }
 }

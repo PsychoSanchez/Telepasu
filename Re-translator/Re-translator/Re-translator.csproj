@@ -43,17 +43,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConcurrentList.cs" />
+    <Compile Include="Helper.cs" />
     <Compile Include="IpTables.cs" />
+    <Compile Include="DeMail.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Server.cs" />
     <Compile Include="ServerEntities\ServerMessage.cs" />
     <Compile Include="ServerEntities\UserEntities\AsteriskEntity.cs" />
     <Compile Include="ServerEntities\UserEntities\AdminEntity.cs" />
     <Compile Include="ServerEntities\ServerEntity.cs" />
     <Compile Include="ServerEntities\ServerRoles.cs" />
     <Compile Include="ServerEntities\UserEntities\DBEntity.cs" />
+    <Compile Include="ServerEntities\UserEntities\GuestEntity.cs" />
     <Compile Include="ServerEntities\UserEntities\HardUserEntity.cs" />
     <Compile Include="ServerEntities\UserEntities\LightUserEntity.cs" />
+    <Compile Include="SocketMail.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

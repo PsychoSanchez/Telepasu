@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Re_translator.ServerEntities.UserEntities
+namespace Proxy.ServerEntities.UserEntities
 {
     class LightUserEntity
     {

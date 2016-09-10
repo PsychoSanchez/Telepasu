@@ -1,34 +1,37 @@
-﻿using System;
+﻿using Proxy.ServerEntities.UserEntities;
+using System;
+using System.Collections.Concurrent;
 using System.Net.Sockets;
-using System.Text;
+using System.Threading;
 
-namespace Re_translator.ServerEntities
+namespace Proxy.ServerEntities
 {
     public abstract class ServerEntity
     {
-        public UserRole role = UserRole.Guest;
-        public bool connectionStatus = false;
-        public TcpClient client;
-        public int ThreadNUmber;
+        protected CancellationTokenSource cts = new CancellationTokenSource();
+        public ConcurrentQueue<string> MessageStack;
+        protected UserRole role = UserRole.Guest;
+        public string UserName = "guest";
+        protected bool connectionStatus = false;
+        protected SocketMail client_mail;
+        public int ThreadNumber;
 
-        //public bool Autorize()
-        //{
-        //    StringBuilder sb = new StringBuilder();
-
-        //    using (NetworkStream stream = client.GetStream())
-        //    {
-        //        int i;
-        //        while ((i = stream.ReadByte()) != -1)
-        //        {
-        //            sb.Append((char)i);
-        //        }
-        //        Console.WriteLine(sb.ToString());
-        //        Console.WriteLine("Client accepted");
-        //    }
-        //}
-        public void WorkCycle()
+        public ServerEntity(Socket _client)
         {
-
+            client_mail = new SocketMail(_client);
+            client_mail.MessageRecieved += ObtainMessage;
+        }
+        
+        protected abstract void ObtainMessage(object sender, MessageArgs e);
+        protected abstract void WorkCycle();
+        public void StartWork()
+        {
+            WorkCycle();
+        }
+        public void Stop()
+        {
+            Console.WriteLine("User disconnecting");
+            cts.Cancel();
         }
     }
 }
