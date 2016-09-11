@@ -1,21 +1,18 @@
-﻿using Proxy.ServerEntities;
-using Proxy.ServerEntities.UserEntities;
-using System;
+﻿using Proxy.Helpers;
+using Proxy.ServerEntities;
+using Proxy.ServerEntities.Users;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Proxy
 {
     public class DeMail
     {
+        private ConcurrentDictionary<UserManager, ConcurrentQueue<ServerMessage>> mailbox = new ConcurrentDictionary<UserManager, ConcurrentQueue<ServerMessage>>();
         private ConcurrentList usersList = new ConcurrentList();
         public AsteriskEntity Asterisk;
-        private ConcurrentDictionary<ServerEntity, ConcurrentQueue<ServerMessage>> mailbox = new ConcurrentDictionary<ServerEntity, ConcurrentQueue<ServerMessage>>();
 
-        public void AddUser(ServerEntity user)
+        public void AddUser(UserManager user)
         {
             if (mailbox.ContainsKey(user))
             {
@@ -25,7 +22,13 @@ namespace Proxy
             mailbox.AddOrUpdate(user, messages, (key, oldValue) => messages);
             usersList.Add(user);
         }
-        public void DeleteUser(ServerEntity user)
+        public void AddAsteriskConnection(AsteriskEntity asterisk)
+        {
+            Asterisk = asterisk;
+            ConcurrentQueue<ServerMessage> messages = new ConcurrentQueue<ServerMessage>();
+            mailbox.AddOrUpdate(asterisk, messages, (key, oldValue) => messages);
+        }
+        public void DeleteUser(UserManager user)
         {
             usersList.Remove(user);
             ConcurrentQueue<ServerMessage> ignored;
@@ -36,16 +39,36 @@ namespace Proxy
             ///Дописать лок аглок для списков и удалить ключи с массивами из словаря
             usersList.Clear();
         }
-        public List<ServerEntity> GetUsers()
+        public List<UserManager> GetUsers()
         {
             return usersList.ToList();
         }
 
         public void SendMessage(ServerMessage message)
         {
-
+            switch (message.type)
+            {
+                case MessageType.AsteriskAction:
+                    if (Asterisk != null)
+                    {
+                        mailbox[Asterisk].Enqueue(message);
+                    }
+                    break;
+                case MessageType.AsteriskMessage:
+                    foreach (var user in usersList)
+                    {
+                        mailbox[user].Enqueue(message);
+                    }
+                    break;
+                case MessageType.ChatMessage:
+                    break;
+                case MessageType.InnerMessage:
+                    break;
+                case MessageType.SqlMessage:
+                    break;
+            }
         }
-        public List<ServerMessage> GrabMessages(ServerEntity entity)
+        public List<ServerMessage> GrabMessages(UserManager entity)
         {
             if (!mailbox.ContainsKey(entity))
             {
@@ -56,8 +79,10 @@ namespace Proxy
             ServerMessage item;
             while (!mailbox[entity].IsEmpty)
             {
-                mailbox[entity].TryDequeue(out item);
-                temp.Add(item);
+                if (mailbox[entity].TryDequeue(out item))
+                {
+                    temp.Add(item);
+                }
             }
             return temp;
         }

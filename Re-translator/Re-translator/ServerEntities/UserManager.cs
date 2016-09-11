@@ -1,4 +1,4 @@
-﻿using Proxy.ServerEntities.UserEntities;
+﻿using Proxy.ServerEntities.Users;
 using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
@@ -6,23 +6,25 @@ using System.Threading;
 
 namespace Proxy.ServerEntities
 {
-    public abstract class ServerEntity
+    public abstract class UserManager
     {
         protected CancellationTokenSource cts = new CancellationTokenSource();
         public ConcurrentQueue<string> MessageStack;
         protected UserRole role = UserRole.Guest;
         public string UserName = "guest";
         protected bool connectionStatus = false;
-        protected SocketMail client_mail;
+        protected SocketMail personal_mail;
         public int ThreadNumber;
 
-        public ServerEntity(Socket _client)
+        public UserManager(Socket _client)
         {
-            client_mail = new SocketMail(_client);
-            client_mail.MessageRecieved += ObtainMessage;
+            personal_mail = new SocketMail(_client);
+            personal_mail.MessageRecieved += ObtainMessage;
+            personal_mail.Disconnected += Disconnected;
         }
-        
+
         protected abstract void ObtainMessage(object sender, MessageArgs e);
+        protected abstract void Disconnected(object sender, MessageArgs e);
         protected abstract void WorkCycle();
         public void StartWork()
         {

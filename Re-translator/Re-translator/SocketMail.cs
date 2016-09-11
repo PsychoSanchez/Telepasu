@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Proxy.Helpers;
+using System;
 using System.ComponentModel;
 using System.Net.Sockets;
 using System.Text;
@@ -17,6 +18,7 @@ namespace Proxy
     public class SocketMail
     {
         public event EventHandler<MessageArgs> MessageRecieved;
+        public event EventHandler<MessageArgs> Disconnected;
         BackgroundWorker reciever;
         Socket socket;
         public SocketMail(Socket _socket)
@@ -27,23 +29,33 @@ namespace Proxy
         private void initReciever()
         {
             reciever = new BackgroundWorker();
-            reciever.DoWork += RecieverWork;
+            reciever.DoWork += Listen;
             reciever.WorkerSupportsCancellation = true;
             reciever.RunWorkerAsync();
         }
-
-        private void RecieverWork(object sender, DoWorkEventArgs e)
+        private bool SocketConnected()
         {
+            return !((socket.Poll(1000, SelectMode.SelectRead) && (socket.Available == 0)) || !socket.Connected);
+
+            ///Simpler version
+            //bool part1 = socket.Poll(1000, SelectMode.SelectRead);
+            //bool part2 = (socket.Available == 0);
+            //if (part1 && part2)
+            //    return false;
+            //else
+            //    return true;
+        }
+        private void Listen(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
             byte[] recvBuffer = new byte[100000];
             string Response = string.Empty;
             int buffersize;
-            BackgroundWorker worker = sender as BackgroundWorker;
             try
             {
                 do
                 {
-                    //Нужен для того, чтобы буфер заполнился
-                    Thread.Sleep(10);
+                    Thread.Sleep(15);
                     if (worker.CancellationPending)
                     {
                         e.Cancel = true;
@@ -51,7 +63,7 @@ namespace Proxy
                         return;
                     }
                     buffersize = socket.Receive(recvBuffer);
-                    //Перекодируем его к строковому типу
+
                     Response += Encoding.ASCII.GetString(recvBuffer, 0, buffersize);
                     if (Response.EndsWith(Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR))
                     {
@@ -60,51 +72,27 @@ namespace Proxy
                             e.Cancel = true;
                             return;
                         }
-                        ///Кладем сообщение в общую память парсера
                         OnMessageRecieved(new MessageArgs(Response));
                         Response = string.Empty;
-                        //AsterParser.Response = Response;
-                        //Разрешаем ему доступ к данным
-                        //AsterParser.startParse.Set();
-                        //Обнуляем строку
                     }
                 }
-                while (socket.Connected);
+                while (SocketConnected());
             }
-            catch (SocketException ex)
+            catch (Exception ex)
             {
-                //if (ex.SocketErrorCode == SocketError.TimedOut)
-                //    if (ManagerConnect != null && ManagerConnect.IsSockConnected())
-                //    {
-                //        //SendPing.Set();
-                //        //Thread.Sleep(3000);
-                //        if (!ManagerConnect.IsSockConnected())
-                //        {
-                //            throw new AmiTimeOutException("Слишком долгое время ожидания ответа от сервера");
-                //        }
-                //    }
-
-                //if (IsAlive)
-                //    //Console.WriteLine(ex.Message);
-                //    return;
-                return;
+                LogMonitor.log(ex.Message + ex.StackTrace);
             }
-            catch (ObjectDisposedException ex)
-            {
-                //if (IsAlive)
-                //    //Console.WriteLine(ex.Message);
-                //    return;
-                return;
-            }
-            catch (NullReferenceException)
-            {
-                return;
-            }
+            OnConnectionLost(null);
+            Disconnect();
         }
 
         private void OnMessageRecieved(MessageArgs e)
         {
             MessageRecieved?.Invoke(this, e);
+        }
+        private void OnConnectionLost(MessageArgs e)
+        {
+            Disconnected?.Invoke(this, e);
         }
         public void SendMessage(string message)
         {
@@ -149,6 +137,13 @@ namespace Proxy
             {
                 return;
             }
+        }
+        public void Disconnect()
+        {
+            reciever.CancelAsync();
+            reciever.Dispose();
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
         }
     }
 }

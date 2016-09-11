@@ -1,6 +1,5 @@
-﻿
-using Proxy.ServerEntities;
-using Proxy.ServerEntities.UserEntities;
+﻿using Proxy.ServerEntities;
+using Proxy.ServerEntities.Users;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -32,10 +31,7 @@ namespace Proxy
         {
             StopProxy = true;
             listener.Stop();
-            foreach (var User in Mail.GetUsers())
-            {
-                User.Stop();
-            }
+            DisconnectAll();
         }
         /// <summary>
         /// Инициализация подключения к сереверу
@@ -59,11 +55,39 @@ namespace Proxy
         /// <returns></returns>
         public bool ConnectAsterisk(string username, string password, string ip, int port)
         {
+            Socket socket = GetSocket();
+            try
+            {
+                IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse(ip), Convert.ToInt32(port));
+                socket.Connect(endpoint);
+                AsteriskEntity asterisk = new AsteriskEntity(socket);
+                if (asterisk.Login(username, password))
+                {
+                    Mail.AddAsteriskConnection(asterisk);
+                }
+            }
+            catch (SocketException e)
+            {
+                if (e.SocketErrorCode == SocketError.TimedOut)
+                {
+                    LogMonitor.log("Сервер недоступен");
+                    throw new Exception("Сервер недоступен");
+                }
+                return false;
+            }
             return true;
         }
-        public bool ConnectAsterisk(string username, string password, string domain)
+        private Socket GetSocket()
         {
-            return true;
+            Socket newsocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            // Don't allow another socket to bind to this port.
+            newsocket.ExclusiveAddressUse = true;
+            // Timeout 3 seconds
+            newsocket.SendTimeout = 30000;
+            newsocket.ReceiveTimeout = 70000;
+            // Set the Time To Live (TTL) to 42 router hops.
+            newsocket.Ttl = 42;
+            return newsocket;
         }
         public void AcceptClient()
         {
@@ -91,20 +115,11 @@ namespace Proxy
         void ProcessIncomingData(object obj)
         {
             GuestEntity temp = (GuestEntity)obj;
-            //try
-            //{
-            ServerEntity newEntity = temp.StartAutorization();
+            UserManager newEntity = temp.StartAutorization();
+            Console.WriteLine("Client accepted...");
             Mail.AddUser(newEntity);
             newEntity.StartWork();
-            //}
-            //catch
-            //{
-            ///Exception
-            //}
-            //finally
-            //{
-            ///Restart Thread
-            //}
+            Console.WriteLine("Client thread stoped...");
         }
         public void DisconnectAll()
         {

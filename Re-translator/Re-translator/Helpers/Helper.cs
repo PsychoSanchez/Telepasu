@@ -1,16 +1,15 @@
-﻿//#define LOG
+﻿using Proxy.ServerEntities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace Proxy
+namespace Proxy.Helpers
 {
     public class Helper
     {
         #region API CONSTANTS
-
         public static string MachineID = Helper.ConvertToTranslit(Environment.MachineName.Replace(" ", "")) + Helper.ConvertToTranslit(Environment.UserName.Replace(" ", ""));
 
         private static Dictionary<char, string> RusEng;
@@ -72,27 +71,48 @@ namespace Proxy
         private static string[] ChannelSplit = new string[] { " " };
         public static Dictionary<string, string> vars = new Dictionary<string, string>();
         #endregion
-        /// <summary>
-        /// Функция для срздания запроса с параметро ActionId, чтобы обрабатывать пакеты до получения Response
-        /// Теперь обрабатывать пакеты можно по actionID запросу
-        /// </summary>
-        /// <param name="action"></param>
-        /// <param name="internalActionId"></param>
-        /// <returns></returns>
-     
 
+        public static string BuildMessage(AsteriskAction action)
+        {
+            StringBuilder sb = new StringBuilder();
+            //if (string.IsNullOrEmpty(action.ActionID))
+            //{
+            //    action.ActionID = MachineID;
+            //}
+            //sb.Append(string.Concat("Action: ", action.Action, LINE_SEPARATOR));
+            //if (action.ActionID != null)
+            //{
+            //    sb.Append(string.Concat("ActionID: ", action.ActionID, LINE_SEPARATOR));
+            //}
+            sb.Append(action.ToString());
+            //sb.Append(LINE_SEPARATOR);
+            return sb.ToString();
+        }
+
+        public static string GetAsteriskMessageType(string message)
+        {
+            var firstLine = message.Substring(0, message.IndexOf(LINE_SEPARATOR));
+            if (firstLine.Contains("Asterisk Call Manager"))
+            {
+                return "Response";
+            }
+            else
+            {
+                return message.Substring(0, message.IndexOf(':'));
+            }
+        }
         /// <summary>
         /// Поиск параметра в ответе из запроса.(ИСПРАВЛЕНО)
         /// </summary>
-        /// <param name="SourceString">Информация в строковой переменной</param>
-        /// <param name="parameterName">Указатель на искомые данные</param>
-        public static string GetParameterValue(string SourceString, string parameterName)
+        /// <param name="origin_message">Информация в строковой переменной</param>
+        /// <param name="parameter_name">Указатель на искомые данные</param>
+        public static string GetParameterValue(string origin_message, string parameter_name)
         {
-            if (SourceString.Contains(parameterName))
+            if (origin_message.Contains(parameter_name))
             {
-                var message = SourceString.Substring(SourceString.IndexOf(parameterName));
+                var message = origin_message.Substring(origin_message.IndexOf(parameter_name));
                 message += Helper.LINE_SEPARATOR;
-                int startPos = parameterName.Length;
+                int startPos = parameter_name.Length;
                 int length = message.IndexOf(Helper.LINE_SEPARATOR) - startPos;
                 message = message.Substring(startPos, length);
                 if (!string.IsNullOrEmpty(message))
@@ -106,16 +126,16 @@ namespace Proxy
         /// <summary>
         /// Получает номер приписанный к сип каналу
         /// </summary>
-        /// <param name="ChannelID">ID канала</param>
+        /// <param name="channelID">ID канала</param>
         /// <returns></returns>
-        public static string GetNumberFromChannel(string ChannelID)
+        public static string GetNumberFromChannel(string channelID)
         {
-            if (ChannelID.ToLower().Contains("sip"))
+            if (channelID.ToLower().Contains("sip"))
             {
-                ChannelID = ChannelID.Replace("SIP/", "");
-                int length = ChannelID.IndexOf("-");
-                ChannelID = ChannelID.Substring(0, length);
-                return ChannelID;
+                channelID = channelID.Replace("SIP/", "");
+                int length = channelID.IndexOf("-");
+                channelID = channelID.Substring(0, length);
+                return channelID;
             }
             else
                 return string.Empty;
@@ -129,8 +149,9 @@ namespace Proxy
         internal static string ToString(object obj)
         {
             object value;
-            var sb = new StringBuilder(obj.GetType().Name, 1024);
-            sb.Append(" {");
+            var sb = new StringBuilder();
+            //sb.Append(" {");
+            //obj.GetType().Name, 1024
             string strValue;
             IDictionary getters = GetGetters(obj.GetType());
             bool notFirst = false;
@@ -206,10 +227,10 @@ namespace Proxy
                 else
                     strValue = value.ToString();
 
-                if (notFirst)
-                    sb.Append("; ");
-                notFirst = true;
-                sb.Append(string.Concat(getter.Name.Substring(4), ":", strValue));
+                //if (notFirst)
+                //    sb.Append("; ");
+                //notFirst = true;
+                sb.Append(string.Concat(getter.Name.Substring(4), ": ", strValue, LINE_SEPARATOR));
             }
 
             // Second step - all lists
@@ -272,7 +293,7 @@ namespace Proxy
                 #endregion
             }
 
-            sb.Append("}");
+            sb.Append(LINE_SEPARATOR);
             return sb.ToString();
         }
 

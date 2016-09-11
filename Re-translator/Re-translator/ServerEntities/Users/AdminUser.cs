@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Proxy.ServerEntities.UserEntities
+namespace Proxy.ServerEntities.Users
 {
-    class AdminEntity : ServerEntity
+    class AdminUser : UserManager
     {
-        public AdminEntity(Socket _client) : base(_client)
+        public AdminUser(Socket _client) : base(_client)
         {
             role = UserRole.Admin;
+        }
+
+        protected override void Disconnected(object sender, MessageArgs e)
+        {
+            cts.Cancel();
         }
 
         protected override void ObtainMessage(object sender, MessageArgs e)
@@ -31,9 +33,8 @@ namespace Proxy.ServerEntities.UserEntities
                 List<ServerMessage> messages = Server.Mail.GrabMessages(this);
                 foreach(var message in messages)
                 {
-                    client_mail.SendMessage(message.ToString());
+                    personal_mail.SendMessage(message.ToString());
                 }
-                //Console.WriteLine("Thread working");
                 cts.Token.WaitHandle.WaitOne(300);
             }
         }
