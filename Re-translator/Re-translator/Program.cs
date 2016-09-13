@@ -31,7 +31,7 @@ namespace server
                         break;
                     case "connect":
                     case "connect asterisk":
-                        serv.ConnectAsterisk("bcti", "1488", "127.0.0.1", 8001);
+                        serv.ConnectAsterisk("mark", "hjok123", "192.168.1.40", 5038);
                         break;
                     case "restart":
                         break;
@@ -43,7 +43,7 @@ namespace server
                         break;
                 }
             }
-            Thread.Sleep(5000);
+            Thread.Sleep(2000);
         }
     }
 }

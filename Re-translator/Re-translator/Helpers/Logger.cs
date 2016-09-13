@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Proxy
 {
-    public class LogMonitor
+    public class telepasu
     {
         public static string LogFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\telepasu-log\\";
         public static AutoResetEvent EventSemaphore = new AutoResetEvent(true);
@@ -29,6 +29,7 @@ namespace Proxy
                     Directory.CreateDirectory(LogFilePath);
                 }
                 file = new StreamWriter(LogFilePath + "tp-logger" + ".log", true);
+                file.WriteLine("");
                 file.WriteLine(date.ToString());
                 file.WriteLine(log);
             }
