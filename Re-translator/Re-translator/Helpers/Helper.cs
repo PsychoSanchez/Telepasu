@@ -98,7 +98,16 @@ namespace Proxy.Helpers
             }
             else
             {
-                return message.Substring(0, message.IndexOf(':'));
+                var index = message.IndexOf(':');
+                if (index < 0)
+                {
+                    return "";
+                }
+                else
+                {
+
+                    return message.Substring(0, index);
+                }
             }
         }
         /// <summary>
@@ -106,7 +115,7 @@ namespace Proxy.Helpers
         /// </summary>
         /// <param name="origin_message">Информация в строковой переменной</param>
         /// <param name="parameter_name">Указатель на искомые данные</param>
-        public static string GetParameterValue(string origin_message, string parameter_name)
+        public static string GetValue(string origin_message, string parameter_name)
         {
             if (origin_message.Contains(parameter_name))
             {

@@ -1,4 +1,5 @@
 ﻿using Proxy.ServerEntities;
+using Proxy.ServerEntities.SQL;
 using Proxy.ServerEntities.Users;
 using System;
 using System.Net;
@@ -12,7 +13,6 @@ namespace Proxy
         public static DeMail Mail = new DeMail();
         IPEndPoint endpoint;
         TcpListener listener;
-        int ThreadCount = 0;
         ManualResetEvent tcpClientConnected = new ManualResetEvent(false);
         bool StopProxy = false;
 
@@ -63,7 +63,8 @@ namespace Proxy
                 AsteriskEntity asterisk = new AsteriskEntity(socket);
                 if (asterisk.Login(username, password))
                 {
-                    Mail.AddAsteriskConnection(asterisk);
+                    Mail.AddAsterisk(asterisk);
+                    ThreadPool.QueueUserWorkItem(AsteriskThread, Mail.Asterisk);
                 }
             }
             catch (SocketException e)
@@ -76,6 +77,24 @@ namespace Proxy
                 return false;
             }
             return true;
+        }
+        void AsteriskThread(object obj)
+        {
+            UserManager asterisk = (UserManager)obj;
+            asterisk.StartWork();
+            Console.WriteLine("ASterisk thread stoped...");
+        }
+        public bool ConnectDatabase(string username, string password, string ip, int port)
+        {
+            IDB db = new FakeDB();
+            if (db.ConnectDB("123", "123", "123", "123"))
+            {
+                Mail.AddDB(db);
+                Console.WriteLine("#Database connected...");
+                return true;
+            }
+            Console.WriteLine("#Failed to connect database...");
+            return false;
         }
         private Socket GetSocket()
         {
@@ -109,13 +128,17 @@ namespace Proxy
             //if(ipTable.Compare(oipi)){
             ThreadPool.QueueUserWorkItem(ProcessIncomingData, ServerUser);
             //}
-
             tcpClientConnected.Set();
         }
         void ProcessIncomingData(object obj)
         {
             GuestEntity temp = (GuestEntity)obj;
             UserManager newEntity = temp.StartAutorization();
+            if (newEntity == null)
+            {
+                Console.WriteLine("Client kicked...");
+                return;
+            }
             Console.WriteLine("Client accepted...");
             Mail.AddUser(newEntity);
             newEntity.StartWork();
@@ -125,7 +148,7 @@ namespace Proxy
         {
             foreach (var user in Mail.GetUsers())
             {
-                user.Stop();
+                user.Shutdown();
             }
             Mail.Clear();
         }

@@ -20,7 +20,7 @@ namespace Proxy
         public event EventHandler<MessageArgs> MessageRecieved;
         public event EventHandler<MessageArgs> Disconnected;
         public event EventHandler TimeOut;
-        ConnectionTimer Timer = null;
+        //ConnectionTimer Timer = null;
         BackgroundWorker reciever;
         Socket socket;
         public SocketMail(Socket _socket)
@@ -32,9 +32,9 @@ namespace Proxy
         {
             socket = _socket;
             initReciever();
-            Timer = new ConnectionTimer(timeout);
-            Timer.TimeOut += OnTimeOut;
-            Timer.Start();
+            //Timer = new ConnectionTimer(timeout);
+            //Timer.TimeOut += OnTimeOut;
+            //Timer.Start();
         }
 
         private void initReciever()
@@ -58,11 +58,11 @@ namespace Proxy
             {
                 do
                 {
-                    Thread.Sleep(15);
+                    Thread.Sleep(50);
                     if (worker.CancellationPending)
                     {
                         e.Cancel = true;
-                        Console.WriteLine("Asterisk thread disconnected");
+                        Console.WriteLine("Stopped listening");
                         return;
                     }
                     buffersize = socket.Receive(recvBuffer);
@@ -88,17 +88,22 @@ namespace Proxy
             OnConnectionLost(null);
             Disconnect();
         }
+        public void StopListen()
+        {
+            reciever.CancelAsync();
+            reciever.Dispose();
+        }
         private void OnTimeOut(object sender, EventArgs e)
         {
-            Timer.Stop();
+            //Timer.Stop();
             TimeOut?.Invoke(this, null);
         }
         private void OnMessageRecieved(MessageArgs e)
         {
-            if (Timer != null)
-            {
-                Timer.Reset();
-            }
+            //if (Timer != null)
+            //{
+            //    Timer.Reset();
+            //}
             MessageRecieved?.Invoke(this, e);
         }
         private void OnConnectionLost(MessageArgs e)

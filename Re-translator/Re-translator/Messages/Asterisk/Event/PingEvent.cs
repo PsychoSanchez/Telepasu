@@ -12,7 +12,7 @@ namespace Proxy.ServerEntities.Messages
         string timestamp;
         public PingEvent(string _message) : base(_message)
         {
-            timestamp = Helper.GetParameterValue(_message, "Timestamp: ");
+            timestamp = Helper.GetValue(_message, "Timestamp: ");
         }
 
         public string Timestamp

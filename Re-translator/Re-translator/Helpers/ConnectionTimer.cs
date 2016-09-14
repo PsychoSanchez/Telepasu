@@ -9,6 +9,7 @@ namespace Proxy.Helpers
         AutoResetEvent timer = new AutoResetEvent(true);
         int timeout;
         public event EventHandler TimeOut;
+        private bool stopwaiting = false;
         BackgroundWorker worker;
         public ConnectionTimer(int timeout)
         {
@@ -18,6 +19,28 @@ namespace Proxy.Helpers
         {
             init();
             worker.RunWorkerAsync();
+        }
+        public bool Wait()
+        {
+            while (true)
+            {
+                if (!timer.WaitOne(timeout))
+                {
+                    return false;
+                }
+                else
+                {
+                    if (stopwaiting)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        public void StopWait()
+        {
+            stopwaiting = true;
+            Reset();
         }
         public void Reset()
         {

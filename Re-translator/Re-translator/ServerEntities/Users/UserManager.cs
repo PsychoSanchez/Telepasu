@@ -12,27 +12,26 @@ namespace Proxy.ServerEntities
         public ConcurrentQueue<string> MessageStack;
         protected UserRole role = UserRole.Guest;
         public string UserName = "guest";
-        protected bool connectionStatus = false;
+        protected bool authentificated = false;
         protected SocketMail personal_mail;
         public int ThreadNumber;
 
+        public UserManager()
+        {
+        }
         public UserManager(Socket _client)
+        {
+            Listen(_client);
+        }
+        protected void Listen(Socket _client)
         {
             personal_mail = new SocketMail(_client);
             personal_mail.MessageRecieved += ObtainMessage;
             personal_mail.Disconnected += Disconnected;
         }
-        public UserManager(Socket _client, int timeout)
-        {
-            personal_mail = new SocketMail(_client, timeout);
-            personal_mail.MessageRecieved += ObtainMessage;
-            personal_mail.Disconnected += Disconnected;
-            personal_mail.TimeOut += TimeOut;
-        }
-
         protected virtual void TimeOut(object sender, EventArgs e)
         {
-            Stop();
+            Shutdown();
         }
 
         protected abstract void ObtainMessage(object sender, MessageArgs e);
@@ -42,11 +41,12 @@ namespace Proxy.ServerEntities
         {
             WorkCycle();
         }
-        public void Stop()
+        public void Shutdown()
         {
             Console.WriteLine("User disconnecting");
             cts.Cancel();
-            personal_mail.MessageRecieved += ObtainMessage;
+            personal_mail.Disconnect();
+            personal_mail.MessageRecieved -= ObtainMessage;
             personal_mail.Disconnected -= Disconnected;
             personal_mail.TimeOut -= TimeOut;
         }

@@ -7,34 +7,34 @@ namespace Proxy.ServerEntities.Messages
     {
         public DialEndEvent(string _message):base(_message)
         {
-            if (Helper.GetParameterValue(_message, "Event: ") == "DialEnd")
+            if (Helper.GetValue(_message, "Event: ") == "DialEnd")
             {
-                DialStatus = Helper.GetParameterValue(_message, "DialStatus: ");
+                DialStatus = Helper.GetValue(_message, "DialStatus: ");
 
-                ChannelID = Helper.GetParameterValue(_message, "Channel: ");
-                DestinationID = Helper.GetParameterValue(_message, "DestChannel: ");
+                ChannelID = Helper.GetValue(_message, "Channel: ");
+                DestinationID = Helper.GetValue(_message, "DestChannel: ");
 
-                CallerIDNum = Helper.GetParameterValue(_message, "CallerIDNum: ");
-                CallerIDName = Helper.GetParameterValue(_message, "CallerIDName: ");
+                CallerIDNum = Helper.GetValue(_message, "CallerIDNum: ");
+                CallerIDName = Helper.GetValue(_message, "CallerIDName: ");
 
-                ConnectedLineNum = Helper.GetParameterValue(_message, "ConnectedLineNum: ");
+                ConnectedLineNum = Helper.GetValue(_message, "ConnectedLineNum: ");
                 if (string.IsNullOrEmpty(ConnectedLineNum) || ConnectedLineNum == "<unknown>")
-                    ConnectedLineNum = Helper.GetParameterValue(_message, "DestCallerIDNum: ");
+                    ConnectedLineNum = Helper.GetValue(_message, "DestCallerIDNum: ");
 
-                ConnectedLineName = Helper.GetParameterValue(_message, "ConnectedLineName: ");
+                ConnectedLineName = Helper.GetValue(_message, "ConnectedLineName: ");
                 if (string.IsNullOrEmpty(ConnectedLineName) || ConnectedLineName == "<unknown>")
-                    ConnectedLineName = Helper.GetParameterValue(_message, "DestCallerIDName: ");
+                    ConnectedLineName = Helper.GetValue(_message, "DestCallerIDName: ");
 
-                Uniqueid = Helper.GetParameterValue(_message, "Uniqueid: ");
+                Uniqueid = Helper.GetValue(_message, "Uniqueid: ");
                 if (string.IsNullOrEmpty(Uniqueid))
-                    Uniqueid = Helper.GetParameterValue(_message, "DestLinkedid: ");
-                Uniqueid2 = Helper.GetParameterValue(_message, "DestUniqueid: ");
+                    Uniqueid = Helper.GetValue(_message, "DestLinkedid: ");
+                Uniqueid2 = Helper.GetValue(_message, "DestUniqueid: ");
             }
             else
             {
-                DialStatus = Helper.GetParameterValue(_message, "DialStatus: ");
-                ChannelID = Helper.GetParameterValue(_message, "Channel: ");
-                Uniqueid = Helper.GetParameterValue(_message, "UniqueID: ");
+                DialStatus = Helper.GetValue(_message, "DialStatus: ");
+                ChannelID = Helper.GetValue(_message, "Channel: ");
+                Uniqueid = Helper.GetValue(_message, "UniqueID: ");
                 //currentstatus = DialData.Dialstat.ConversationEnd;
            }
         }

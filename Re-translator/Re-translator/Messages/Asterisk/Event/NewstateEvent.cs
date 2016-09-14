@@ -7,14 +7,14 @@ namespace Proxy.ServerEntities.Messages
     {
         public NewstateEvent(string _message) : base(_message)
         {
-            Channel = Helper.GetParameterValue(_message, "Channel: ");
-            CallerIDNum = Helper.GetParameterValue(_message, "CallerIDNum: ");
-            CallerIDName = Helper.GetParameterValue(_message, "CallerIDName: ");
-            ChannelState = Helper.GetParameterValue(_message, "ChannelState: ");
-            ChannelStateDesc = Helper.GetParameterValue(_message, "ChannelStateDesc: ");
-            Context = Helper.GetParameterValue(_message, "Context: ");
-            ConnectedLineNum = Helper.GetParameterValue(_message, "ConnectedLineNum: ");
-            ConnectedLineName = Helper.GetParameterValue(_message, "ConnectedLineName: ");
+            Channel = Helper.GetValue(_message, "Channel: ");
+            CallerIDNum = Helper.GetValue(_message, "CallerIDNum: ");
+            CallerIDName = Helper.GetValue(_message, "CallerIDName: ");
+            ChannelState = Helper.GetValue(_message, "ChannelState: ");
+            ChannelStateDesc = Helper.GetValue(_message, "ChannelStateDesc: ");
+            Context = Helper.GetValue(_message, "Context: ");
+            ConnectedLineNum = Helper.GetValue(_message, "ConnectedLineNum: ");
+            ConnectedLineName = Helper.GetValue(_message, "ConnectedLineName: ");
         }
 
         public string Channel { get; set; }

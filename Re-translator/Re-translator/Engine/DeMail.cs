@@ -1,5 +1,6 @@
 ﻿using Proxy.Helpers;
 using Proxy.ServerEntities;
+using Proxy.ServerEntities.SQL;
 using Proxy.ServerEntities.Users;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,7 +11,23 @@ namespace Proxy
     {
         private ConcurrentDictionary<UserManager, ConcurrentQueue<ServerMessage>> mailbox = new ConcurrentDictionary<UserManager, ConcurrentQueue<ServerMessage>>();
         private ConcurrentList usersList = new ConcurrentList();
+        private string asteriskVersion = "1.1";
         public AsteriskEntity Asterisk;
+        private UserManager database;
+        public IDB DB;
+
+        public string AsteriskVersion
+        {
+            get
+            {
+                return asteriskVersion;
+            }
+
+            set
+            {
+                asteriskVersion = value;
+            }
+        }
 
         public void AddUser(UserManager user)
         {
@@ -22,11 +39,23 @@ namespace Proxy
             mailbox.AddOrUpdate(user, messages, (key, oldValue) => messages);
             usersList.Add(user);
         }
-        public void AddAsteriskConnection(AsteriskEntity asterisk)
+        public void AddAsterisk(AsteriskEntity asterisk)
         {
             Asterisk = asterisk;
             ConcurrentQueue<ServerMessage> messages = new ConcurrentQueue<ServerMessage>();
             mailbox.AddOrUpdate(asterisk, messages, (key, oldValue) => messages);
+        }
+        public void AddDB(IDB db)
+        {
+            DB = db;
+            database = db.GetDB();
+            ConcurrentQueue<ServerMessage> messages = new ConcurrentQueue<ServerMessage>();
+            mailbox.AddOrUpdate(database, messages, (key, oldValue) => messages);
+        }
+
+        public List<UserManager> GetUsers()
+        {
+            return usersList.ToList();
         }
         public void DeleteUser(UserManager user)
         {
@@ -39,12 +68,9 @@ namespace Proxy
             ///Дописать лок аглок для списков и удалить ключи с массивами из словаря
             usersList.Clear();
         }
-        public List<UserManager> GetUsers()
-        {
-            return usersList.ToList();
-        }
 
-        public void SendMessage(ServerMessage message)
+
+        public void PostMessage(ServerMessage message)
         {
             switch (message.type)
             {
@@ -61,10 +87,14 @@ namespace Proxy
                     }
                     break;
                 case MessageType.ChatMessage:
+                    ///Запись в бд
+                    ///Отправка клиентам
                     break;
                 case MessageType.InnerMessage:
+                    //????Какая то хуйня
                     break;
                 case MessageType.SqlMessage:
+                    ///Обращение к бд
                     break;
             }
         }

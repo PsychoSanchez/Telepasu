@@ -7,7 +7,7 @@ namespace Proxy.ServerEntities.Messages
     {
         public StatusEvent(string _message) : base(_message)
         {
-            Channel = Helper.GetParameterValue(_message, "Channel: ");
+            Channel = Helper.GetValue(_message, "Channel: ");
         }
 
         private string Channel { get; set; }

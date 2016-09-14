@@ -10,7 +10,7 @@ namespace Proxy.ServerEntities.Messages
 
         public OriginateEvent(string _message) : base(_message)
         {
-            ActionID = Helper.GetParameterValue(_message, "ActionID: ");
+            ActionID = Helper.GetValue(_message, "ActionID: ");
             if (string.IsNullOrEmpty(ActionID))
             {
                 IsCallSuccess = false;

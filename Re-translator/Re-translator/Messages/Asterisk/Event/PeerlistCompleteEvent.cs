@@ -10,8 +10,8 @@ namespace Proxy.ServerEntities.Messages
 
         public PeerlistCompleteEvent(string _message) : base(_message)
         {
-            ListItems = Helper.GetParameterValue(_message, "ListItems: ");
-            ActionID = Helper.GetParameterValue(_message, "ActionID: ");
+            ListItems = Helper.GetValue(_message, "ListItems: ");
+            ActionID = Helper.GetValue(_message, "ActionID: ");
         }
 
         public string ActionID { get; private set; }

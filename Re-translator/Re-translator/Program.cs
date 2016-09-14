@@ -29,7 +29,9 @@ namespace server
                     case "start server":
                         serv.Start();
                         break;
-                    case "connect":
+                    case "connect db":
+                        serv.ConnectDatabase("bcti", "hjok123", "127.0.0.1", 8001);
+                        break;
                     case "connect asterisk":
                         serv.ConnectAsterisk("mark", "hjok123", "192.168.1.40", 5038);
                         break;

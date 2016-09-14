@@ -7,15 +7,15 @@ namespace Proxy.ServerEntities.Messages
     {
         public SIPShowPeerEvent(string _message) : base(_message)
         {
-            Channeltype = Helper.GetParameterValue(_message, "Channeltype: ");
-            ObjectName = Helper.GetParameterValue(_message, "ObjectName: ");
-            Context = Helper.GetParameterValue(_message, "Context: ");
-            VoiceMailbox = Helper.GetParameterValue(_message, "VoiceMailbox: ");
-            Callerid = Helper.GetParameterValue(_message, "Callerid: ");
-            AddressIP = Helper.GetParameterValue(_message, "Address-IP: ");
-            AddressPort = Helper.GetParameterValue(_message, "Address-Port: ");
-            Status = Helper.GetParameterValue(_message, "Status: ");
-            ActionID = Helper.GetParameterValue(_message, "ActionID: ");
+            Channeltype = Helper.GetValue(_message, "Channeltype: ");
+            ObjectName = Helper.GetValue(_message, "ObjectName: ");
+            Context = Helper.GetValue(_message, "Context: ");
+            VoiceMailbox = Helper.GetValue(_message, "VoiceMailbox: ");
+            Callerid = Helper.GetValue(_message, "Callerid: ");
+            AddressIP = Helper.GetValue(_message, "Address-IP: ");
+            AddressPort = Helper.GetValue(_message, "Address-Port: ");
+            Status = Helper.GetValue(_message, "Status: ");
+            ActionID = Helper.GetValue(_message, "ActionID: ");
         }
 
         public string Channeltype { get; }

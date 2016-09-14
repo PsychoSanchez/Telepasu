@@ -7,17 +7,17 @@ namespace Proxy.ServerEntities.Messages
     {
         public OriginateResponseEvent(string _message) : base(_message)
         {
-            if (Helper.GetParameterValue(_message, "Response: ").Equals("Failure"))
+            if (Helper.GetValue(_message, "Response: ").Equals("Failure"))
                 Response = false;
             else
                 Response = true;
-            Channel = Helper.GetParameterValue(_message, "Channel: ");
-            Context = Helper.GetParameterValue(_message, "Context: ");
-            Exten = Helper.GetParameterValue(_message, "Exten: ");
-            Reason = Helper.GetParameterValue(_message, "Reason: ");
-            Uniqueid = Helper.GetParameterValue(_message, "Uniqueid: ");
-            CallerIDNum = Helper.GetParameterValue(_message, "CallerIDNum: ");
-            CallerIDName = Helper.GetParameterValue(_message, "CallerIDName: ");
+            Channel = Helper.GetValue(_message, "Channel: ");
+            Context = Helper.GetValue(_message, "Context: ");
+            Exten = Helper.GetValue(_message, "Exten: ");
+            Reason = Helper.GetValue(_message, "Reason: ");
+            Uniqueid = Helper.GetValue(_message, "Uniqueid: ");
+            CallerIDNum = Helper.GetValue(_message, "CallerIDNum: ");
+            CallerIDName = Helper.GetValue(_message, "CallerIDName: ");
         }
 
         public bool Response { get; private set; }

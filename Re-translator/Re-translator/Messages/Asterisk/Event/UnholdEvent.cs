@@ -8,13 +8,13 @@ namespace Proxy.ServerEntities.Messages
         public UnholdEvent(string _message) : base(_message)
         {
             DialStatus = "UNHOLD";
-            ChannelID = Helper.GetParameterValue(_message, "Channel: ");
-            CallerIDNum = Helper.GetParameterValue(_message, "CallerIDNum: ");
-            CallerIDName = Helper.GetParameterValue(_message, "CallerIDName: ");
-            ConnectedLineNum = Helper.GetParameterValue(_message, "ConnectedLineNum: ");
-            ConnectedLineName = Helper.GetParameterValue(_message, "ConnectedLineName: ");
-            Uniqueid = Helper.GetParameterValue(_message, "Uniqueid: ");
-            Uniqueid2 = Helper.GetParameterValue(_message, "Linkedid: ");
+            ChannelID = Helper.GetValue(_message, "Channel: ");
+            CallerIDNum = Helper.GetValue(_message, "CallerIDNum: ");
+            CallerIDName = Helper.GetValue(_message, "CallerIDName: ");
+            ConnectedLineNum = Helper.GetValue(_message, "ConnectedLineNum: ");
+            ConnectedLineName = Helper.GetValue(_message, "ConnectedLineName: ");
+            Uniqueid = Helper.GetValue(_message, "Uniqueid: ");
+            Uniqueid2 = Helper.GetValue(_message, "Linkedid: ");
         }
 
         public string CallerIDName { get; private set; }

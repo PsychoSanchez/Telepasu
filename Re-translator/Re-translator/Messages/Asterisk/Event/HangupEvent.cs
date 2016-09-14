@@ -7,13 +7,13 @@ namespace Proxy.ServerEntities.Messages
     {
         public HangupEvent(string _message) : base(_message)
         {
-            Channel = Helper.GetParameterValue(_message, "Channel: ");
-            ConnectedLineNum = Helper.GetParameterValue(_message, "ConnectedLineNum: ");
-            ConnectedLineName = Helper.GetParameterValue(_message, "ConnectedLineName: ");
-            Cause = Helper.GetParameterValue(_message, "Cause: ");
-            Uniqueid = Helper.GetParameterValue(_message, "Uniqueid: ");
-            CallerIDNum = Helper.GetParameterValue(_message, "CallerIDNum: ");
-            CallerIDName = Helper.GetParameterValue(_message, "CallerIDName: ");
+            Channel = Helper.GetValue(_message, "Channel: ");
+            ConnectedLineNum = Helper.GetValue(_message, "ConnectedLineNum: ");
+            ConnectedLineName = Helper.GetValue(_message, "ConnectedLineName: ");
+            Cause = Helper.GetValue(_message, "Cause: ");
+            Uniqueid = Helper.GetValue(_message, "Uniqueid: ");
+            CallerIDNum = Helper.GetValue(_message, "CallerIDNum: ");
+            CallerIDName = Helper.GetValue(_message, "CallerIDName: ");
         }
 
         public string Channel { get; private set; }

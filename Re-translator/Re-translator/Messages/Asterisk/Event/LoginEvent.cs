@@ -7,8 +7,8 @@ namespace Proxy.ServerEntities.Messages
     {
         public LoginEvent(string _message) : base(_message)
         {
-            ActionID = Helper.GetParameterValue(_message, "ActionID: ");
-            var message = Helper.GetParameterValue(_message, "Message: ");
+            ActionID = Helper.GetValue(_message, "ActionID: ");
+            var message = Helper.GetValue(_message, "Message: ");
             if (message == "Authentication accepted")
             {
                 IsConnected = true;

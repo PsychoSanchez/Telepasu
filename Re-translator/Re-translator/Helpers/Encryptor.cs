@@ -1,10 +1,19 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Proxy.Helpers
 {
     class Encryptor
     {
+        private static Random random = new Random();
+        public static string GenerateChallenge()
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgjklmznxlwqe0123456789";
+            return new string(Enumerable.Repeat(chars, 10)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
         public static string CalculateMD5Hash(string input)
         {
             // step 1, calculate MD5 hash from input

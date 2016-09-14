@@ -7,16 +7,16 @@ namespace Proxy.ServerEntities.Messages
     {
         public PeerEntryEvent(string _message) : base(_message)
         {
-            Number = Helper.GetParameterValue(_message, "ObjectName: ");
-            Protocol = Helper.GetParameterValue(_message, "Channeltype: ");
-            Context = Helper.GetParameterValue(_message, "Context: ");
-            IP = Helper.GetParameterValue(_message, "IPaddress: ");
+            Number = Helper.GetValue(_message, "ObjectName: ");
+            Protocol = Helper.GetValue(_message, "Channeltype: ");
+            Context = Helper.GetValue(_message, "Context: ");
+            IP = Helper.GetValue(_message, "IPaddress: ");
             if (string.IsNullOrEmpty(IP))
-                IP = Helper.GetParameterValue(_message, "Address-IP: ");
-            Port = Helper.GetParameterValue(_message, "IPport: ");
+                IP = Helper.GetValue(_message, "Address-IP: ");
+            Port = Helper.GetValue(_message, "IPport: ");
             if (string.IsNullOrEmpty(Port))
-                Port = Helper.GetParameterValue(_message, "Address-Port: ");
-            Status = Helper.GetParameterValue(_message, "Status: ");
+                Port = Helper.GetValue(_message, "Address-Port: ");
+            Status = Helper.GetValue(_message, "Status: ");
         }
 
         public string Context { get; private set; }
