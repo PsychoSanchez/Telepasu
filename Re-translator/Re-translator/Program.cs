@@ -33,7 +33,8 @@ namespace server
                         serv.ConnectDatabase("bcti", "hjok123", "127.0.0.1", 8001);
                         break;
                     case "connect asterisk":
-                        serv.ConnectAsterisk("mark", "hjok123", "192.168.1.40", 5038);
+                        //serv.ConnectAsterisk("mark", "hjok123", "192.168.1.40", 5038);
+                        serv.ConnectAsterisk("admin", "1488", "192.168.1.41", 5038);
                         break;
                     case "restart":
                         break;

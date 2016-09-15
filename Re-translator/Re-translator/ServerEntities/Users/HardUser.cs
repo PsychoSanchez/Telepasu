@@ -25,9 +25,25 @@ namespace Proxy.ServerEntities.Users
         protected override void ObtainMessage(object sender, MessageArgs e)
         {
             var actions = parser.ToActionList(e.Message);
-            foreach(var message in actions)
+            foreach (var message in actions)
             {
-                Server.Mail.PostMessage(message);
+                if (message.Action == "Ping")
+                {
+                    var pingAction = new PingEvent();
+                    if (message.ActionID != null)
+                    {
+                        pingAction.ActionID = message.ActionID;
+                    }
+                    personal_mail.SendMessage(pingAction.ToString());
+                }
+                else if (message.Action == "Logoff")
+                {
+                    Shutdown();
+                }
+                else
+                {
+                    Server.Mail.PostMessage(message);
+                }
             }
         }
 

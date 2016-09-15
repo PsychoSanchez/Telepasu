@@ -52,6 +52,7 @@
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Messages\API\AuthAccepted.cs" />
     <Compile Include="Messages\API\Event\Challenge.cs" />
+    <Compile Include="Messages\API\Event\PingEvent.cs" />
     <Compile Include="Messages\Asterisk\Action\ResendAction.cs" />
     <Compile Include="ServerEntities\Asterisk\MessagesParser.cs" />
     <Compile Include="Program.cs" />
