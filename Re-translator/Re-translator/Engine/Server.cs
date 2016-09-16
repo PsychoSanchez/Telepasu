@@ -42,7 +42,7 @@ namespace Proxy
             endpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5000);
             listener = new TcpListener(endpoint);
             listener.Start();
-            Console.WriteLine("#Server initialized...");
+            telepasu.log("#Server initialized...");
         }
 
         /// <summary>
@@ -63,9 +63,16 @@ namespace Proxy
                 AsteriskEntity asterisk = new AsteriskEntity(socket);
                 if (asterisk.Login(username, password))
                 {
+                    telepasu.log("#Asterisk connected...");
                     Mail.AddAsterisk(asterisk);
                     ThreadPool.QueueUserWorkItem(AsteriskThread, Mail.Asterisk);
+                    return true;
                 }
+                else
+                {
+                    telepasu.log("#Failed to connect asterisk...");
+                }
+                return false;
             }
             catch (SocketException e)
             {
@@ -76,13 +83,11 @@ namespace Proxy
                 }
                 return false;
             }
-            return true;
         }
         void AsteriskThread(object obj)
         {
             UserManager asterisk = (UserManager)obj;
             asterisk.StartWork();
-            Console.WriteLine("ASterisk thread stoped...");
         }
         public bool ConnectDatabase(string username, string password, string ip, int port)
         {
@@ -90,10 +95,10 @@ namespace Proxy
             if (db.ConnectDB("123", "123", "123", "123"))
             {
                 Mail.AddDB(db);
-                Console.WriteLine("#Database connected...");
+                telepasu.log("#Database connected...");
                 return true;
             }
-            Console.WriteLine("#Failed to connect database...");
+            telepasu.log("#Failed to connect database...");
             return false;
         }
         private Socket GetSocket()
@@ -110,7 +115,7 @@ namespace Proxy
         }
         public void AcceptClient()
         {
-            Console.WriteLine("#Waiting for client...");
+            telepasu.log("#Waiting for client...");
             tcpClientConnected.Reset();
             if (StopProxy)
             {
@@ -136,13 +141,13 @@ namespace Proxy
             UserManager newEntity = temp.StartAutorization();
             if (newEntity == null)
             {
-                Console.WriteLine("Client kicked...");
+                telepasu.log("Client kicked...");
                 return;
             }
-            Console.WriteLine("Client accepted...");
+            telepasu.log("Client accepted...");
             Mail.AddUser(newEntity);
             newEntity.StartWork();
-            Console.WriteLine("Client thread stoped...");
+            telepasu.log("Client thread stoped...");
         }
         public void DisconnectAll()
         {

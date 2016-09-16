@@ -15,7 +15,7 @@ namespace Proxy.ServerEntities.Messages
         }
 
         public string ActionID { get; private set; }
-        public string ListItems { get; }
+        public string ListItems { get; private set; }
 
         public override string ToApi()
         {

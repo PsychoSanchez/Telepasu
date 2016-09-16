@@ -34,13 +34,13 @@ namespace server
                         break;
                     case "connect asterisk":
                         //serv.ConnectAsterisk("mark", "hjok123", "192.168.1.40", 5038);
-                        serv.ConnectAsterisk("admin", "1488", "192.168.1.41", 5038);
+                        serv.ConnectAsterisk("admin", "hjok123", "192.168.1.44", 5038);
                         break;
                     case "restart":
                         break;
                     case "exit":
                         exit = true;
-                        Console.WriteLine("#Application is going to close now");
+                        telepasu.log("#Application is going to close now");
                         break;
                     default:
                         break;

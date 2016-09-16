@@ -20,7 +20,7 @@ namespace Proxy.ServerEntities.Messages
         }
 
         public string ActionID { get; private set; }
-        public bool IsConnected { get; }
+        public bool IsConnected { get; private set; }
         public override string ToApi()
         {
             throw new NotImplementedException();

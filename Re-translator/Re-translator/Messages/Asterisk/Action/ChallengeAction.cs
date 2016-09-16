@@ -9,7 +9,7 @@
                 return "Challenge";
             }
         }
-        public string AuthType { get; }
+        public string AuthType { get; private set; }
         public ChallengeAction()
         {
             AuthType = "MD5";

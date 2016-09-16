@@ -22,7 +22,7 @@ namespace Proxy.ServerEntities.Messages
         }
 
         public string ActionID { get; private set; }
-        public bool IsCallSuccess { get; }
+        public bool IsCallSuccess { get; private set; }
 
         public override string ToApi()
         {

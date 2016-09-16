@@ -18,7 +18,7 @@ namespace Proxy.ServerEntities.Users
 
         protected override void ObtainMessage(object sender, MessageArgs e)
         {
-            Console.WriteLine("Message recieved");
+            telepasu.log("Message recieved");
         }
 
         protected override void WorkCycle()
@@ -27,7 +27,7 @@ namespace Proxy.ServerEntities.Users
             {
                 if (cts.Token.IsCancellationRequested)
                 {
-                    Console.WriteLine("User disconnect");
+                    telepasu.log("User disconnect");
                     return;
                 }
                 List<ServerMessage> messages = Server.Mail.GrabMessages(this);

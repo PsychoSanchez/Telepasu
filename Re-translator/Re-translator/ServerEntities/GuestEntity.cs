@@ -21,12 +21,11 @@ namespace Proxy.ServerEntities.Users
         {
             Listen(client);
             timer.Wait();
-            Console.WriteLine("LOL I JUST STOPED WAITING");
             return user;
         }
         protected override void Disconnected(object sender, MessageArgs e)
         {
-            Console.WriteLine("guest disconnected");
+            telepasu.log("guest disconnected");
             return;
         }
 
@@ -39,7 +38,6 @@ namespace Proxy.ServerEntities.Users
                 var aster_action = new Challenge(e.Message, challenge);
                 personal_mail.SendMessage(aster_action.ToString());
                 timer.Reset();
-                Console.WriteLine("LOL YOU RESET");
             }
             else if (action == "Login")
             {
@@ -75,7 +73,6 @@ namespace Proxy.ServerEntities.Users
                 Shutdown();
                 timer.StopWait();
             }
-            Console.WriteLine(e.Message);
             return;
         }
 

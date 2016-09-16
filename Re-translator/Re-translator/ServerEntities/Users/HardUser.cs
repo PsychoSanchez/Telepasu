@@ -53,7 +53,7 @@ namespace Proxy.ServerEntities.Users
             {
                 if (cts.Token.IsCancellationRequested)
                 {
-                    Console.WriteLine("User disconnect");
+                    telepasu.log("User disconnect");
                     return;
                 }
                 List<ServerMessage> messages = Server.Mail.GrabMessages(this);

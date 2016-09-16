@@ -18,14 +18,14 @@ namespace Proxy.ServerEntities.Messages
             ActionID = Helper.GetValue(_message, "ActionID: ");
         }
 
-        public string Channeltype { get; }
-        public string ObjectName { get; }
-        public string Context { get; }
-        public string VoiceMailbox { get; }
-        public string Callerid { get; }
-        public string AddressIP { get; }
-        public string AddressPort { get; }
-        public string Status { get; }
+        public string Channeltype { get; private set; }
+        public string ObjectName { get; private set; }
+        public string Context { get; private set; }
+        public string VoiceMailbox { get; private set; }
+        public string Callerid { get; private set; }
+        public string AddressIP { get; private set; }
+        public string AddressPort { get; private set; }
+        public string Status { get; private set; }
         public string ActionID { get; private set; }
 
         public override string ToApi()

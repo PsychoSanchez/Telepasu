@@ -62,7 +62,7 @@ namespace Proxy
                     if (worker.CancellationPending)
                     {
                         e.Cancel = true;
-                        Console.WriteLine("Stopped listening");
+                        telepasu.log("Stopped listening");
                         return;
                     }
                     buffersize = socket.Receive(recvBuffer);

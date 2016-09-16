@@ -13,8 +13,8 @@ namespace Proxy.ServerEntities.Messages
             ActionID = Helper.GetValue(_message, "ActionID: ");
         }
         public string ActionID { get; private set; }
-        public string Challenge { get; }
-        public string Version { get; }
+        public string Challenge { get; private set; }
+        public string Version { get; private set; }
 
         public override string ToApi()
         {

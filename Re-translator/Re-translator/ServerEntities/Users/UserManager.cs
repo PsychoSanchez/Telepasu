@@ -43,7 +43,7 @@ namespace Proxy.ServerEntities
         }
         public void Shutdown()
         {
-            Console.WriteLine("User disconnecting");
+            telepasu.log("User disconnecting");
             cts.Cancel();
             personal_mail.Disconnect();
             personal_mail.MessageRecieved -= ObtainMessage;

@@ -69,8 +69,11 @@ namespace Proxy.ServerEntities.Users
             {
                 foreach (var message in message_list)
                 {
-                    Console.WriteLine(message.ToString());
-                    Server.Mail.PostMessage(message);
+                    ///recieve ping and not send back
+                    if (message.EventName != "Ping")
+                    {
+                        Server.Mail.PostMessage(message);
+                    }
                 }
             }
             else
@@ -85,27 +88,35 @@ namespace Proxy.ServerEntities.Users
 
         protected override void WorkCycle()
         {
+            int iterator = 0;
             while (true)
             {
                 if (cts.Token.IsCancellationRequested)
                 {
-                    Console.WriteLine("Asterisk disconected");
+                    telepasu.log("Asterisk disconected");
                     return;
+                }
+                iterator++;
+                if (iterator == 50)
+                {
+                    iterator = 0;
+                    ///Send ping
+                    var action = new PingAction();
+                    personal_mail.SendMessage(action.ToString());
                 }
                 List<ServerMessage> messages = Server.Mail.GrabMessages(this);
                 foreach (var message in messages)
                 {
-                    Console.WriteLine(message);
-                    Console.WriteLine("#########Asterisk send message to server");
                     personal_mail.SendMessage(message.ToString());
                 }
-                cts.Token.WaitHandle.WaitOne(50);
+                cts.Token.WaitHandle.WaitOne(75);
             }
+            telepasu.log("Asterisk thread stopped");
         }
 
         protected override void Disconnected(object sender, MessageArgs e)
         {
-            Console.WriteLine("disconnected from Asterisk ");
+            telepasu.log("Asterisk thread connection lost");
             cts.Cancel();
         }
     }

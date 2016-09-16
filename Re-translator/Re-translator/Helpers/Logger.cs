@@ -20,6 +20,7 @@ namespace Proxy
         }
         public static void log(string log)
         {
+            Console.WriteLine(log);
             EventSemaphore.WaitOne();
             DateTime date = DateTime.Now;
             try
@@ -29,9 +30,9 @@ namespace Proxy
                     Directory.CreateDirectory(LogFilePath);
                 }
                 file = new StreamWriter(LogFilePath + "tp-logger" + ".log", true);
-                file.WriteLine("");
                 file.WriteLine(date.ToString());
                 file.WriteLine(log);
+                file.WriteLine("");
             }
             catch (Exception)
             {
