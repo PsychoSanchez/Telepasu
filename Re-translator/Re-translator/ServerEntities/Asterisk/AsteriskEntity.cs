@@ -108,6 +108,7 @@ namespace Proxy.ServerEntities.Users
                 foreach (var message in messages)
                 {
                     personal_mail.SendMessage(message.ToString());
+
                 }
                 cts.Token.WaitHandle.WaitOne(75);
             }

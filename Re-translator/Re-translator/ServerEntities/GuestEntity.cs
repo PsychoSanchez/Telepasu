@@ -31,47 +31,64 @@ namespace Proxy.ServerEntities.Users
 
         protected override void ObtainMessage(object sender, MessageArgs e)
         {
-            var action = Helper.GetValue(e.Message, "Action: ");
-            if (action == "Challenge")
+            var actions = parser.ToActionList(e.Message);
+            foreach (var message in actions)
             {
-                challenge = Encryptor.GenerateChallenge();
-                var aster_action = new Challenge(e.Message, challenge);
-                personal_mail.SendMessage(aster_action.ToString());
-                timer.Reset();
-            }
-            else if (action == "Login")
-            {
-                var username = Helper.GetValue(e.Message, "UserName: ");
-                var pwd = Helper.GetValue(e.Message, "Key: ");
-                var actionID = Helper.GetValue(e.Message, "ActionID: ");
-                if (challenge != null)
+                if (message.Action == "Challenge")
                 {
-                    authentificated = Server.Mail.DB.Authentificate(username, pwd, challenge);
+                    challenge = Encryptor.GenerateChallenge();
+                    var aster_action = new Challenge(e.Message, challenge);
+                    personal_mail.SendMessage(aster_action.ToString());
+                    timer.Reset();
                 }
-                else
+                else if (message.Action == "Login")
                 {
-                    authentificated = Server.Mail.DB.Authentificate(username, pwd);
+                    var username = Helper.GetValue(e.Message, "UserName: ");
+                    if (username == "")
+                    {
+                        username = Helper.GetValue(e.Message, "Username: ");
+                    }
+                    var pwd = Helper.GetValue(e.Message, "Key: ");
+                    var actionID = Helper.GetValue(e.Message, "ActionID: ");
+                    if (challenge != null)
+                    {
+                        authentificated = Server.Mail.DB.Authentificate(username, pwd, challenge);
+                    }
+                    else
+                    {
+                        authentificated = Server.Mail.DB.Authentificate(username, pwd);
+                    }
+                    if (authentificated)
+                    {
+                        user = new HardUser(client, actionID);
+                        personal_mail.StopListen();
+                    }
+                    else
+                    {
+                        Shutdown();
+                    }
+                    timer.StopWait();
                 }
-                if (authentificated)
+                else if (message.Action == "Auth")
                 {
-                    user = new HardUser(client, actionID);
-                    personal_mail.StopListen();
+                    Shutdown();
+                    timer.StopWait();
+                }
+                else if (message.Action == "Ping")
+                {
+                    var pingAction = new PingEvent();
+                    if (message.ActionID != "")
+                    {
+                        pingAction.ActionID = message.ActionID;
+                    }
+                    personal_mail.SendMessage(pingAction.ToString());
+                    return;
                 }
                 else
                 {
                     Shutdown();
+                    timer.StopWait();
                 }
-                timer.StopWait();
-            }
-            else if (action == "Auth")
-            {
-                Shutdown();
-                timer.StopWait();
-            }
-            else
-            {
-                Shutdown();
-                timer.StopWait();
             }
             return;
         }

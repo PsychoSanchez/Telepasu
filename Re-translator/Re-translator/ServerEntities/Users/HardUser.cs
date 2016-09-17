@@ -1,4 +1,5 @@
-﻿using Proxy.Messages.API;
+﻿using Proxy.Helpers;
+using Proxy.Messages.API;
 using Proxy.ServerEntities.Asterisk;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ namespace Proxy.ServerEntities.Users
 
     class HardUser : UserManager
     {
-        MessagesParser parser = new MessagesParser();
         public HardUser(Socket _client, string actionID) : base(_client)
         {
             role = UserRole.HardUser;
@@ -29,12 +29,18 @@ namespace Proxy.ServerEntities.Users
             {
                 if (message.Action == "Ping")
                 {
-                    var pingAction = new PingEvent();
+                    string action = "";
+                    action = "Response: Success" + Helper.LINE_SEPARATOR;
+                    //PingEvent pingAction = new PingEvent();
                     if (message.ActionID != null)
                     {
-                        pingAction.ActionID = message.ActionID;
+                        action += "ActionID: " + message.ActionID + Helper.LINE_SEPARATOR;
                     }
-                    personal_mail.SendMessage(pingAction.ToString());
+                    action += "Ping: Pong" + Helper.LINE_SEPARATOR;
+                    string unixTimestamp = (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds.ToString().Replace(',', '.');
+                    action += "Timestamp: " + unixTimestamp + Helper.LINE_SEPARATOR;
+                    action += Helper.LINE_SEPARATOR;
+                    personal_mail.SendMessage(action);
                 }
                 else if (message.Action == "Logoff")
                 {

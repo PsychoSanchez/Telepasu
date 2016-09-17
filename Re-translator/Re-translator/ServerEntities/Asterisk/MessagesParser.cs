@@ -12,7 +12,7 @@ namespace Proxy.ServerEntities.Asterisk
         {
             List<AsteriskAction> list = new List<AsteriskAction>();
             var message_array = message_line.Split(Helper.END_MESSAGE, StringSplitOptions.RemoveEmptyEntries);
-            foreach(var message in message_array)
+            foreach (var message in message_array)
             {
                 list.Add(new ResendAction(message));
             }
@@ -143,7 +143,7 @@ namespace Proxy.ServerEntities.Asterisk
                     {
                         innerMessage = new PingEvent(message);
                     }
-                    else  if (message.Contains("Message: "))
+                    else if (message.Contains("Message: "))
                     {
                         if (message.Contains("Authentication"))
                         {
@@ -153,6 +153,10 @@ namespace Proxy.ServerEntities.Asterisk
                         {
                             innerMessage = new OriginateEvent(message);
                         }
+                        else
+                        {
+                            innerMessage = new UnknownEvent(message);
+                        }
                     }
                     else if (message.Contains("Channeltype: ") && message.Contains("Context: ") && message.Contains("Address-IP: "))
                     {
@@ -161,6 +165,10 @@ namespace Proxy.ServerEntities.Asterisk
                     else if (message.Contains("Challenge: "))
                     {
                         innerMessage = new ChallengeEvent(message);
+                    }
+                    else
+                    {
+                        innerMessage = new UnknownEvent(message);
                     }
                     break;
                 case "Error":
@@ -176,14 +184,23 @@ namespace Proxy.ServerEntities.Asterisk
                     {
                         innerMessage = new OriginateEvent(message);
                     }
+                    else
+                    {
+                        innerMessage = new UnknownEvent(message);
+                    }
                     break;
                 case "Follows":
                     if (message.Contains("Channel              Location"))
                     {
                         innerMessage = new CoreShowChannelsEvent(message);
                     }
+                    else
+                    {
+                        innerMessage = new UnknownEvent(message);
+                    }
                     break;
                 default:
+                    innerMessage = new UnknownEvent(message);
                     break;
             }
 

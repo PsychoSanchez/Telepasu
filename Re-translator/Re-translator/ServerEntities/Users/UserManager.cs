@@ -1,4 +1,6 @@
-﻿using Proxy.ServerEntities.Users;
+﻿using Proxy.Helpers;
+using Proxy.ServerEntities.Asterisk;
+using Proxy.ServerEntities.Users;
 using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
@@ -15,19 +17,23 @@ namespace Proxy.ServerEntities
         protected bool authentificated = false;
         protected SocketMail personal_mail;
         public int ThreadNumber;
+        protected MessagesParser parser = new MessagesParser();
 
         public UserManager()
         {
         }
         public UserManager(Socket _client)
         {
-            Listen(_client);
+            personal_mail = new SocketMail(_client);
+            personal_mail.MessageRecieved += ObtainMessage;
+            personal_mail.Disconnected += Disconnected;
         }
         protected void Listen(Socket _client)
         {
             personal_mail = new SocketMail(_client);
             personal_mail.MessageRecieved += ObtainMessage;
             personal_mail.Disconnected += Disconnected;
+            personal_mail.SendMessage("Asterisk Call Manager/" + Server.Mail.AsteriskVersion + Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR);
         }
         protected virtual void TimeOut(object sender, EventArgs e)
         {

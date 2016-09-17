@@ -39,7 +39,8 @@ namespace Proxy
         public void init()
         {
             //IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, Int32.Parse(tbPortNumber.Text));
-            endpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5000);
+            //endpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5000);
+            endpoint = new IPEndPoint(IPAddress.Any, 5000);
             listener = new TcpListener(endpoint);
             listener.Start();
             telepasu.log("#Server initialized...");
