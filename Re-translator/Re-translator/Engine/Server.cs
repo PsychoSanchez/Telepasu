@@ -2,6 +2,7 @@
 using Proxy.ServerEntities.SQL;
 using Proxy.ServerEntities.Users;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -84,6 +85,25 @@ namespace Proxy
                 }
                 return false;
             }
+        }
+        public void DisconnectAsterisk()
+        {
+            if (Mail.Asterisk != null)
+            {
+                Mail.Asterisk.Logoff();
+                Mail.DeleteUser(Mail.Asterisk);
+                Mail.Asterisk = null;
+            }
+        }
+        public List<string> ShowConnectedUsers()
+        {
+            List<string> list = new List<string>();
+            var users = Mail.GetUsers();
+            foreach (var user in users)
+            {
+                list.Add(user.UserName);
+            }
+            return list;
         }
         void AsteriskThread(object obj)
         {

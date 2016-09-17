@@ -14,7 +14,7 @@ namespace Proxy.ServerEntities.Users
         public GuestEntity(Socket _client, int timeout) : base()
         {
             this.client = _client;
-            timer = new ConnectionTimer(10000);
+            timer = new ConnectionTimer(timeout);
         }
 
         public UserManager StartAutorization()
@@ -25,7 +25,7 @@ namespace Proxy.ServerEntities.Users
         }
         protected override void Disconnected(object sender, MessageArgs e)
         {
-            telepasu.log("guest disconnected");
+            telepasu.log(UserName + " disconnected");
             return;
         }
 
@@ -60,8 +60,9 @@ namespace Proxy.ServerEntities.Users
                     }
                     if (authentificated)
                     {
-                        user = new HardUser(client, actionID);
+                        UserName = username;
                         personal_mail.StopListen();
+                        user = new HardUser(client, actionID);
                     }
                     else
                     {
@@ -71,6 +72,7 @@ namespace Proxy.ServerEntities.Users
                 }
                 else if (message.Action == "Auth")
                 {
+                    telepasu.log("Auth not implemented yet");
                     Shutdown();
                     timer.StopWait();
                 }

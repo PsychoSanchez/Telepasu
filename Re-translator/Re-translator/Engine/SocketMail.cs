@@ -83,7 +83,7 @@ namespace Proxy
             }
             catch (Exception ex)
             {
-                telepasu.log(ex.Message + ex.StackTrace);
+                telepasu.exc(ex);
             }
             OnConnectionLost(null);
             Disconnect();

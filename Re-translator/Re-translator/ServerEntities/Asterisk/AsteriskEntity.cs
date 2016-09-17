@@ -61,6 +61,11 @@ namespace Proxy.ServerEntities.Users
             return loginResult.IsConnected;
 
         }
+        public void Logoff()
+        {
+            LogoffAction action = new LogoffAction();
+            personal_mail.SendMessage(action.ToString());
+        }
         protected override void ObtainMessage(object sender, MessageArgs e)
         {
             var message_line = e.Message;

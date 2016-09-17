@@ -18,6 +18,34 @@ namespace Proxy
         {
 
         }
+        public static void exc(Exception e)
+        {
+            EventSemaphore.WaitOne();
+            DateTime date = DateTime.Now;
+            try
+            {
+                if (!Directory.Exists(LogFilePath))
+                {
+                    Directory.CreateDirectory(LogFilePath);
+                }
+                file = new StreamWriter(LogFilePath + "tp-logger" + ".log", true);
+                file.WriteLine(date.ToString());
+                file.WriteLine("###Необработанное исключение!");
+                file.WriteLine("Информация об ошибке: " + e.Message);
+                file.WriteLine("Stack trace: " + e.StackTrace);
+                file.WriteLine("Экземпляр класса исключения: " + e.InnerException);
+                file.WriteLine("Помощь: " + e.HelpLink);
+                file.WriteLine();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                file.Close();
+            }
+            EventSemaphore.Set();
+        }
         public static void log(string log)
         {
             Console.WriteLine(log);
