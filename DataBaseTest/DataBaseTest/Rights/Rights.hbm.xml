@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+	namespace="NHibernateBasics" assembly="NHibernateBasics">
+  <class name="Rights" table="Rights">
+    <id name="ID" column="ID">
+      <generator class="identity" />
+    </id>
+    <property name="Type" column="Type" not-null="true" />
+  </class>
+</hibernate-mapping>
