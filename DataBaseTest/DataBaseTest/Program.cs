@@ -1,9 +1,11 @@
 ﻿using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
+using Newtonsoft.Json;
 using NHibernate;
 using NHibernate.Cfg;
 using NHibernate.Tool.hbm2ddl;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -14,10 +16,10 @@ namespace DataBaseTest
     {
         //static Socket mainSocket = new Socket(SocketType.Rdm, ProtocolType.IP);
         public static ISessionFactory sf;
-        private static List<string> messageQuery = new List<string>();
+        private static ConcurrentBag<string> messageQuery = new ConcurrentBag<string>();
         static void Main(string[] args)
         {
-            Configuration cfg = new NHibernate.Cfg.Configuration();
+            Configuration cfg = new Configuration();
             try
             {
                 sf = cfg.Configure().BuildSessionFactory();
@@ -47,6 +49,7 @@ namespace DataBaseTest
             sf = createDBcofig.BuildSessionFactory();
 
             getMessage(5433);
+            handleCommandsQuery();
 
             Console.WriteLine("123");
             //ServerUsers user = new ServerUsers
@@ -95,6 +98,40 @@ namespace DataBaseTest
                 string message = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
                 messageQuery.Add(message);
                 Console.WriteLine(message);
+            }
+        }
+
+        static async void handleCommandsQuery()
+        {
+            await Task.Run(() => handleCommand());
+        }
+
+        static void handleCommand()
+        {
+            string error = "";
+            while (true)
+            {
+                string command;
+                messageQuery.TryTake(out command);
+
+                if (command != null)
+                {
+                    CommandTemplate parsedCommand = JsonConvert.DeserializeObject<CommandTemplate>(command);
+
+                    switch (parsedCommand.CommandTask)
+                    {
+                        case "get_contacts":
+                            {
+                                Console.WriteLine(parsedCommand.CommandData);
+                                break;
+                            }
+                        default:
+                            {
+                                Console.WriteLine(error = "unknown command");
+                                break;
+                            }
+                    }
+                }
             }
         }
     }
