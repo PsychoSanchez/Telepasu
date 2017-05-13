@@ -12,23 +12,24 @@ namespace Proxy.Helpers
         #region API CONSTANTS
         public static string MachineID = Helper.ConvertToTranslit(Environment.MachineName.Replace(" ", "")) + Helper.ConvertToTranslit(Environment.UserName.Replace(" ", ""));
 
-        private static Dictionary<char, string> RusEng;
+        private static Dictionary<char, string> _rusEng;
         private static void InitDictionary()
         {
-            RusEng = new Dictionary<char, string>();
-            var rulowercase = russianAlphabetLowercase.Split(' ');
-            var ruuppercase = russianAlphabetUppercase.Split(' ');
-            var enlowercase = expectedLowercase.Split(' ');
-            var enuppercase = expectedUppercase.Split(' ');
+            _rusEng = new Dictionary<char, string>();
+            var rulowercase = RussianAlphabetLowercase.Split(' ');
+            var ruuppercase = RussianAlphabetUppercase.Split(' ');
+            var enlowercase = ExpectedLowercase.Split(' ');
+            var enuppercase = ExpectedUppercase.Split(' ');
             for (int i = 0; i < rulowercase.Length; i++)
             {
-                RusEng.Add(rulowercase[i][0], enlowercase[i]);
-                RusEng.Add(ruuppercase[i][0], enuppercase[i]);
+                _rusEng.Add(rulowercase[i][0], enlowercase[i]);
+                _rusEng.Add(ruuppercase[i][0], enuppercase[i]);
             }
         }
-        public static string ConvertToTranslit(string rustring)
+
+        private static string ConvertToTranslit(string rustring)
         {
-            if (RusEng == null)
+            if (_rusEng == null)
             {
                 InitDictionary();
             }
@@ -36,9 +37,9 @@ namespace Proxy.Helpers
             var charstring = rustring.ToCharArray();
             for (int i = 0; i < charstring.Length; i++)
             {
-                if (RusEng.ContainsKey(charstring[i]))
+                if (_rusEng != null && _rusEng.ContainsKey(charstring[i]))
                 {
-                    charstring[i] = RusEng[charstring[i]][0];
+                    charstring[i] = _rusEng[charstring[i]][0];
                     enstring = enstring + charstring[i];
                 }
                 else
@@ -48,11 +49,11 @@ namespace Proxy.Helpers
             }
             return enstring;
         }
-        private const string russianAlphabetLowercase = "а б в г д е ё ж з и й к л м н о п р с т у ф х ц ч ш щ ъ ы ь э ю я";
-        private const string russianAlphabetUppercase = "А Б В Г Д Е Ё Ж З И Й К Л М Н О П Р С Т У Ф Х Ц Ч Ш Щ Ъ Ы Ь Э Ю Я";
+        private const string RussianAlphabetLowercase = "а б в г д е ё ж з и й к л м н о п р с т у ф х ц ч ш щ ъ ы ь э ю я";
+        private const string RussianAlphabetUppercase = "А Б В Г Д Е Ё Ж З И Й К Л М Н О П Р С Т У Ф Х Ц Ч Ш Щ Ъ Ы Ь Э Ю Я";
 
-        private const string expectedLowercase = "a b v g d e yo zh z i y k l m n o p r s t u f kh ts ch sh shch \" y ' e yu ya";
-        private const string expectedUppercase = "A B V G D E Yo Zh Z I Y K L M N O P R S T U F Kh Ts Ch Sh Shch \" Y ' E Yu Ya";
+        private const string ExpectedLowercase = "a b v g d e yo zh z i y k l m n o p r s t u f kh ts ch sh shch \" y ' e yu ya";
+        private const string ExpectedUppercase = "A B V G D E Yo Zh Z I Y K L M N O P R S T U F Kh Ts Ch Sh Shch \" Y ' E Yu Ya";
 
         public const string DEFAULT_HOSTNAME = "localhost";
 
@@ -60,6 +61,7 @@ namespace Proxy.Helpers
 
         public const char END_LINE = '\n';
         public const string LINE_SEPARATOR = "\r\n";
+        private const string ASTERISK_MESSAGE_PARAMETER_DELIMETER = ": ";
 
         public static char[] RESPONSE_KEY_VALUE_SEPARATOR = { ':' };
         public static char[] MINUS_SEPARATOR = { '-' };
@@ -91,64 +93,57 @@ namespace Proxy.Helpers
 
         public static string GetAsteriskMessageType(string message)
         {
-            var firstLine = message.Substring(0, message.IndexOf(LINE_SEPARATOR));
+            var firstLine = message.Substring(0, message.IndexOf(LINE_SEPARATOR, StringComparison.Ordinal));
             if (firstLine.Contains("Asterisk Call Manager"))
             {
                 return "Response";
             }
-            else
-            {
-                var index = message.IndexOf(':');
-                if (index < 0)
-                {
-                    return "";
-                }
-                else
-                {
-
-                    return message.Substring(0, index);
-                }
-            }
+            var index = message.IndexOf(':');
+            return index < 0 ? "" : message.Substring(0, index);
         }
         /// <summary>
         /// Поиск параметра в ответе из запроса.(ИСПРАВЛЕНО)
         /// </summary>
-        /// <param name="origin_message">Информация в строковой переменной</param>
-        /// <param name="parameter_name">Указатель на искомые данные</param>
-        public static string GetValue(string origin_message, string parameter_name)
+        /// <param name="originalMessage">Информация в строковой переменной</param>
+        /// <param name="parameterName">Указатель на искомые данные</param>
+        public static string GetValue(string originalMessage, string parameterName)
         {
-            if (origin_message.Contains(parameter_name))
+            if (!parameterName.Contains(ASTERISK_MESSAGE_PARAMETER_DELIMETER))
             {
-                var message = origin_message.Substring(origin_message.IndexOf(parameter_name));
-                message += Helper.LINE_SEPARATOR;
-                int startPos = parameter_name.Length;
-                int length = message.IndexOf(Helper.LINE_SEPARATOR) - startPos;
-                message = message.Substring(startPos, length);
-                if (!string.IsNullOrEmpty(message))
-                    return message;
-                else
-                    return string.Empty;
+                parameterName += ASTERISK_MESSAGE_PARAMETER_DELIMETER;
             }
-            else
+            if (!originalMessage.Contains(parameterName))
+            {
                 return string.Empty;
+            }
+
+            var msgLower = originalMessage.ToLower();
+            var index = msgLower.IndexOf(parameterName.ToLower(), StringComparison.Ordinal);
+            var message = originalMessage.Substring(index);
+            message += LINE_SEPARATOR;
+
+            int startPos = parameterName.Length;
+            int length = message.IndexOf(LINE_SEPARATOR, StringComparison.Ordinal) - startPos;
+            message = message.Substring(startPos, length);
+
+            return !string.IsNullOrEmpty(message) ? message : string.Empty;
         }
+
         /// <summary>
         /// Получает номер приписанный к сип каналу
         /// </summary>
-        /// <param name="channelID">ID канала</param>
+        /// <param name="channelId">ID канала</param>
         /// <returns></returns>
-        public static string GetNumberFromChannel(string channelID)
+        public static string GetNumberFromChannel(string channelId)
         {
-            if (channelID.ToLower().Contains("sip"))
-            {
-                channelID = channelID.Replace("SIP/", "");
-                int length = channelID.IndexOf("-");
-                channelID = channelID.Substring(0, length);
-                return channelID;
-            }
-            else
-                return string.Empty;
+            if (!channelId.ToLower().Contains("sip")) return string.Empty;
+
+            channelId = channelId.Replace("SIP/", "");
+            int length = channelId.IndexOf("-", StringComparison.Ordinal);
+            channelId = channelId.Substring(0, length);
+            return channelId;
         }
+
         #region ToString()
         /// <summary>
         ///     Convert object with all properties to string
