@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Threading;
 
 namespace Proxy
 {
     public class telepasu
     {
-        public static string LogFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\telepasu-log\\";
-        public static AutoResetEvent EventSemaphore = new AutoResetEvent(true);
-        static StreamWriter file = null;
+        private static readonly string LogFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\telepasu-log\\";
+        private static readonly AutoResetEvent EventSemaphore = new AutoResetEvent(true);
+        static StreamWriter _file = null;
 
         public static void warn(string warning)
         {
@@ -28,21 +30,26 @@ namespace Proxy
                 {
                     Directory.CreateDirectory(LogFilePath);
                 }
-                file = new StreamWriter(LogFilePath + "tp-logger" + ".log", true);
-                file.WriteLine(date.ToString());
-                file.WriteLine("###Необработанное исключение!");
-                file.WriteLine("Информация об ошибке: " + e.Message);
-                file.WriteLine("Stack trace: " + e.StackTrace);
-                file.WriteLine("Экземпляр класса исключения: " + e.InnerException);
-                file.WriteLine("Помощь: " + e.HelpLink);
-                file.WriteLine();
+                StringBuilder sb = new StringBuilder();
+                _file = new StreamWriter(LogFilePath + "tp-logger" + ".log", true);
+
+                sb.AppendLine(date.ToString(CultureInfo.InvariantCulture));
+                sb.AppendLine("###Необработанное исключение!");
+                sb.AppendLine("Информация об ошибке: " + e.Message);
+                sb.AppendLine("Stack trace: " + e.StackTrace);
+                sb.AppendLine("Экземпляр класса исключения: " + e.InnerException);
+                sb.AppendLine("Помощь: " + e.HelpLink);
+                sb.AppendLine();
+                _file.WriteLine(sb.ToString());
+                Console.WriteLine(sb.ToString());
             }
             catch (Exception)
             {
+                // ignored
             }
             finally
             {
-                file.Close();
+                _file.Close();
             }
             EventSemaphore.Set();
         }
@@ -57,17 +64,18 @@ namespace Proxy
                 {
                     Directory.CreateDirectory(LogFilePath);
                 }
-                file = new StreamWriter(LogFilePath + "tp-logger" + ".log", true);
-                file.WriteLine(date.ToString());
-                file.WriteLine(log);
-                file.WriteLine("");
+                _file = new StreamWriter(LogFilePath + "tp-logger" + ".log", true);
+                _file.WriteLine(date.ToString(CultureInfo.InvariantCulture));
+                _file.WriteLine(log);
+                _file.WriteLine("");
             }
             catch (Exception)
             {
+                // ignored
             }
             finally
             {
-                file.Close();
+                _file.Close();
             }
             EventSemaphore.Set();
         }
