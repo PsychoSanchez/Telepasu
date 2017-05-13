@@ -6,12 +6,13 @@ using Proxy.Messages.API.Admin;
 
 namespace Proxy.ServerEntities.Users
 {
-    class AdminUser : UserManager
+    internal class AdminUser : UserManager
     {
-        public AdminUser(Socket client) : base(client)
+        public AdminUser(SocketMail mail) : base(mail)
         {
             Role = UserRole.Admin;
-            PersonalMail.SendMessage(JsonConvert.SerializeObject(new AuthResponse(true)));
+            PersonalMail.IsApi = true;
+            PersonalMail.SendApiMessage(JsonConvert.SerializeObject(new AuthResponse(true)));
         }
 
         protected override void Disconnected(object sender, MessageArgs e)

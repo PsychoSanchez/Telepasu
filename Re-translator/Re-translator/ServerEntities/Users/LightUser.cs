@@ -5,7 +5,7 @@ namespace Proxy.ServerEntities.Users
 {
     class LightUser : UserManager
     {
-        public LightUser(Socket _client) : base(_client)
+        public LightUser(SocketMail mail) : base(mail)
         {
         }
 

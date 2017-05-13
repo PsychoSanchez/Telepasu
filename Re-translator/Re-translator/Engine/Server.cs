@@ -88,12 +88,11 @@ namespace Proxy
         }
         public void DisconnectAsterisk()
         {
-            if (Mail.Asterisk != null)
-            {
-                Mail.Asterisk.Logoff();
-                Mail.DeleteUser(Mail.Asterisk);
-                Mail.Asterisk = null;
-            }
+            if (Mail.Asterisk == null) return;
+
+            Mail.Asterisk.Logoff();
+            Mail.DeleteUser(Mail.Asterisk);
+            Mail.Asterisk = null;
         }
         public List<string> ShowConnectedUsers()
         {
@@ -124,14 +123,16 @@ namespace Proxy
         }
         private Socket GetSocket()
         {
-            Socket newsocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Socket newsocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+            {
+                ExclusiveAddressUse = true,
+                SendTimeout = 30000,
+                ReceiveTimeout = 70000,
+                Ttl = 42
+            };
             // Don't allow another socket to bind to this port.
-            newsocket.ExclusiveAddressUse = true;
             // Timeout 3 seconds
-            newsocket.SendTimeout = 30000;
-            newsocket.ReceiveTimeout = 70000;
             // Set the Time To Live (TTL) to 42 router hops.
-            newsocket.Ttl = 42;
             return newsocket;
         }
         public void AcceptClient()
@@ -142,17 +143,17 @@ namespace Proxy
             {
                 return;
             }
-            listener.BeginAcceptTcpClient(new AsyncCallback(ProcessIncomingConnection), listener);
+            listener.BeginAcceptTcpClient(ProcessIncomingConnection, listener);
             tcpClientConnected.WaitOne();
         }
         void ProcessIncomingConnection(IAsyncResult ar)
         {
             TcpListener listener = (TcpListener)ar.AsyncState;
-            UserManager ServerUser = new GuestEntity(listener.EndAcceptSocket(ar), 5000);
+            UserManager serverUser = new GuestEntity(listener.AcceptTcpClient(), listener.EndAcceptSocket(ar), 5000);
             //Проверка наличия айпи в белом листе
             //var oipi = ((IPEndPoint)temp.client.Client.RemoteEndPoint).Address.ToString();
             //if(ipTable.Compare(oipi)){
-            ThreadPool.QueueUserWorkItem(ProcessIncomingData, ServerUser);
+            ThreadPool.QueueUserWorkItem(ProcessIncomingData, serverUser);
             //}
             tcpClientConnected.Set();
         }

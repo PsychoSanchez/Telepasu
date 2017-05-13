@@ -10,7 +10,7 @@ namespace Proxy
     {
         private static readonly string LogFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\telepasu-log\\";
         private static readonly AutoResetEvent EventSemaphore = new AutoResetEvent(true);
-        static StreamWriter _file = null;
+        private static StreamWriter _file = null;
 
         public static void warn(string warning)
         {

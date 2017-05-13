@@ -1,32 +1,31 @@
 ﻿using Proxy.Helpers;
 using Proxy.Messages.API;
 using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 
 namespace Proxy.ServerEntities.Users
 {
     class GuestEntity : UserManager
     {
-        readonly Socket _client;
-        readonly ConnectionTimer _timer;
-        UserManager _user;
-        string _challenge;
-        public GuestEntity(Socket client, int timeout) : base()
+        private readonly ConnectionTimer _timer;
+        private UserManager _user;
+        private string _challenge;
+
+        public GuestEntity(TcpClient tcp, Socket client, int timeout) : base(tcp, client)
         {
-            this._client = client;
             _timer = new ConnectionTimer(timeout);
         }
 
         public UserManager StartAutorization()
         {
-            Listen(_client);
+            Listen();
             _timer.Wait();
             return _user;
         }
         protected override void Disconnected(object sender, MessageArgs e)
         {
             telepasu.log(UserName + " disconnected");
-            return;
         }
 
         protected override void ObtainMessage(object sender, MessageArgs e)
@@ -48,29 +47,40 @@ namespace Proxy.ServerEntities.Users
                         {
                             username = Helper.GetValue(e.Message, "Username: ");
                         }
-                        var pwd = Helper.GetValue(e.Message, "Key: ");
+                        var pwd = Helper.GetValue(e.Message, "Key");
+                        if (pwd == "")
+                        {
+                            pwd = Helper.GetValue(e.Message, "secret");
+                        }
                         var actionId = Helper.GetValue(e.Message, "ActionID: ");
 
-                        Authentificated = _challenge != null ? Server.Mail.DB.Authentificate(username, pwd, _challenge) : Server.Mail.DB.Authentificate(username, pwd);
+                        try
+                        {
+                            Authentificated = _challenge != null ? Server.Mail.DB.Authentificate(username, pwd, _challenge) : Server.Mail.DB.Authentificate(username, pwd);
+                        }
+                        catch (Exception exception)
+                        {
+                            Authentificated = false;
+                            telepasu.exc(exception);
+                            PersonalMail.StopListen();
+                        }
 
                         if (Authentificated)
                         {
+                            PersonalMail.StopListen();
+                            UserName = username;
                             var type = Helper.GetValue(e.Message, "Type: ");
                             switch (type)
                             {
                                 case "Light":
                                     break;
                                 case "Admin":
-                                    UserName = username;
-                                    PersonalMail.StopListen();
-                                    _user = new AdminUser(_client);
+                                    _user = new AdminUser(PersonalMail);
                                     break;
                                 default:
-                                    UserName = username;
-                                    PersonalMail.StopListen();
-                                    _user = new HardUser(_client, actionId);
+                                    _user = new HardUser(PersonalMail, actionId);
                                     break;
-                            } 
+                            }
                         }
                         else
                         {

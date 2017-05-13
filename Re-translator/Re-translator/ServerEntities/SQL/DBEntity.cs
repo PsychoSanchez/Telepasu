@@ -6,7 +6,7 @@ namespace Proxy.ServerEntities.Users
 {
     public class DBEntity : UserManager, IDB
     {
-        public DBEntity(Socket _client) : base(_client)
+        public DBEntity(TcpClient tcp, Socket client) : base(tcp, client)
         {
         }
 

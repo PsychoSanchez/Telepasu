@@ -8,11 +8,11 @@ namespace Proxy.ServerEntities.Asterisk
 {
     public class MessagesParser
     {
-        public List<AsteriskAction> ToActionList(string message_line)
+        public List<AsteriskAction> ToActionList(string messageLine)
         {
             List<AsteriskAction> list = new List<AsteriskAction>();
-            var message_array = message_line.Split(Helper.END_MESSAGE, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var message in message_array)
+            var messageArray = messageLine.Split(Helper.END_MESSAGE, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var message in messageArray)
             {
                 list.Add(new ResendAction(message));
             }
@@ -20,45 +20,45 @@ namespace Proxy.ServerEntities.Asterisk
         }
         public List<AsteriskMessage> ToMessagesList(string response)
         {
-            List<AsteriskMessage> message_list = new List<AsteriskMessage>();
-            var message_array = response.Split(Helper.END_MESSAGE, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var message in message_array)
+            List<AsteriskMessage> messageList = new List<AsteriskMessage>();
+            var messageArray = response.Split(Helper.END_MESSAGE, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var message in messageArray)
             {
                 var temp = message;
                 temp += Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR;
-                string message_type = Helper.GetAsteriskMessageType(temp);
-                if (message_type == "Event")
+                string messageType = Helper.GetAsteriskMessageType(temp);
+                if (messageType == "Event")
                 {
-                    var inner_message = ParseEvent(temp);
-                    if (inner_message != null)
+                    var innerMessage = ParseEvent(temp);
+                    if (innerMessage != null)
                     {
-                        message_list.Add(inner_message);
+                        messageList.Add(innerMessage);
                     }
 
                 }
-                else if (message_type == "Response")
+                else if (messageType == "Response")
                 {
-                    var inner_message = ParseResponse(temp);
-                    if (inner_message != null)
+                    var innerMessage = ParseResponse(temp);
+                    if (innerMessage != null)
                     {
-                        message_list.Add(inner_message);
+                        messageList.Add(innerMessage);
                     }
                 }
             }
-            return message_list;
+            return messageList;
         }
         private AsteriskMessage ParseEvent(string message)
         {
-            string event_type = Helper.GetValue(message, "Event: ");
+            string eventType = Helper.GetValue(message, "Event: ");
             AsteriskMessage innerMessage = null;
 
-            switch (event_type)
+            switch (eventType)
             {
                 //case "Bridge":
                 //    break;
                 case "Dial":
-                    var SubEvent = Helper.GetValue(message, "SubEvent: ");
-                    if (SubEvent.Equals("End"))
+                    var subEvent = Helper.GetValue(message, "SubEvent: ");
+                    if (subEvent.Equals("End"))
                     {
                         innerMessage = new DialEndEvent(message);
                     }
@@ -133,10 +133,10 @@ namespace Proxy.ServerEntities.Asterisk
         }
         private AsteriskMessage ParseResponse(string message)
         {
-            string event_type = Helper.GetValue(message, "Response: ");
+            string eventType = Helper.GetValue(message, "Response: ");
             AsteriskMessage innerMessage = null;
 
-            switch (event_type)
+            switch (eventType)
             {
                 case "Success":
                     if (message.Contains("Ping: Pong"))

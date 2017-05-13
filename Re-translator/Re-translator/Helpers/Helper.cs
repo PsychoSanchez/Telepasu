@@ -104,25 +104,25 @@ namespace Proxy.Helpers
         /// <summary>
         /// Поиск параметра в ответе из запроса.(ИСПРАВЛЕНО)
         /// </summary>
-        /// <param name="originalMessage">Информация в строковой переменной</param>
-        /// <param name="parameterName">Указатель на искомые данные</param>
-        public static string GetValue(string originalMessage, string parameterName)
+        /// <param name="msg">Информация в строковой переменной</param>
+        /// <param name="parameter">Указатель на искомые данные</param>
+        public static string GetValue(string msg, string parameter)
         {
-            if (!parameterName.Contains(ASTERISK_MESSAGE_PARAMETER_DELIMETER))
+            if (!parameter.Contains(ASTERISK_MESSAGE_PARAMETER_DELIMETER))
             {
-                parameterName += ASTERISK_MESSAGE_PARAMETER_DELIMETER;
+                parameter += ASTERISK_MESSAGE_PARAMETER_DELIMETER;
             }
-            if (!originalMessage.Contains(parameterName))
+            var msgLower = msg.ToLower();
+            if (!msg.Contains(parameter) && !msgLower.Contains(parameter.ToLower()))
             {
                 return string.Empty;
             }
 
-            var msgLower = originalMessage.ToLower();
-            var index = msgLower.IndexOf(parameterName.ToLower(), StringComparison.Ordinal);
-            var message = originalMessage.Substring(index);
+            var index = msgLower.IndexOf(parameter.ToLower(), StringComparison.Ordinal);
+            var message = msg.Substring(index);
             message += LINE_SEPARATOR;
 
-            int startPos = parameterName.Length;
+            int startPos = parameter.Length;
             int length = message.IndexOf(LINE_SEPARATOR, StringComparison.Ordinal) - startPos;
             message = message.Substring(startPos, length);
 

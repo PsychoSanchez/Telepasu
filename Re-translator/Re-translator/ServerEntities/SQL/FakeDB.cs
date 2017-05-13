@@ -12,7 +12,7 @@ namespace Proxy.ServerEntities.SQL
         public FakeDB()
         {
         }
-        public FakeDB(Socket client) : base(client)
+        public FakeDB(TcpClient tcp, Socket client) : base(tcp, client)
         {
         }
 
@@ -25,7 +25,7 @@ namespace Proxy.ServerEntities.SQL
             {
                 return false;
             }
-            var pwd = password[(int)FindUserByUsername(username)].ToString();
+            var pwd = _password[(int)FindUserByUsername(username)].ToString();
             return (pwd == password);
         }
         public bool Authentificate(string username, string pass, string md5Challenge)

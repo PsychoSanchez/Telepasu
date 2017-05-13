@@ -11,7 +11,7 @@ namespace Proxy.ServerEntities.Users
 
     class HardUser : UserManager
     {
-        public HardUser(Socket client, string actionId) : base(client)
+        public HardUser(SocketMail mail, string actionId) : base(mail)
         {
             Role = UserRole.HardUser;
             AuthAccepted aciton = new AuthAccepted(actionId);

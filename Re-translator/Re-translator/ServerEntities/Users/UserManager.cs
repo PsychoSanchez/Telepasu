@@ -10,29 +10,41 @@ namespace Proxy.ServerEntities
 {
     public abstract class UserManager
     {
-        protected readonly CancellationTokenSource Cts = new CancellationTokenSource();
         public ConcurrentQueue<string> MessageStack;
-        protected UserRole Role = UserRole.Guest;
         public string UserName = "guest";
-        protected bool Authentificated = false;
-        protected SocketMail PersonalMail;
         public int ThreadNumber;
+
+        protected readonly CancellationTokenSource Cts = new CancellationTokenSource();
+        protected UserRole Role = UserRole.Guest;
+        protected bool Authentificated = false;
+        protected readonly SocketMail PersonalMail;
         protected readonly MessagesParser Parser = new MessagesParser();
 
-        public UserManager()
+        protected UserManager()
         {
+            
         }
-        public UserManager(Socket client)
+        protected UserManager(SocketMail mail)
+        {
+            PersonalMail = mail;
+            PersonalMail.InitReciever();
+        }
+
+        protected UserManager(TcpClient tcp, Socket client)
+        {
+            PersonalMail = new SocketMail(client, tcp);
+            PersonalMail.MessageRecieved += ObtainMessage;
+            PersonalMail.Disconnected += Disconnected;
+        }
+        protected UserManager(Socket client)
         {
             PersonalMail = new SocketMail(client);
             PersonalMail.MessageRecieved += ObtainMessage;
             PersonalMail.Disconnected += Disconnected;
         }
-        protected void Listen(Socket client)
+        protected void Listen()
         {
-            PersonalMail = new SocketMail(client);
-            PersonalMail.MessageRecieved += ObtainMessage;
-            PersonalMail.Disconnected += Disconnected;
+            PersonalMail.InitReciever();
             PersonalMail.SendMessage("Asterisk Call Manager/" + Server.Mail.AsteriskVersion + Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR);
         }
         protected virtual void TimeOut(object sender, EventArgs e)
