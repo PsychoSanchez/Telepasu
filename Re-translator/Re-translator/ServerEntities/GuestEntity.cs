@@ -7,21 +7,21 @@ namespace Proxy.ServerEntities.Users
 {
     class GuestEntity : UserManager
     {
-        Socket client;
-        ConnectionTimer timer;
-        UserManager user;
-        string challenge;
-        public GuestEntity(Socket _client, int timeout) : base()
+        readonly Socket _client;
+        readonly ConnectionTimer _timer;
+        UserManager _user;
+        string _challenge;
+        public GuestEntity(Socket client, int timeout) : base()
         {
-            this.client = _client;
-            timer = new ConnectionTimer(timeout);
+            this._client = client;
+            _timer = new ConnectionTimer(timeout);
         }
 
         public UserManager StartAutorization()
         {
-            Listen(client);
-            timer.Wait();
-            return user;
+            Listen(_client);
+            _timer.Wait();
+            return _user;
         }
         protected override void Disconnected(object sender, MessageArgs e)
         {
@@ -31,65 +31,70 @@ namespace Proxy.ServerEntities.Users
 
         protected override void ObtainMessage(object sender, MessageArgs e)
         {
-            var actions = parser.ToActionList(e.Message);
+            var actions = Parser.ToActionList(e.Message);
             foreach (var message in actions)
             {
-                if (message.Action == "Challenge")
+                switch (message.Action)
                 {
-                    challenge = Encryptor.GenerateChallenge();
-                    var aster_action = new Challenge(e.Message, challenge);
-                    personal_mail.SendMessage(aster_action.ToString());
-                    timer.Reset();
-                }
-                else if (message.Action == "Login")
-                {
-                    var username = Helper.GetValue(e.Message, "UserName: ");
-                    if (username == "")
-                    {
-                        username = Helper.GetValue(e.Message, "Username: ");
-                    }
-                    var pwd = Helper.GetValue(e.Message, "Key: ");
-                    var actionID = Helper.GetValue(e.Message, "ActionID: ");
-                    if (challenge != null)
-                    {
-                        authentificated = Server.Mail.DB.Authentificate(username, pwd, challenge);
-                    }
-                    else
-                    {
-                        authentificated = Server.Mail.DB.Authentificate(username, pwd);
-                    }
-                    if (authentificated)
-                    {
-                        UserName = username;
-                        personal_mail.StopListen();
-                        user = new HardUser(client, actionID);
-                    }
-                    else
-                    {
+                    case "Challenge":
+                        _challenge = Encryptor.GenerateChallenge();
+                        var asterAction = new Challenge(e.Message, _challenge);
+                        PersonalMail.SendMessage(asterAction.ToString());
+                        _timer.Reset();
+                        break;
+                    case "Login":
+                        var username = Helper.GetValue(e.Message, "UserName: ");
+                        if (username != null && username == "")
+                        {
+                            username = Helper.GetValue(e.Message, "Username: ");
+                        }
+                        var pwd = Helper.GetValue(e.Message, "Key: ");
+                        var actionId = Helper.GetValue(e.Message, "ActionID: ");
+
+                        Authentificated = _challenge != null ? Server.Mail.DB.Authentificate(username, pwd, _challenge) : Server.Mail.DB.Authentificate(username, pwd);
+
+                        if (Authentificated)
+                        {
+                            var type = Helper.GetValue(e.Message, "Type: ");
+                            switch (type)
+                            {
+                                case "Light":
+                                    break;
+                                case "Admin":
+                                    UserName = username;
+                                    PersonalMail.StopListen();
+                                    _user = new AdminUser(_client);
+                                    break;
+                                default:
+                                    UserName = username;
+                                    PersonalMail.StopListen();
+                                    _user = new HardUser(_client, actionId);
+                                    break;
+                            } 
+                        }
+                        else
+                        {
+                            Shutdown();
+                        }
+                        _timer.StopWait();
+                        break;
+                    case "Auth":
+                        telepasu.log("Auth not implemented yet");
                         Shutdown();
-                    }
-                    timer.StopWait();
-                }
-                else if (message.Action == "Auth")
-                {
-                    telepasu.log("Auth not implemented yet");
-                    Shutdown();
-                    timer.StopWait();
-                }
-                else if (message.Action == "Ping")
-                {
-                    var pingAction = new PingEvent();
-                    if (message.ActionID != "")
-                    {
-                        pingAction.ActionID = message.ActionID;
-                    }
-                    personal_mail.SendMessage(pingAction.ToString());
-                    return;
-                }
-                else
-                {
-                    Shutdown();
-                    timer.StopWait();
+                        _timer.StopWait();
+                        break;
+                    case "Ping":
+                        var pingAction = new PingEvent();
+                        if (message.ActionID != "")
+                        {
+                            pingAction.ActionID = message.ActionID;
+                        }
+                        PersonalMail.SendMessage(pingAction.ToString());
+                        return;
+                    default:
+                        Shutdown();
+                        _timer.StopWait();
+                        break;
                 }
             }
             return;
@@ -97,7 +102,6 @@ namespace Proxy.ServerEntities.Users
 
         protected override void WorkCycle()
         {
-            return;
         }
     }
 }

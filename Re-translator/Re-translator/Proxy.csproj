@@ -7,8 +7,8 @@
     <ProjectGuid>{39948D5D-E80C-4748-8A92-BFC3129384A1}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Re_translator</RootNamespace>
-    <AssemblyName>Re-translator</AssemblyName>
+    <RootNamespace>Proxy</RootNamespace>
+    <AssemblyName>Proxy</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -51,6 +54,7 @@
     <Compile Include="Engine\IpTables.cs" />
     <Compile Include="Engine\DeMail.cs" />
     <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Messages\API\Admin\AuthResponse.cs" />
     <Compile Include="Messages\API\AuthAccepted.cs" />
     <Compile Include="Messages\API\Event\Challenge.cs" />
     <Compile Include="Messages\API\Event\PingEvent.cs" />
@@ -114,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

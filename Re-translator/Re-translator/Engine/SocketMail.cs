@@ -9,10 +9,10 @@ namespace Proxy
 {
     public class MessageArgs : EventArgs
     {
-        public string Message;
-        public MessageArgs(string _message)
+        public readonly string Message;
+        public MessageArgs(string message)
         {
-            Message = _message;
+            Message = message;
         }
     }
     public class SocketMail
@@ -21,63 +21,60 @@ namespace Proxy
         public event EventHandler<MessageArgs> Disconnected;
         public event EventHandler TimeOut;
         //ConnectionTimer Timer = null;
-        BackgroundWorker reciever;
-        Socket socket;
-        public SocketMail(Socket _socket)
+        private BackgroundWorker _reciever;
+        private readonly Socket _socket;
+        public SocketMail(Socket socket)
         {
-            socket = _socket;
-            initReciever();
+            _socket = socket;
+            InitReciever();
         }
-        public SocketMail(Socket _socket, int timeout)
+        public SocketMail(Socket socket, int timeout)
         {
-            socket = _socket;
-            initReciever();
+            _socket = socket;
+            InitReciever();
             //Timer = new ConnectionTimer(timeout);
             //Timer.TimeOut += OnTimeOut;
             //Timer.Start();
         }
 
-        private void initReciever()
+        private void InitReciever()
         {
-            reciever = new BackgroundWorker();
-            reciever.DoWork += Listen;
-            reciever.WorkerSupportsCancellation = true;
-            reciever.RunWorkerAsync();
+            _reciever = new BackgroundWorker();
+            _reciever.DoWork += Listen;
+            _reciever.WorkerSupportsCancellation = true;
+            _reciever.RunWorkerAsync();
         }
         private bool SocketConnected()
         {
-            return !((socket.Poll(1000, SelectMode.SelectRead) && (socket.Available == 0)) || !socket.Connected);
+            return !(_socket.Poll(1000, SelectMode.SelectRead) && _socket.Available == 0 || !_socket.Connected);
         }
         private void Listen(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
             byte[] recvBuffer = new byte[100000];
-            string Response = string.Empty;
-            int buffersize;
+            string response = string.Empty;
             try
             {
                 do
                 {
                     Thread.Sleep(50);
-                    if (worker.CancellationPending)
+                    if (worker != null && worker.CancellationPending)
                     {
                         e.Cancel = true;
                         telepasu.log("Stopped listening");
                         return;
                     }
-                    buffersize = socket.Receive(recvBuffer);
+                    var buffersize = _socket.Receive(recvBuffer);
 
-                    Response += Encoding.ASCII.GetString(recvBuffer, 0, buffersize);
-                    if (Response.EndsWith(Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR))
+                    response += Encoding.ASCII.GetString(recvBuffer, 0, buffersize);
+                    if (!response.EndsWith(Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR)) continue;
+                    if (worker != null && worker.CancellationPending)
                     {
-                        if (worker.CancellationPending)
-                        {
-                            e.Cancel = true;
-                            return;
-                        }
-                        OnMessageRecieved(new MessageArgs(Response));
-                        Response = string.Empty;
+                        e.Cancel = true;
+                        return;
                     }
+                    OnMessageRecieved(new MessageArgs(response));
+                    response = string.Empty;
                 }
                 while (SocketConnected());
             }
@@ -90,8 +87,8 @@ namespace Proxy
         }
         public void StopListen()
         {
-            reciever.CancelAsync();
-            reciever.Dispose();
+            _reciever.CancelAsync();
+            _reciever.Dispose();
         }
         private void OnTimeOut(object sender, EventArgs e)
         {
@@ -113,11 +110,11 @@ namespace Proxy
         public void SendMessage(string message)
         {
             byte[] sendBuffer = Encoding.ASCII.GetBytes(message);
-            if (socket.Connected)
+            if (_socket.Connected)
             {
                 try
                 {
-                    socket.Send(sendBuffer);
+                    _socket.Send(sendBuffer);
                 }
                 catch (SocketException e)
                 {
@@ -154,13 +151,14 @@ namespace Proxy
                 return;
             }
         }
+
         public void Disconnect()
         {
-            reciever.CancelAsync();
-            reciever.Dispose();
+            _reciever.CancelAsync();
+            _reciever.Dispose();
             try
             {
-                socket.Shutdown(SocketShutdown.Both);
+                _socket.Shutdown(SocketShutdown.Both);
             }
             catch (Exception e)
             {
@@ -168,10 +166,7 @@ namespace Proxy
             }
             finally
             {
-                if (socket != null)
-                {
-                    socket.Close();
-                }
+                _socket?.Close();
             }
         }
     }

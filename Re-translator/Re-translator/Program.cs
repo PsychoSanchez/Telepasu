@@ -13,6 +13,7 @@ namespace server
             while (!exit)
             {
                 string value = Console.ReadLine();
+                if (value == null) continue;
                 switch (value.ToLower())
                 {
                     case "accept":

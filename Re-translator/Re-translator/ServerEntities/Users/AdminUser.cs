@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using Newtonsoft.Json;
+using Proxy.Messages.API.Admin;
 
 namespace Proxy.ServerEntities.Users
 {
     class AdminUser : UserManager
     {
-        public AdminUser(Socket _client) : base(_client)
+        public AdminUser(Socket client) : base(client)
         {
-            role = UserRole.Admin;
+            Role = UserRole.Admin;
+            PersonalMail.SendMessage(JsonConvert.SerializeObject(new AuthResponse(true)));
         }
 
         protected override void Disconnected(object sender, MessageArgs e)
         {
-            cts.Cancel();
+            Cts.Cancel();
         }
 
         protected override void ObtainMessage(object sender, MessageArgs e)
@@ -25,7 +28,7 @@ namespace Proxy.ServerEntities.Users
         {
             while (true)
             {
-                if (cts.Token.IsCancellationRequested)
+                if (Cts.Token.IsCancellationRequested)
                 {
                     telepasu.log("User disconnect");
                     return;
@@ -33,9 +36,9 @@ namespace Proxy.ServerEntities.Users
                 List<ServerMessage> messages = Server.Mail.GrabMessages(this);
                 foreach(var message in messages)
                 {
-                    personal_mail.SendMessage(message.ToString());
+                    PersonalMail.SendMessage(message.ToString());
                 }
-                cts.Token.WaitHandle.WaitOne(300);
+                Cts.Token.WaitHandle.WaitOne(300);
             }
         }
     }

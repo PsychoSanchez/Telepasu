@@ -37,7 +37,7 @@ namespace Proxy.ServerEntities.Users
             ///First step - Send Challenge to get prefix for MD5 hash
             AsteriskAction action = new ChallengeAction();
             var message = action.ToString();
-            personal_mail.SendMessage(message);
+            PersonalMail.SendMessage(message);
             if (!response.WaitOne(5000))
             {
                 return false;
@@ -51,7 +51,7 @@ namespace Proxy.ServerEntities.Users
 
             action = new LoginAction(login, "MD5", key, null);
             message = action.ToString();
-            personal_mail.SendMessage(message);
+            PersonalMail.SendMessage(message);
             if (!response.WaitOne(5000))
             {
                 return false;
@@ -64,7 +64,7 @@ namespace Proxy.ServerEntities.Users
         public void Logoff()
         {
             LogoffAction action = new LogoffAction();
-            personal_mail.SendMessage(action.ToString());
+            PersonalMail.SendMessage(action.ToString());
         }
         protected override void ObtainMessage(object sender, MessageArgs e)
         {
@@ -96,7 +96,7 @@ namespace Proxy.ServerEntities.Users
             int iterator = 0;
             while (true)
             {
-                if (cts.Token.IsCancellationRequested)
+                if (Cts.Token.IsCancellationRequested)
                 {
                     telepasu.log("Asterisk disconected");
                     return;
@@ -107,15 +107,15 @@ namespace Proxy.ServerEntities.Users
                     iterator = 0;
                     ///Send ping
                     var action = new PingAction();
-                    personal_mail.SendMessage(action.ToString());
+                    PersonalMail.SendMessage(action.ToString());
                 }
                 List<ServerMessage> messages = Server.Mail.GrabMessages(this);
                 foreach (var message in messages)
                 {
-                    personal_mail.SendMessage(message.ToString());
+                    PersonalMail.SendMessage(message.ToString());
 
                 }
-                cts.Token.WaitHandle.WaitOne(75);
+                Cts.Token.WaitHandle.WaitOne(75);
             }
             telepasu.log("Asterisk thread stopped");
         }
@@ -123,7 +123,7 @@ namespace Proxy.ServerEntities.Users
         protected override void Disconnected(object sender, MessageArgs e)
         {
             telepasu.log("Asterisk thread connection lost");
-            cts.Cancel();
+            Cts.Cancel();
         }
     }
 }

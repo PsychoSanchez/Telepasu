@@ -1,60 +1,57 @@
 ﻿using Proxy.Helpers;
 using System;
+using System.Linq;
 using System.Net.Sockets;
 
 namespace Proxy.ServerEntities.SQL
 {
     class FakeDB : UserManager, IDB
     {
-        private string[] users = { "mark", "oleg", "Oleg", "Olegen'ka", "Olga" };
-        private string[] password = { "1488", "1488", "1488", "1488", "1488" };
+        private readonly string[] _users = { "mark", "oleg", "Oleg", "Olegen'ka", "Olga" };
+        private readonly string[] _password = { "1488", "1488", "1488", "1488", "1488" };
         public FakeDB()
         {
         }
-        public FakeDB(Socket _client) : base(_client)
+        public FakeDB(Socket client) : base(client)
         {
         }
 
+        /*
+         *  Методы для авторизации в базе данных 
+         */
         public bool Authentificate(string username, string password)
         {
             if (!IsUserExist(username))
             {
                 return false;
             }
-            string pwd = password[(int)FindUserByUsername(username)].ToString();
+            var pwd = password[(int)FindUserByUsername(username)].ToString();
             return (pwd == password);
         }
-        public bool Authentificate(string username, string pass, string MD5Challenge)
+        public bool Authentificate(string username, string pass, string md5Challenge)
         {
             if (!IsUserExist(username))
             {
                 return false;
             }
-            var pwd = password[(int)FindUserByUsername(username)];
-            var encryptedpwd = Encryptor.CalculateMD5Hash(MD5Challenge + pwd);
+            var pwd = _password[(int)FindUserByUsername(username)];
+            var encryptedpwd = Encryptor.CalculateMD5Hash(md5Challenge + pwd);
             return (encryptedpwd == pass);        
         }
-        public object FindUserById(int _id)
+        public object FindUserById(int id)
         {
             throw new NotImplementedException();
         }
 
         public object FindUserByUsername(string username)
         {
-            ///Decrypt
-            return Array.IndexOf(users, username);
+            // Decrypt
+            return Array.IndexOf(_users, username);
         }
 
         public bool IsUserExist(string username)
         {
-            foreach (var user in users)
-            {
-                if (user == username)
-                {
-                    return true;
-                }
-            }
-            return false;
+            return _users.Any(user => user == username);
         }
 
         public bool ConnectDB(string dbname, string login, string pwd, string ip, string port)

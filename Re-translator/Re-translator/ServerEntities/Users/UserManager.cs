@@ -10,30 +10,30 @@ namespace Proxy.ServerEntities
 {
     public abstract class UserManager
     {
-        protected CancellationTokenSource cts = new CancellationTokenSource();
+        protected readonly CancellationTokenSource Cts = new CancellationTokenSource();
         public ConcurrentQueue<string> MessageStack;
-        protected UserRole role = UserRole.Guest;
+        protected UserRole Role = UserRole.Guest;
         public string UserName = "guest";
-        protected bool authentificated = false;
-        protected SocketMail personal_mail;
+        protected bool Authentificated = false;
+        protected SocketMail PersonalMail;
         public int ThreadNumber;
-        protected MessagesParser parser = new MessagesParser();
+        protected readonly MessagesParser Parser = new MessagesParser();
 
         public UserManager()
         {
         }
-        public UserManager(Socket _client)
+        public UserManager(Socket client)
         {
-            personal_mail = new SocketMail(_client);
-            personal_mail.MessageRecieved += ObtainMessage;
-            personal_mail.Disconnected += Disconnected;
+            PersonalMail = new SocketMail(client);
+            PersonalMail.MessageRecieved += ObtainMessage;
+            PersonalMail.Disconnected += Disconnected;
         }
-        protected void Listen(Socket _client)
+        protected void Listen(Socket client)
         {
-            personal_mail = new SocketMail(_client);
-            personal_mail.MessageRecieved += ObtainMessage;
-            personal_mail.Disconnected += Disconnected;
-            personal_mail.SendMessage("Asterisk Call Manager/" + Server.Mail.AsteriskVersion + Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR);
+            PersonalMail = new SocketMail(client);
+            PersonalMail.MessageRecieved += ObtainMessage;
+            PersonalMail.Disconnected += Disconnected;
+            PersonalMail.SendMessage("Asterisk Call Manager/" + Server.Mail.AsteriskVersion + Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR);
         }
         protected virtual void TimeOut(object sender, EventArgs e)
         {
@@ -50,11 +50,11 @@ namespace Proxy.ServerEntities
         public void Shutdown()
         {
             telepasu.log("Shutdown called at " + UserName);
-            cts.Cancel();
-            personal_mail.Disconnect();
-            personal_mail.MessageRecieved -= ObtainMessage;
-            personal_mail.Disconnected -= Disconnected;
-            personal_mail.TimeOut -= TimeOut;
+            Cts.Cancel();
+            PersonalMail.Disconnect();
+            PersonalMail.MessageRecieved -= ObtainMessage;
+            PersonalMail.Disconnected -= Disconnected;
+            PersonalMail.TimeOut -= TimeOut;
         }
     }
 }

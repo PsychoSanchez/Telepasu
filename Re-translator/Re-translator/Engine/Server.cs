@@ -115,7 +115,7 @@ namespace Proxy
             IDB db = new FakeDB();
             if (db.ConnectDB("123", "123", "123", "123"))
             {
-                Mail.AddDB(db);
+                Mail.AddDb(db);
                 telepasu.log("#Database connected...");
                 return true;
             }

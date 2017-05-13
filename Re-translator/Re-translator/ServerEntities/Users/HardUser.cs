@@ -3,6 +3,7 @@ using Proxy.Messages.API;
 using Proxy.ServerEntities.Asterisk;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Sockets;
 
 namespace Proxy.ServerEntities.Users
@@ -10,45 +11,45 @@ namespace Proxy.ServerEntities.Users
 
     class HardUser : UserManager
     {
-        public HardUser(Socket _client, string actionID) : base(_client)
+        public HardUser(Socket client, string actionId) : base(client)
         {
-            role = UserRole.HardUser;
-            AuthAccepted aciton = new AuthAccepted(actionID);
-            personal_mail.SendMessage(aciton.ToString());
+            Role = UserRole.HardUser;
+            AuthAccepted aciton = new AuthAccepted(actionId);
+            PersonalMail.SendMessage(aciton.ToString());
         }
 
         protected override void Disconnected(object sender, MessageArgs e)
         {
-            cts.Cancel();
+            Cts.Cancel();
         }
 
         protected override void ObtainMessage(object sender, MessageArgs e)
         {
-            var actions = parser.ToActionList(e.Message);
+            var actions = Parser.ToActionList(e.Message);
             foreach (var message in actions)
             {
-                if (message.Action == "Ping")
+                switch (message.Action)
                 {
-                    string action = "";
-                    action = "Response: Success" + Helper.LINE_SEPARATOR;
-                    //PingEvent pingAction = new PingEvent();
-                    if (message.ActionID != null)
-                    {
-                        action += "ActionID: " + message.ActionID + Helper.LINE_SEPARATOR;
-                    }
-                    action += "Ping: Pong" + Helper.LINE_SEPARATOR;
-                    string unixTimestamp = (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds.ToString().Replace(',', '.');
-                    action += "Timestamp: " + unixTimestamp + Helper.LINE_SEPARATOR;
-                    action += Helper.LINE_SEPARATOR;
-                    personal_mail.SendMessage(action);
-                }
-                else if (message.Action == "Logoff")
-                {
-                    Shutdown();
-                }
-                else
-                {
-                    Server.Mail.PostMessage(message);
+                    case "Ping":
+                        var action = "";
+                        action = "Response: Success" + Helper.LINE_SEPARATOR;
+                        //PingEvent pingAction = new PingEvent();
+                        if (message.ActionID != null)
+                        {
+                            action += "ActionID: " + message.ActionID + Helper.LINE_SEPARATOR;
+                        }
+                        action += "Ping: Pong" + Helper.LINE_SEPARATOR;
+                        var unixTimestamp = (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds.ToString(CultureInfo.InvariantCulture).Replace(',', '.');
+                        action += "Timestamp: " + unixTimestamp + Helper.LINE_SEPARATOR;
+                        action += Helper.LINE_SEPARATOR;
+                        PersonalMail.SendMessage(action);
+                        break;
+                    case "Logoff":
+                        Shutdown();
+                        break;
+                    default:
+                        Server.Mail.PostMessage(message);
+                        break;
                 }
             }
         }
@@ -57,7 +58,7 @@ namespace Proxy.ServerEntities.Users
         {
             while (true)
             {
-                if (cts.Token.IsCancellationRequested)
+                if (Cts.Token.IsCancellationRequested)
                 {
                     telepasu.log("User disconnect");
                     return;
@@ -65,9 +66,9 @@ namespace Proxy.ServerEntities.Users
                 List<ServerMessage> messages = Server.Mail.GrabMessages(this);
                 foreach (var message in messages)
                 {
-                    personal_mail.SendMessage(message.ToString());
+                    PersonalMail.SendMessage(message.ToString());
                 }
-                cts.Token.WaitHandle.WaitOne(300);
+                Cts.Token.WaitHandle.WaitOne(300);
             }
         }
     }
