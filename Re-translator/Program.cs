@@ -24,7 +24,7 @@ namespace server
                         serv.DisconnectAll();
                         break;
                     case "init":
-                        serv.init();
+                        serv.Init();
                         break;
                     case "start":
                     case "start server":

@@ -6,31 +6,31 @@ namespace Proxy.Helpers
 {
     class ConnectionTimer
     {
-        AutoResetEvent timer = new AutoResetEvent(true);
-        int timeout;
+        readonly AutoResetEvent _timer = new AutoResetEvent(true);
+        readonly int _timeout;
         public event EventHandler TimeOut;
-        private bool stopwaiting = false;
-        BackgroundWorker worker;
+        private bool _stopwaiting = false;
+        BackgroundWorker _worker;
         public ConnectionTimer(int timeout)
         {
-            this.timeout = timeout;
+            this._timeout = timeout;
         }
         public void Start()
         {
-            init();
-            worker.RunWorkerAsync();
+            Init();
+            _worker.RunWorkerAsync();
         }
         public bool Wait()
         {
             while (true)
             {
-                if (!timer.WaitOne(timeout))
+                if (!_timer.WaitOne(_timeout))
                 {
                     return false;
                 }
                 else
                 {
-                    if (stopwaiting)
+                    if (_stopwaiting)
                     {
                         return true;
                     }
@@ -39,30 +39,29 @@ namespace Proxy.Helpers
         }
         public void StopWait()
         {
-            stopwaiting = true;
+            _stopwaiting = true;
             Reset();
         }
         public void Reset()
         {
-            timer.Set();
+            _timer.Set();
         }
         public void Stop()
         {
-            worker.CancelAsync();
+            _worker.CancelAsync();
         }
-        private void init()
+        private void Init()
         {
-            worker = new BackgroundWorker();
-            worker.WorkerSupportsCancellation = true;
-            worker.DoWork += TimerWork;
+            _worker = new BackgroundWorker {WorkerSupportsCancellation = true};
+            _worker.DoWork += TimerWork;
         }
 
         private void TimerWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker worker = sender as BackgroundWorker;
-            while (!worker.CancellationPending)
+            while (worker != null && !worker.CancellationPending)
             {
-                if (!timer.WaitOne(timeout))
+                if (!_timer.WaitOne(_timeout))
                 {
                     if (worker.CancellationPending)
                     {

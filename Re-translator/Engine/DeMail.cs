@@ -70,7 +70,7 @@ namespace Proxy
                     }
                     break;
                 case MessageType.AsteriskMessage:
-                    foreach (var user in _usersList)
+                    foreach (UserManager user in _usersList)
                     {
                         _mailbox[user].Enqueue(message);
                     }
@@ -93,7 +93,7 @@ namespace Proxy
         {
             if (!_mailbox.ContainsKey(entity))
             {
-                // ДОПИЛИТЬ ЭКЗЕБЖОН
+                // TODO: ДОПИЛИТЬ ЭКЗЕБЖОН
                 return null;
             }
             List<ServerMessage> temp = new List<ServerMessage>();

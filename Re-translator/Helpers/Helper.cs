@@ -130,6 +130,28 @@ namespace Proxy.Helpers
         }
 
         /// <summary>
+        /// Поиск параметра в ответе из запроса.(ИСПРАВЛЕНО)
+        /// </summary>
+        /// <param name="msg">Информация в строковой переменной</param>
+        /// <param name="parameter">Указатель на искомые данные</param>
+        public static string GetJsonValue(string msg, string parameter)
+        {
+            var msgLower = msg.ToLower();
+            if (!msg.Contains(parameter) && !msgLower.Contains(parameter.ToLower()))
+            {
+                return string.Empty;
+            }
+
+            var index = msgLower.IndexOf(parameter.ToLower(), StringComparison.Ordinal);
+            var message = msg.Substring(index);
+
+            int startPos = (parameter + "\":\"").Length;
+            int length = message.IndexOf("\",", StringComparison.Ordinal) - startPos;
+            message = message.Substring(startPos, length);
+
+            return !string.IsNullOrEmpty(message) ? message : string.Empty;
+        }
+        /// <summary>
         /// Получает номер приписанный к сип каналу
         /// </summary>
         /// <param name="channelId">ID канала</param>

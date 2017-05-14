@@ -47,6 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Engine\Methods.cs" />
+    <Compile Include="Engine\ModuleConnector.cs" />
     <Compile Include="Helpers\ConcurrentList.cs" />
     <Compile Include="Helpers\ConnectionTimer.cs" />
     <Compile Include="Helpers\Encryptor.cs" />
@@ -54,6 +56,7 @@
     <Compile Include="Engine\IpTables.cs" />
     <Compile Include="Engine\DeMail.cs" />
     <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Messages\API\Admin\AddModule.cs" />
     <Compile Include="Messages\API\Admin\AuthResponse.cs" />
     <Compile Include="Messages\API\AuthAccepted.cs" />
     <Compile Include="Messages\API\Event\Challenge.cs" />

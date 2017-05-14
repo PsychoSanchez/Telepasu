@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using Newtonsoft.Json;
+using Proxy.Helpers;
 using Proxy.Messages.API.Admin;
 
 namespace Proxy.ServerEntities.Users
@@ -22,7 +23,18 @@ namespace Proxy.ServerEntities.Users
 
         protected override void ObtainMessage(object sender, MessageArgs e)
         {
-            telepasu.log("Message recieved");
+            telepasu.log(e.Message);
+            var action = Helper.GetJsonValue(e.Message, "action");
+            telepasu.log(action);
+            switch (action)
+            {
+                case "Add Module":
+                    var commmand = JsonConvert.DeserializeObject<AddModule>(e.Message);
+                    Console.WriteLine(commmand);
+                    break;
+                default:
+                    break;
+            }
         }
 
         protected override void WorkCycle()
@@ -35,7 +47,7 @@ namespace Proxy.ServerEntities.Users
                     return;
                 }
                 List<ServerMessage> messages = Server.Mail.GrabMessages(this);
-                foreach(var message in messages)
+                foreach (var message in messages)
                 {
                     PersonalMail.SendMessage(message.ToString());
                 }

@@ -27,6 +27,8 @@ namespace Proxy.ServerEntities
         protected UserManager(SocketMail mail)
         {
             PersonalMail = mail;
+            PersonalMail.MessageRecieved += ObtainMessage;
+            PersonalMail.Disconnected += Disconnected;
             PersonalMail.InitReciever();
         }
 
@@ -59,10 +61,20 @@ namespace Proxy.ServerEntities
         {
             WorkCycle();
         }
+
+        public void StopListen()
+        {
+            telepasu.log("Shutdown called at " + UserName);
+            PersonalMail.StopListen();
+            PersonalMail.MessageRecieved -= ObtainMessage;
+            PersonalMail.Disconnected -= Disconnected;
+            PersonalMail.TimeOut -= TimeOut;
+        }
         public void Shutdown()
         {
             telepasu.log("Shutdown called at " + UserName);
             Cts.Cancel();
+            PersonalMail.SendMessage("Disconnected");
             PersonalMail.Disconnect();
             PersonalMail.MessageRecieved -= ObtainMessage;
             PersonalMail.Disconnected -= Disconnected;

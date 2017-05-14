@@ -6,22 +6,53 @@ using System.Net.Sockets;
 
 namespace Proxy.ServerEntities.Users
 {
+    class AuthEventArgs : EventArgs
+    {
+        public bool Authentificated;
+        public string Message;
+        public UserManager Client;
+        public AuthEventArgs(bool authentificated, string message, UserManager client)
+        {
+            Authentificated = authentificated;
+            Message = message;
+            Client = client;
+        }
+        public AuthEventArgs(bool authentificated, string message)
+        {
+            Authentificated = authentificated;
+            Message = message;
+            Client = null;
+        }
+    }
     class GuestEntity : UserManager
     {
-        private readonly ConnectionTimer _timer;
+        //private readonly ConnectionTimer _timer;
         private UserManager _user;
         private string _challenge;
+        // TODO: Create async await functions instead of events
+        public event EventHandler<AuthEventArgs> AuthorizationOver;
 
         public GuestEntity(TcpClient tcp, Socket client, int timeout) : base(tcp, client)
         {
-            _timer = new ConnectionTimer(timeout);
+            //_timer = new ConnectionTimer(timeout);
         }
 
-        public UserManager StartAutorization()
+        public void BeginAutorization()
         {
             Listen();
-            _timer.Wait();
-            return _user;
+            //_timer.Wait();
+            //return _user;
+        }
+
+        private void OnAuthorizationOver (string message, UserManager user)
+        {
+            var e = new AuthEventArgs(true, message, user);
+            AuthorizationOver?.Invoke(this, e);
+        }
+        private void OnAuthorizationOver(string message)
+        {
+            var e = new AuthEventArgs(false, message);
+            AuthorizationOver?.Invoke(this, e);
         }
         protected override void Disconnected(object sender, MessageArgs e)
         {
@@ -31,15 +62,16 @@ namespace Proxy.ServerEntities.Users
         protected override void ObtainMessage(object sender, MessageArgs e)
         {
             var actions = Parser.ToActionList(e.Message);
-            foreach (var message in actions)
+            foreach (AsteriskAction message in actions)
             {
                 switch (message.Action)
                 {
+                    // TODO: Challenge dudos
                     case "Challenge":
                         _challenge = Encryptor.GenerateChallenge();
                         var asterAction = new Challenge(e.Message, _challenge);
                         PersonalMail.SendMessage(asterAction.ToString());
-                        _timer.Reset();
+                        //_timer.Reset();
                         break;
                     case "Login":
                         var username = Helper.GetValue(e.Message, "UserName: ");
@@ -62,12 +94,12 @@ namespace Proxy.ServerEntities.Users
                         {
                             Authentificated = false;
                             telepasu.exc(exception);
-                            PersonalMail.StopListen();
+                            StopListen();
                         }
 
                         if (Authentificated)
                         {
-                            PersonalMail.StopListen();
+                            StopListen();
                             UserName = username;
                             var type = Helper.GetValue(e.Message, "Type: ");
                             switch (type)
@@ -75,23 +107,25 @@ namespace Proxy.ServerEntities.Users
                                 case "Light":
                                     break;
                                 case "Admin":
-                                    _user = new AdminUser(PersonalMail);
+                                    OnAuthorizationOver("Welcome", new AdminUser(PersonalMail));
                                     break;
                                 default:
-                                    _user = new HardUser(PersonalMail, actionId);
+                                    OnAuthorizationOver("Welcome", new HardUser(PersonalMail, actionId));
                                     break;
                             }
                         }
                         else
                         {
-                            Shutdown();
+                            // TODO: Add authentification failed message
+                            OnAuthorizationOver("Authentification failed");
                         }
-                        _timer.StopWait();
+                        //_timer.StopWait();
                         break;
                     case "Auth":
                         telepasu.log("Auth not implemented yet");
                         Shutdown();
-                        _timer.StopWait();
+                        OnAuthorizationOver("Auth not implemented yet");
+                        //_timer.StopWait();
                         break;
                     case "Ping":
                         var pingAction = new PingEvent();
@@ -103,7 +137,8 @@ namespace Proxy.ServerEntities.Users
                         return;
                     default:
                         Shutdown();
-                        _timer.StopWait();
+                        OnAuthorizationOver("Unknown message recieved");
+                        //_timer.StopWait();
                         break;
                 }
             }

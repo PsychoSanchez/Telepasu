@@ -11,39 +11,36 @@ namespace Proxy
 {
     public class Server
     {
-        public static DeMail Mail = new DeMail();
-        IPEndPoint endpoint;
-        TcpListener listener;
-        ManualResetEvent tcpClientConnected = new ManualResetEvent(false);
-        bool StopProxy = false;
+        public static readonly DeMail Mail = new DeMail();
+        private IPEndPoint _endpoint;
+        TcpListener _listener;
+        readonly ManualResetEvent _tcpClientConnected = new ManualResetEvent(false);
+        bool _stopProxy = false;
 
-        public void initInnerThreads()
-        {
-        }
         public void Start()
         {
-            init();
-            while (!StopProxy)
+            Init();
+            while (!_stopProxy)
             {
                 AcceptClient();
             }
         }
         public void Stop()
         {
-            StopProxy = true;
-            listener.Stop();
+            _stopProxy = true;
+            _listener.Stop();
             DisconnectAll();
         }
         /// <summary>
         /// Инициализация подключения к сереверу
         /// </summary>
-        public void init()
+        public void Init()
         {
             //IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, Int32.Parse(tbPortNumber.Text));
             //endpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5000);
-            endpoint = new IPEndPoint(IPAddress.Any, 5000);
-            listener = new TcpListener(endpoint);
-            listener.Start();
+            _endpoint = new IPEndPoint(IPAddress.Any, 5000);
+            _listener = new TcpListener(_endpoint);
+            _listener.Start();
             telepasu.log("#Server initialized...");
         }
 
@@ -70,20 +67,16 @@ namespace Proxy
                     ThreadPool.QueueUserWorkItem(AsteriskThread, Mail.Asterisk);
                     return true;
                 }
-                else
-                {
-                    telepasu.log("#Failed to connect asterisk...");
-                }
+
+                telepasu.log("#Failed to connect asterisk...");
                 return false;
             }
             catch (SocketException e)
             {
-                if (e.SocketErrorCode == SocketError.TimedOut)
-                {
-                    telepasu.log("Сервер недоступен");
-                    throw new Exception("Сервер недоступен");
-                }
-                return false;
+                if (e.SocketErrorCode != SocketError.TimedOut) return false;
+
+                telepasu.log("Сервер недоступен");
+                throw new Exception("Сервер недоступен");
             }
         }
         public void DisconnectAsterisk()
@@ -138,13 +131,13 @@ namespace Proxy
         public void AcceptClient()
         {
             telepasu.log("#Waiting for client...");
-            tcpClientConnected.Reset();
-            if (StopProxy)
+            _tcpClientConnected.Reset();
+            if (_stopProxy)
             {
                 return;
             }
-            listener.BeginAcceptTcpClient(ProcessIncomingConnection, listener);
-            tcpClientConnected.WaitOne();
+            _listener.BeginAcceptTcpClient(ProcessIncomingConnection, _listener);
+            _tcpClientConnected.WaitOne();
         }
         void ProcessIncomingConnection(IAsyncResult ar)
         {
@@ -154,23 +147,34 @@ namespace Proxy
             //var oipi = ((IPEndPoint)temp.client.Client.RemoteEndPoint).Address.ToString();
             //if(ipTable.Compare(oipi)){
             ThreadPool.QueueUserWorkItem(ProcessIncomingData, serverUser);
+            // TODO: Get threads count
+            //ThreadPool.GetMaxThreads() ThreadPool.GetAvailableThreads()
+            //telepasu.log();
             //}
-            tcpClientConnected.Set();
+            _tcpClientConnected.Set();
         }
         void ProcessIncomingData(object obj)
         {
-            GuestEntity temp = (GuestEntity)obj;
-            UserManager newEntity = temp.StartAutorization();
-            if (newEntity == null)
-            {
-                telepasu.log("Client kicked...");
-                return;
-            }
-            telepasu.log("Client accepted...");
-            Mail.AddUser(newEntity);
-            newEntity.StartWork();
+            GuestEntity guest = (GuestEntity)obj;
+            guest.AuthorizationOver += Guest_AuthorizationOver;
+            guest.BeginAutorization();
             telepasu.log("Client thread stoped...");
         }
+
+        private void Guest_AuthorizationOver(object sender, AuthEventArgs e)
+        {
+            Console.WriteLine(sender as GuestEntity);
+            if (!e.Authentificated)
+            {
+                telepasu.log("Authentification failed...\r\nClient kicked.");
+                return;
+            }
+
+            telepasu.log("Client accepted...");
+            Mail.AddUser(e.Client);
+            e.Client.StartWork();
+        }
+
         public void DisconnectAll()
         {
             foreach (var user in Mail.GetUsers())
