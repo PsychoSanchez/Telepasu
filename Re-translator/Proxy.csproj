@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{39948D5D-E80C-4748-8A92-BFC3129384A1}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Proxy</RootNamespace>
+    <AssemblyName>Proxy</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Helpers\ConcurrentList.cs" />
+    <Compile Include="Helpers\ConnectionTimer.cs" />
+    <Compile Include="Helpers\Encryptor.cs" />
+    <Compile Include="Helpers\Helper.cs" />
+    <Compile Include="Engine\IpTables.cs" />
+    <Compile Include="Engine\DeMail.cs" />
+    <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Messages\API\Admin\AuthResponse.cs" />
+    <Compile Include="Messages\API\AuthAccepted.cs" />
+    <Compile Include="Messages\API\Event\Challenge.cs" />
+    <Compile Include="Messages\API\Event\PingEvent.cs" />
+    <Compile Include="Messages\Asterisk\Action\ResendAction.cs" />
+    <Compile Include="ServerEntities\Asterisk\MessagesParser.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Engine\Server.cs" />
+    <Compile Include="Messages\Asterisk\AsteriskMessage.cs" />
+    <Compile Include="Messages\Asterisk\Action\AbsoluteTimeoutAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\ChallengeAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\CommandAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\GetVarAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\HangupAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\ListCommandsAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\LoginAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\LogoffAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\OriginateAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\ParkAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\ParkedCallsAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\PingAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\RedirectAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\ReloadAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\SippeersAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\SIPShowPeerAction.cs" />
+    <Compile Include="Messages\Asterisk\Action\StatusAction.cs" />
+    <Compile Include="Messages\Asterisk\AsteriskAction.cs" />
+    <Compile Include="Messages\Asterisk\Event\ChallengeEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\CoreShowChannelsEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\DialBeginEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\DialEndEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\HangupEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\HoldEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\LoginEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\NewChannelEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\NewstateEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\OriginateEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\OriginateResponseEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\ParkedCallEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\ParkedCallsCompleteEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\PeerEntryEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\PeerlistCompleteEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\PingEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\RTCPSentEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\SIPShowPeerEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\StatusEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\UnholdEvent.cs" />
+    <Compile Include="Messages\Asterisk\Event\UnknownEvent.cs" />
+    <Compile Include="Messages\ServerMessage.cs" />
+    <Compile Include="ServerEntities\Asterisk\AsteriskEntity.cs" />
+    <Compile Include="ServerEntities\SQL\FakeDB.cs" />
+    <Compile Include="ServerEntities\SQL\IDB.cs" />
+    <Compile Include="ServerEntities\Users\AdminUser.cs" />
+    <Compile Include="ServerEntities\Users\UserManager.cs" />
+    <Compile Include="ServerEntities\ServerRoles.cs" />
+    <Compile Include="ServerEntities\SQL\DBEntity.cs" />
+    <Compile Include="ServerEntities\GuestEntity.cs" />
+    <Compile Include="ServerEntities\Users\HardUser.cs" />
+    <Compile Include="ServerEntities\Users\LightUser.cs" />
+    <Compile Include="Engine\SocketMail.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Messages\API\Light\" />
+    <Folder Include="Messages\API\Module\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
