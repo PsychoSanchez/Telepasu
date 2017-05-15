@@ -11,7 +11,7 @@ namespace Proxy
 {
     public class Server
     {
-        public static readonly DeMail Mail = new DeMail();
+        public static readonly MailPost MailPost = new MailPost();
         private IPEndPoint _endpoint;
         TcpListener _listener;
         readonly ManualResetEvent _tcpClientConnected = new ManualResetEvent(false);
@@ -63,8 +63,8 @@ namespace Proxy
                 if (asterisk.Login(username, password))
                 {
                     telepasu.log("#Asterisk connected...");
-                    Mail.AddAsterisk(asterisk);
-                    ThreadPool.QueueUserWorkItem(AsteriskThread, Mail.Asterisk);
+                    MailPost.AddNativeModule("AsteriskServer1",asterisk);
+                    ThreadPool.QueueUserWorkItem(AsteriskThread, MailPost.Asterisk);
                     return true;
                 }
 
@@ -81,16 +81,16 @@ namespace Proxy
         }
         public void DisconnectAsterisk()
         {
-            if (Mail.Asterisk == null) return;
+            if (MailPost.Asterisk == null) return;
 
-            Mail.Asterisk.Logoff();
-            Mail.DeleteUser(Mail.Asterisk);
-            Mail.Asterisk = null;
+            MailPost.Asterisk.Logoff();
+            MailPost.DeleteUser(MailPost.Asterisk);
+            MailPost.Asterisk = null;
         }
         public List<string> ShowConnectedUsers()
         {
             List<string> list = new List<string>();
-            var users = Mail.GetUsers();
+            var users = MailPost.GetUsers();
             foreach (var user in users)
             {
                 list.Add(user.UserName);
@@ -107,7 +107,7 @@ namespace Proxy
             IDB db = new FakeDB();
             if (db.ConnectDB("123", "123", "123", "123"))
             {
-                Mail.AddDb(db);
+                MailPost.AddDb(db);
                 telepasu.log("#Database connected...");
                 return true;
             }
@@ -171,17 +171,17 @@ namespace Proxy
             }
 
             telepasu.log("Client accepted...");
-            Mail.AddUser(e.Client);
+            MailPost.Add(e.Client);
             e.Client.StartWork();
         }
 
         public void DisconnectAll()
         {
-            foreach (var user in Mail.GetUsers())
+            foreach (var user in MailPost.GetUsers())
             {
                 user.Shutdown();
             }
-            Mail.Clear();
+            MailPost.Clear();
         }
     }
 }

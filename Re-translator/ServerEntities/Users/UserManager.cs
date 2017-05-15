@@ -12,18 +12,19 @@ namespace Proxy.ServerEntities
     {
         public ConcurrentQueue<string> MessageStack;
         public string UserName = "guest";
+        public string UId = null;
         public int ThreadNumber;
-
         protected readonly CancellationTokenSource Cts = new CancellationTokenSource();
         protected UserRole Role = UserRole.Guest;
         protected bool Authentificated = false;
         protected readonly SocketMail PersonalMail;
         protected readonly MessagesParser Parser = new MessagesParser();
+        private readonly ConcurrentQueue<ServerMessage> _mailbox = new ConcurrentQueue<ServerMessage>();
 
         protected UserManager()
         {
-            
         }
+
         protected UserManager(SocketMail mail)
         {
             PersonalMail = mail;
@@ -47,7 +48,7 @@ namespace Proxy.ServerEntities
         protected void Listen()
         {
             PersonalMail.InitReciever();
-            PersonalMail.SendMessage("Asterisk Call Manager/" + Server.Mail.AsteriskVersion + Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR);
+            PersonalMail.SendMessage("Asterisk Call Manager/" + Server.MailPost.AsteriskVersion + Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR);
         }
         protected virtual void TimeOut(object sender, EventArgs e)
         {
@@ -60,6 +61,11 @@ namespace Proxy.ServerEntities
         public void StartWork()
         {
             WorkCycle();
+        }
+
+        public void SendMesage(ServerMessage message)
+        {
+            _mailbox.Enqueue(message);
         }
 
         public void StopListen()

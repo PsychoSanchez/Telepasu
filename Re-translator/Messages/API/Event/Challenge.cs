@@ -9,7 +9,7 @@ namespace Proxy.Messages.API
         public Challenge(string message, string challenge)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("Asterisk Call Manager/" + Server.Mail.AsteriskVersion + Helper.LINE_SEPARATOR);
+            sb.Append("Asterisk Call Manager/" + Server.MailPost.AsteriskVersion + Helper.LINE_SEPARATOR);
             sb.Append("Response: Success" + Helper.LINE_SEPARATOR);
             var actionID = Helper.GetValue(message, "ActionID: ");
             if (actionID != "")

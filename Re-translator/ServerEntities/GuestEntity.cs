@@ -88,7 +88,7 @@ namespace Proxy.ServerEntities.Users
 
                         try
                         {
-                            Authentificated = _challenge != null ? Server.Mail.DB.Authentificate(username, pwd, _challenge) : Server.Mail.DB.Authentificate(username, pwd);
+                            Authentificated = _challenge != null ? Server.MailPost.DB.Authentificate(username, pwd, _challenge) : Server.MailPost.DB.Authentificate(username, pwd);
                         }
                         catch (Exception exception)
                         {

@@ -9,19 +9,15 @@ namespace Proxy.ServerEntities.Messages
         {
             this._message = _message;
             EventName = Helper.GetValue(_message, "Event: ");
-            if (EventName == "")
+            if (EventName != null && EventName == "")
             {
-                if (_message.Contains("Ping: Pong"))
-                {
-                    EventName = "Ping";
-                }
-                else
-                {
-                    EventName = "Response";
-                }
+                EventName = _message.Contains("Ping: Pong") ? "Ping" : "Response";
             }
+            Tag = "AsteriskNativeMessage";
             type = MessageType.AsteriskMessage;
         }
+
+        public sealed override string Tag { get; set; }
         public virtual string EventName { get; set; }
 
         public abstract override string ToApi();

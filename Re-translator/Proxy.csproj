@@ -48,13 +48,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\Methods.cs" />
+    <Compile Include="Engine\Module.cs" />
     <Compile Include="Engine\ModuleConnector.cs" />
     <Compile Include="Helpers\ConcurrentList.cs" />
     <Compile Include="Helpers\ConnectionTimer.cs" />
     <Compile Include="Helpers\Encryptor.cs" />
     <Compile Include="Helpers\Helper.cs" />
     <Compile Include="Engine\IpTables.cs" />
-    <Compile Include="Engine\DeMail.cs" />
+    <Compile Include="Engine\MailPost.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Messages\API\Admin\AddModule.cs" />
     <Compile Include="Messages\API\Admin\AuthResponse.cs" />

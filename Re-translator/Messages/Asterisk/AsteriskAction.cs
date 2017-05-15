@@ -4,21 +4,24 @@ namespace Proxy.ServerEntities
 {
     public abstract class AsteriskAction : ServerMessage
     {
-        protected string actionID;
-        public virtual string ActionID
+        private string _actionId;
+        public sealed override string Tag { get; set; }
+
+        public virtual string ActionId
         {
             get
             {
-                return actionID;
+                return _actionId;
             }
 
             set
             {
-                actionID = value;
+                _actionId = value;
             }
         }
         public AsteriskAction()
         {
+            Tag = "AsteriskNativeAction";
             type = MessageType.AsteriskAction;
         }
         public abstract string Action { get; }

@@ -46,7 +46,7 @@ namespace Proxy.ServerEntities.Users
                     telepasu.log("User disconnect");
                     return;
                 }
-                List<ServerMessage> messages = Server.Mail.GrabMessages(this);
+                List<ServerMessage> messages = Server.MailPost.GrabMessages(this);
                 foreach (var message in messages)
                 {
                     PersonalMail.SendMessage(message.ToString());

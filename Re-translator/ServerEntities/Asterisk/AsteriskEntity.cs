@@ -35,7 +35,7 @@ namespace Proxy.ServerEntities.Users
 
             // Second step - Encrypt user pwd and send data to server
             var challengeResult = (ChallengeEvent)_innerMessages[0];
-            Server.Mail.AsteriskVersion = challengeResult.Version;
+            Server.MailPost.AsteriskVersion = challengeResult.Version;
             string key = Encryptor.CalculateMD5Hash(challengeResult.Challenge + password);
 
 
@@ -67,7 +67,7 @@ namespace Proxy.ServerEntities.Users
                     // recieve ping and not send back
                     if (message.EventName != "Ping")
                     {
-                        Server.Mail.PostMessage(message);
+                        Server.MailPost.PostMessage(message);
                     }
                 }
             }
@@ -99,7 +99,7 @@ namespace Proxy.ServerEntities.Users
                     var action = new PingAction();
                     PersonalMail.SendMessage(action.ToString());
                 }
-                List<ServerMessage> messages = Server.Mail.GrabMessages(this);
+                List<ServerMessage> messages = Server.MailPost.GrabMessages(this);
                 foreach (var message in messages)
                 {
                     PersonalMail.SendMessage(message.ToString());

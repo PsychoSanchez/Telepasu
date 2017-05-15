@@ -3,6 +3,7 @@
     public abstract class ServerMessage
     {
         public MessageType type = MessageType.InnerMessage;
+        public abstract string Tag { get; set; }
         protected string _message = string.Empty;
         public ServerMessage()
         {
