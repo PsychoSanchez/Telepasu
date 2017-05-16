@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net.Sockets;
 
-namespace Proxy.ServerEntities.Users
+namespace Proxy.ServerEntities.Application
 {
-    class LightUser : UserManager
+    class LightEntity : EntityManager
     {
-        public LightUser(SocketMail mail) : base(mail)
+        public LightEntity(SocketMail mail) : base(mail)
         {
         }
 
@@ -19,7 +19,7 @@ namespace Proxy.ServerEntities.Users
             throw new NotImplementedException();
         }
 
-        protected override void WorkCycle()
+        protected override void WorkAction()
         {
             throw new NotImplementedException();
         }

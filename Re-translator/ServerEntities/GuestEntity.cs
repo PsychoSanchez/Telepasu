@@ -3,15 +3,16 @@ using Proxy.Messages.API;
 using System;
 using System.Diagnostics;
 using System.Net.Sockets;
+using Proxy.Engine;
 
-namespace Proxy.ServerEntities.Users
+namespace Proxy.ServerEntities.Application
 {
     class AuthEventArgs : EventArgs
     {
         public bool Authentificated;
         public string Message;
-        public UserManager Client;
-        public AuthEventArgs(bool authentificated, string message, UserManager client)
+        public EntityManager Client;
+        public AuthEventArgs(bool authentificated, string message, EntityManager client)
         {
             Authentificated = authentificated;
             Message = message;
@@ -24,10 +25,10 @@ namespace Proxy.ServerEntities.Users
             Client = null;
         }
     }
-    class GuestEntity : UserManager
+    class GuestEntity : EntityManager
     {
         //private readonly ConnectionTimer _timer;
-        private UserManager _user;
+        private EntityManager _entity;
         private string _challenge;
         // TODO: Create async await functions instead of events
         public event EventHandler<AuthEventArgs> AuthorizationOver;
@@ -41,12 +42,12 @@ namespace Proxy.ServerEntities.Users
         {
             Listen();
             //_timer.Wait();
-            //return _user;
+            //return _entity;
         }
 
-        private void OnAuthorizationOver (string message, UserManager user)
+        private void OnAuthorizationOver (string message, EntityManager entity)
         {
-            var e = new AuthEventArgs(true, message, user);
+            var e = new AuthEventArgs(true, message, entity);
             AuthorizationOver?.Invoke(this, e);
         }
         private void OnAuthorizationOver(string message)
@@ -88,7 +89,8 @@ namespace Proxy.ServerEntities.Users
 
                         try
                         {
-                            Authentificated = _challenge != null ? Server.MailPost.DB.Authentificate(username, pwd, _challenge) : Server.MailPost.DB.Authentificate(username, pwd);
+                            //Authentificated = _challenge != null ? SocketServer.MailPost.DB.Authentificate(username, pwd, _challenge) : SocketServer.MailPost.DB.Authentificate(username, pwd);
+                            Authentificated = true;
                         }
                         catch (Exception exception)
                         {
@@ -107,10 +109,10 @@ namespace Proxy.ServerEntities.Users
                                 case "Light":
                                     break;
                                 case "Admin":
-                                    OnAuthorizationOver("Welcome", new AdminUser(PersonalMail));
+                                    OnAuthorizationOver("Welcome", new AdminEntity(PersonalMail));
                                     break;
                                 default:
-                                    OnAuthorizationOver("Welcome", new HardUser(PersonalMail, actionId));
+                                    OnAuthorizationOver("Welcome", new HardEntity(PersonalMail, actionId));
                                     break;
                             }
                         }
@@ -129,9 +131,9 @@ namespace Proxy.ServerEntities.Users
                         break;
                     case "Ping":
                         var pingAction = new PingEvent();
-                        if (message.ActionID != "")
+                        if (message.ActionId != "")
                         {
-                            pingAction.ActionID = message.ActionID;
+                            pingAction.ActionID = message.ActionId;
                         }
                         PersonalMail.SendMessage(pingAction.ToString());
                         return;
@@ -145,7 +147,7 @@ namespace Proxy.ServerEntities.Users
             return;
         }
 
-        protected override void WorkCycle()
+        protected override void WorkAction()
         {
         }
     }

@@ -6,7 +6,7 @@ namespace Proxy.ServerEntities.SQL
     {
         bool ConnectDB(string dbname, string login, string pwd, string ip, string port);
         bool ConnectDB(string login, string pwd, string ip, string port);
-        UserManager GetDB();
+        EntityManager GetDB();
         //bool ConnectDB(string dbname, string login, string pwd, string domain);
         bool IsUserExist(string username);
         object FindUserByUsername(string username);

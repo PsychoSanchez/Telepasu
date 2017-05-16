@@ -50,6 +50,7 @@
     <Compile Include="Engine\Methods.cs" />
     <Compile Include="Engine\Module.cs" />
     <Compile Include="Engine\ModuleConnector.cs" />
+    <Compile Include="Engine\ProxyEngine.cs" />
     <Compile Include="Helpers\ConcurrentList.cs" />
     <Compile Include="Helpers\ConnectionTimer.cs" />
     <Compile Include="Helpers\Encryptor.cs" />
@@ -57,8 +58,9 @@
     <Compile Include="Engine\IpTables.cs" />
     <Compile Include="Engine\MailPost.cs" />
     <Compile Include="Helpers\Logger.cs" />
-    <Compile Include="Messages\API\Admin\AddModule.cs" />
+    <Compile Include="Messages\API\Admin\AddModuleCommand.cs" />
     <Compile Include="Messages\API\Admin\AuthResponse.cs" />
+    <Compile Include="Messages\API\Admin\MethodCall.cs" />
     <Compile Include="Messages\API\AuthAccepted.cs" />
     <Compile Include="Messages\API\Event\Challenge.cs" />
     <Compile Include="Messages\API\Event\PingEvent.cs" />
@@ -66,7 +68,7 @@
     <Compile Include="ServerEntities\Asterisk\MessagesParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Engine\Server.cs" />
+    <Compile Include="Engine\SocketServer.cs" />
     <Compile Include="Messages\Asterisk\AsteriskMessage.cs" />
     <Compile Include="Messages\Asterisk\Action\AbsoluteTimeoutAction.cs" />
     <Compile Include="Messages\Asterisk\Action\ChallengeAction.cs" />
@@ -109,15 +111,19 @@
     <Compile Include="Messages\Asterisk\Event\UnknownEvent.cs" />
     <Compile Include="Messages\ServerMessage.cs" />
     <Compile Include="ServerEntities\Asterisk\AsteriskEntity.cs" />
+    <Compile Include="ServerEntities\NativeModule\AsteriskNativeModule.cs" />
+    <Compile Include="ServerEntities\NativeModule\MethodCallerNativeModule.cs" />
+    <Compile Include="ServerEntities\NativeModule\PostgresNativeModule.cs" />
+    <Compile Include="ServerEntities\NativeModule\NativeModule.cs" />
     <Compile Include="ServerEntities\SQL\FakeDB.cs" />
     <Compile Include="ServerEntities\SQL\IDB.cs" />
-    <Compile Include="ServerEntities\Users\AdminUser.cs" />
-    <Compile Include="ServerEntities\Users\UserManager.cs" />
+    <Compile Include="ServerEntities\Application\AdminEntity.cs" />
+    <Compile Include="ServerEntities\EntityManager.cs" />
     <Compile Include="ServerEntities\ServerRoles.cs" />
     <Compile Include="ServerEntities\SQL\DBEntity.cs" />
     <Compile Include="ServerEntities\GuestEntity.cs" />
-    <Compile Include="ServerEntities\Users\HardUser.cs" />
-    <Compile Include="ServerEntities\Users\LightUser.cs" />
+    <Compile Include="ServerEntities\Application\HardEntity.cs" />
+    <Compile Include="ServerEntities\Application\LightEntity.cs" />
     <Compile Include="Engine\SocketMail.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -127,6 +133,7 @@
   <ItemGroup>
     <Folder Include="Messages\API\Light\" />
     <Folder Include="Messages\API\Module\" />
+    <Folder Include="ServerEntities\Module\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

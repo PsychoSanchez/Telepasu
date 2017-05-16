@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
+using Proxy.Engine;
 
-namespace Proxy.ServerEntities.Users
+namespace Proxy.ServerEntities.Application
 {
-    public class AsteriskEntity : UserManager
+    public class AsteriskEntity : EntityManager
     {
         public string Version;
         private readonly MessagesParser _parser = new MessagesParser();
@@ -20,7 +22,7 @@ namespace Proxy.ServerEntities.Users
         }
         public bool Connected { get; set; }
 
-        public bool Login(string login, string password)
+        public async Task<bool> Login(string login, string password)
         {
             _innerMessages.Clear();
 
@@ -35,7 +37,7 @@ namespace Proxy.ServerEntities.Users
 
             // Second step - Encrypt user pwd and send data to server
             var challengeResult = (ChallengeEvent)_innerMessages[0];
-            Server.MailPost.AsteriskVersion = challengeResult.Version;
+            ProxyEngine.MailPost.AsteriskVersion = challengeResult.Version;
             string key = Encryptor.CalculateMD5Hash(challengeResult.Challenge + password);
 
 
@@ -67,7 +69,7 @@ namespace Proxy.ServerEntities.Users
                     // recieve ping and not send back
                     if (message.EventName != "Ping")
                     {
-                        Server.MailPost.PostMessage(message);
+                        ProxyEngine.MailPost.PostMessage(message);
                     }
                 }
             }
@@ -81,7 +83,7 @@ namespace Proxy.ServerEntities.Users
             }
         }
 
-        protected override void WorkCycle()
+        protected override void WorkAction()
         {
             int iterator = 0;
             while (true)
@@ -99,14 +101,19 @@ namespace Proxy.ServerEntities.Users
                     var action = new PingAction();
                     PersonalMail.SendMessage(action.ToString());
                 }
-                List<ServerMessage> messages = Server.MailPost.GrabMessages(this);
-                foreach (var message in messages)
+                List<ServerMessage> messages = GrabMessages();
+                foreach (ServerMessage message in messages)
                 {
                     PersonalMail.SendMessage(message.ToString());
 
                 }
                 Cts.Token.WaitHandle.WaitOne(75);
             }
+        }
+
+        private void SendPing()
+        {
+            
         }
 
         protected override void Disconnected(object sender, MessageArgs e)

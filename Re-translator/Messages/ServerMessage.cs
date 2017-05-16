@@ -1,17 +1,23 @@
-﻿namespace Proxy.ServerEntities
+﻿using System.Text;
+
+namespace Proxy.ServerEntities
 {
     public abstract class ServerMessage
     {
         public MessageType type = MessageType.InnerMessage;
-        public abstract string Tag { get; set; }
-        protected string _message = string.Empty;
+        public string Tag;
+        protected StringBuilder _message = new StringBuilder("");
         public ServerMessage()
         {
         }
-        public abstract override string ToString();
-        public virtual string ToApi()
+
+        public new virtual string ToString()
         {
-            return _message;
+            return _message.ToString();
+        }
+        public string ToApi()
+        {
+            return _message.ToString();
         }
     }
 }

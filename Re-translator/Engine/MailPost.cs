@@ -2,7 +2,7 @@
 using Proxy.Helpers;
 using Proxy.ServerEntities;
 using Proxy.ServerEntities.SQL;
-using Proxy.ServerEntities.Users;
+using Proxy.ServerEntities.Application;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -10,41 +10,52 @@ namespace Proxy
 {
     public class MailPost
     {
+        private const string ModuleName = "#(Subscribers Mail Post) ";
         /// <summary>
         /// Key - Tag (string)
         /// </summary>
         private readonly ConcurrentDictionary<string, ConcurrentList> _subscribers = new ConcurrentDictionary<string, ConcurrentList>();
-        private readonly ConcurrentList moduleList = new ConcurrentList();
-        private readonly ConcurrentList appsList = new ConcurrentList();
+        private readonly ConcurrentList _moduleList = new ConcurrentList();
+        private readonly ConcurrentList _appsList = new ConcurrentList();
+        private readonly ConcurrentList _innerModules = new ConcurrentList();
         //public AsteriskEntity Asterisk;
-        //private UserManager _database;
+        //private EntityManager _database;
         //public IDB DB;
 
         public string AsteriskVersion { get; set; } = "1.1";
 
 
-        public void AddApplication(string uid, UserManager user)
+        public void AddApplication(string uid, EntityManager entity)
         {
-            
+            var subs = _subscribers.GetOrAdd(uid, new ConcurrentList());
+            subs.Add(entity);
+            _appsList.Add(entity);
         }
-        public void AddNativeModule(string uid, UserManager user)
+        public void AddNativeModule(string uid, EntityManager entity)
         {
-            // TODO: Change user to nativemodule class
-        }
-
-        public void AddModule(string uid, UserManager user)
-        {
-            
-        }
-
-        public void Subscribe(UserManager user, string tag)
-        {
-
+            var subs = _subscribers.GetOrAdd(uid, new ConcurrentList());
+            subs.Add(entity);
+            _innerModules.Add(entity);
+            // TODO: Change entity to nativemodule class
         }
 
-        public void Unsubscrive(UserManager user, string tag)
+        public void AddModule(string uid, EntityManager entity)
         {
-            
+            var subs = _subscribers.GetOrAdd(uid, new ConcurrentList());
+            subs.Add(entity);
+            _moduleList.Add(entity);
+        }
+
+        public void Subscribe(EntityManager entity, string tag)
+        {
+            var subs = _subscribers.GetOrAdd(tag, new ConcurrentList());
+            subs.Add(entity);
+        }
+
+        public void Unsubscrive(EntityManager entity, string tag)
+        {
+            var subs = _subscribers.GetOrAdd(tag, new ConcurrentList());
+            subs.Remove(entity);
         }
         public void PostMessage(ServerMessage message)
         {
@@ -59,15 +70,15 @@ namespace Proxy
                 subscriber.SendMesage(message);
             }
         }
-        //public void AddUser(UserManager user)
+        //public void AddUser(EntityManager entity)
         //{
-        //    if (_mailbox.ContainsKey(user))
+        //    if (_mailbox.ContainsKey(entity))
         //    {
         //        return;
         //    }
         //    ConcurrentQueue<ServerMessage> messages = new ConcurrentQueue<ServerMessage>();
-        //    _mailbox.AddOrUpdate(user, messages, (key, oldValue) => messages);
-        //    _usersList.Add(user);
+        //    _mailbox.AddOrUpdate(entity, messages, (key, oldValue) => messages);
+        //    _usersList.Add(entity);
         //}
         //public void AddAsterisk(AsteriskEntity asterisk)
         //{
@@ -83,15 +94,15 @@ namespace Proxy
         //    _mailbox.AddOrUpdate(_database, messages, (key, oldValue) => messages);
         //}
 
-        //public List<UserManager> GetUsers()
+        //public List<EntityManager> GetUsers()
         //{
         //    return _usersList.ToList();
         //}
-        //public void DeleteUser(UserManager user)
+        //public void DeleteUser(EntityManager entity)
         //{
-        //    _usersList.Remove(user);
+        //    _usersList.Remove(entity);
         //    ConcurrentQueue<ServerMessage> ignored;
-        //    _mailbox.TryRemove(user, out ignored);
+        //    _mailbox.TryRemove(entity, out ignored);
         //}
         //public void Clear()
         //{
@@ -101,7 +112,7 @@ namespace Proxy
 
 
 
-        //public List<ServerMessage> GrabMessages(UserManager entity)
+        //public List<ServerMessage> GrabMessages(EntityManager entity)
         //{
         //    if (!_mailbox.ContainsKey(entity))
         //    {

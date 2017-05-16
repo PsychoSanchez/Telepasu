@@ -8,15 +8,15 @@ namespace Proxy.ServerEntities.Messages
 
         public NewChannelEvent(string _message) : base(_message)
         {
-            ChannelID = Helper.GetValue(base._message, "Channel: ");
-            Uniqueid = Helper.GetValue(base._message, "Uniqueid: ");
-            CallerIDNum = Helper.GetValue(base._message, "CallerIDNum: ");
-            CallerIDName = Helper.GetValue(base._message, "CallerIDName: ");
-            Context = Helper.GetValue(base._message, "Context: ");
-            ConnectedLineName = Helper.GetValue(base._message, "ConnectedLineName: ");
-            ConnectedLineNum = Helper.GetValue(base._message, "ConnectedLineNum: ");
-            Status = Helper.GetValue(base._message, "ChannelState: ");
-            ChannelStateDesc = Helper.GetValue(base._message, "ChannelStateDesc: ");
+            ChannelID = Helper.GetValue(base._message.ToString(), "Channel: ");
+            Uniqueid = Helper.GetValue(base._message.ToString(), "Uniqueid: ");
+            CallerIDNum = Helper.GetValue(base._message.ToString(), "CallerIDNum: ");
+            CallerIDName = Helper.GetValue(base._message.ToString(), "CallerIDName: ");
+            Context = Helper.GetValue(base._message.ToString(), "Context: ");
+            ConnectedLineName = Helper.GetValue(base._message.ToString(), "ConnectedLineName: ");
+            ConnectedLineNum = Helper.GetValue(base._message.ToString(), "ConnectedLineNum: ");
+            Status = Helper.GetValue(base._message.ToString(), "ChannelState: ");
+            ChannelStateDesc = Helper.GetValue(base._message.ToString(), "ChannelStateDesc: ");
         }
 
         public string CallerIDName { get; private set; }

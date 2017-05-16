@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using Newtonsoft.Json;
+using Proxy.Engine;
 using Proxy.Helpers;
 using Proxy.Messages.API.Admin;
 
-namespace Proxy.ServerEntities.Users
+namespace Proxy.ServerEntities.Application
 {
-    internal class AdminUser : UserManager
+    internal class AdminEntity : EntityManager
     {
-        public AdminUser(SocketMail mail) : base(mail)
+        public AdminEntity(SocketMail mail) : base(mail)
         {
             Role = UserRole.Admin;
             PersonalMail.IsApi = true;
@@ -29,30 +30,13 @@ namespace Proxy.ServerEntities.Users
             switch (action)
             {
                 case "Add Module":
-                    var commmand = JsonConvert.DeserializeObject<AddModule>(e.Message);
-                    Console.WriteLine(commmand);
+                    var command = JsonConvert.DeserializeObject<AddModuleCommand>(e.Message);
+                    ProxyEngine.MailPost.PostMessage(command);
                     break;
                 default:
                     break;
             }
         }
 
-        protected override void WorkCycle()
-        {
-            while (true)
-            {
-                if (Cts.Token.IsCancellationRequested)
-                {
-                    telepasu.log("User disconnect");
-                    return;
-                }
-                List<ServerMessage> messages = Server.MailPost.GrabMessages(this);
-                foreach (var message in messages)
-                {
-                    PersonalMail.SendMessage(message.ToString());
-                }
-                Cts.Token.WaitHandle.WaitOne(300);
-            }
-        }
     }
 }

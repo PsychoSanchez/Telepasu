@@ -5,7 +5,7 @@ namespace Proxy.ServerEntities
     public abstract class AsteriskAction : ServerMessage
     {
         private string _actionId;
-        public sealed override string Tag { get; set; }
+        public string Tag = "Asterisk Native";
 
         public virtual string ActionId
         {

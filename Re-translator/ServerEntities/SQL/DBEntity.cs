@@ -2,9 +2,9 @@
 using System;
 using System.Net.Sockets;
 
-namespace Proxy.ServerEntities.Users
+namespace Proxy.ServerEntities.Application
 {
-    public class DBEntity : UserManager, IDB
+    public class DBEntity : EntityManager, IDB
     {
         public DBEntity(TcpClient tcp, Socket client) : base(tcp, client)
         {
@@ -40,7 +40,7 @@ namespace Proxy.ServerEntities.Users
             throw new NotImplementedException();
         }
 
-        public UserManager GetDB()
+        public EntityManager GetDB()
         {
             throw new NotImplementedException();
         }
@@ -60,7 +60,7 @@ namespace Proxy.ServerEntities.Users
             throw new NotImplementedException();
         }
 
-        protected override void WorkCycle()
+        protected override void WorkAction()
         {
             throw new NotImplementedException();
         }

@@ -5,7 +5,7 @@ using System.Net.Sockets;
 
 namespace Proxy.ServerEntities.SQL
 {
-    class FakeDB : UserManager, IDB
+    class FakeDB : EntityManager, IDB
     {
         private readonly string[] _users = { "mark", "oleg", "Oleg", "Olegen'ka", "Olga" };
         private readonly string[] _password = { "1488", "1488", "1488", "1488", "1488" };
@@ -74,12 +74,12 @@ namespace Proxy.ServerEntities.SQL
             throw new NotImplementedException();
         }
 
-        protected override void WorkCycle()
+        protected override void WorkAction()
         {
             throw new NotImplementedException();
         }
 
-        public UserManager GetDB()
+        public EntityManager GetDB()
         {
             return this;
         }

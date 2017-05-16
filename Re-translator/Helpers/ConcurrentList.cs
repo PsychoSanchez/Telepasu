@@ -6,11 +6,11 @@ using System.Threading;
 
 namespace Proxy.Helpers
 {
-    class ConcurrentList : IList<UserManager>
+    class ConcurrentList : IList<EntityManager>
     {
         ManualResetEvent mutex = new ManualResetEvent(true);
-        List<UserManager> list = new List<UserManager>();
-        public UserManager this[int index]
+        List<EntityManager> list = new List<EntityManager>();
+        public EntityManager this[int index]
         {
             get
             {
@@ -42,7 +42,7 @@ namespace Proxy.Helpers
             }
         }
 
-        public void Add(UserManager item)
+        public void Add(EntityManager item)
         {
             mutex.WaitOne();
             list.Add(item);
@@ -56,7 +56,7 @@ namespace Proxy.Helpers
             mutex.Set();
         }
 
-        public bool Contains(UserManager item)
+        public bool Contains(EntityManager item)
         {
             mutex.WaitOne();
             bool temp = list.Contains(item);
@@ -64,30 +64,30 @@ namespace Proxy.Helpers
             return temp;
         }
 
-        public void CopyTo(UserManager[] array, int arrayIndex)
+        public void CopyTo(EntityManager[] array, int arrayIndex)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerator<UserManager> GetEnumerator()
+        public IEnumerator<EntityManager> GetEnumerator()
         {
             mutex.WaitOne();
-            IEnumerator<UserManager> temp = list.GetEnumerator();
+            IEnumerator<EntityManager> temp = list.GetEnumerator();
             mutex.Set();
             return temp;
         }
 
-        public int IndexOf(UserManager item)
+        public int IndexOf(EntityManager item)
         {
             throw new NotImplementedException();
         }
 
-        public void Insert(int index, UserManager item)
+        public void Insert(int index, EntityManager item)
         {
             throw new NotImplementedException();
         }
 
-        public bool Remove(UserManager item)
+        public bool Remove(EntityManager item)
         {
             mutex.WaitOne();
             bool temp = list.Remove(item);
@@ -105,19 +105,19 @@ namespace Proxy.Helpers
         IEnumerator IEnumerable.GetEnumerator()
         {
             mutex.WaitOne();
-            IEnumerator<UserManager> temp = list.GetEnumerator();
+            IEnumerator<EntityManager> temp = list.GetEnumerator();
             mutex.Set();
             return temp;
         }
-        public List<UserManager> ToList()
+        public List<EntityManager> ToList()
         {
             mutex.WaitOne();
-            List<UserManager> temp = list;
+            List<EntityManager> temp = list;
             mutex.Set();
             return temp;
         }
         //public delegate void ActionFunction();
-        //public void DoAction(ActionFunction a)
+        //public void WorkAction(ActionFunction a)
         //{
         //    mutex.WaitOne();
         //    a();

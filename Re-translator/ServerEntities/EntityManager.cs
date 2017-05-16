@@ -1,31 +1,34 @@
 ﻿using Proxy.Helpers;
 using Proxy.ServerEntities.Asterisk;
-using Proxy.ServerEntities.Users;
+using Proxy.ServerEntities.Application;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
+using Proxy.Engine;
 
 namespace Proxy.ServerEntities
 {
-    public abstract class UserManager
+    public abstract class EntityManager
     {
-        public ConcurrentQueue<string> MessageStack;
+        private const string ModuleName = "#(Entity Manager) ";
         public string UserName = "guest";
         public string UId = null;
         public int ThreadNumber;
         protected readonly CancellationTokenSource Cts = new CancellationTokenSource();
+        protected readonly AutoResetEvent MessagesReady = new AutoResetEvent(false);
         protected UserRole Role = UserRole.Guest;
         protected bool Authentificated = false;
         protected readonly SocketMail PersonalMail;
         protected readonly MessagesParser Parser = new MessagesParser();
-        private readonly ConcurrentQueue<ServerMessage> _mailbox = new ConcurrentQueue<ServerMessage>();
+        protected readonly ConcurrentQueue<ServerMessage> Mailbox = new ConcurrentQueue<ServerMessage>();
 
-        protected UserManager()
+        protected EntityManager()
         {
         }
 
-        protected UserManager(SocketMail mail)
+        protected EntityManager(SocketMail mail)
         {
             PersonalMail = mail;
             PersonalMail.MessageRecieved += ObtainMessage;
@@ -33,13 +36,13 @@ namespace Proxy.ServerEntities
             PersonalMail.InitReciever();
         }
 
-        protected UserManager(TcpClient tcp, Socket client)
+        protected EntityManager(TcpClient tcp, Socket client)
         {
             PersonalMail = new SocketMail(client, tcp);
             PersonalMail.MessageRecieved += ObtainMessage;
             PersonalMail.Disconnected += Disconnected;
         }
-        protected UserManager(Socket client)
+        protected EntityManager(Socket client)
         {
             PersonalMail = new SocketMail(client);
             PersonalMail.MessageRecieved += ObtainMessage;
@@ -48,7 +51,7 @@ namespace Proxy.ServerEntities
         protected void Listen()
         {
             PersonalMail.InitReciever();
-            PersonalMail.SendMessage("Asterisk Call Manager/" + Server.MailPost.AsteriskVersion + Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR);
+            PersonalMail.SendMessage("Asterisk Call Manager/" + ProxyEngine.MailPost.AsteriskVersion + Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR);
         }
         protected virtual void TimeOut(object sender, EventArgs e)
         {
@@ -57,18 +60,56 @@ namespace Proxy.ServerEntities
 
         protected abstract void ObtainMessage(object sender, MessageArgs e);
         protected abstract void Disconnected(object sender, MessageArgs e);
-        protected abstract void WorkCycle();
+
+        protected virtual void WorkAction()
+        {
+            var messages = GrabMessages();
+            foreach (ServerMessage message in messages)
+            {
+                PersonalMail.SendMessage(message.ToString());
+            }
+        }
+
+        protected List<ServerMessage> GrabMessages()
+        {
+            var messages = new List<ServerMessage>();
+            while (!Mailbox.IsEmpty)
+            {
+                ServerMessage item;
+                if (Mailbox.TryDequeue(out item))
+                {
+                    messages.Add(item);
+                }
+            }
+            return messages;
+        }
         public void StartWork()
         {
-            WorkCycle();
+            while (true)
+            {
+                MessagesReady.WaitOne(5000);
+                if (Cts.Token.IsCancellationRequested)
+                {
+                    telepasu.log(ModuleName + UserName + " disconnected");
+                    return;
+                }
+                WorkAction();
+                Cts.Token.WaitHandle.WaitOne(10);
+            }
+        }
+
+        public void StopWork()
+        {
+            Cts.Cancel();
         }
 
         public void SendMesage(ServerMessage message)
         {
-            _mailbox.Enqueue(message);
+            Mailbox.Enqueue(message);
+            MessagesReady.Set();
         }
 
-        public void StopListen()
+        protected void StopListen()
         {
             telepasu.log("Shutdown called at " + UserName);
             PersonalMail.StopListen();
@@ -81,6 +122,17 @@ namespace Proxy.ServerEntities
             telepasu.log("Shutdown called at " + UserName);
             Cts.Cancel();
             PersonalMail.SendMessage("Disconnected");
+            PersonalMail.Disconnect();
+            PersonalMail.MessageRecieved -= ObtainMessage;
+            PersonalMail.Disconnected -= Disconnected;
+            PersonalMail.TimeOut -= TimeOut;
+        }
+
+        public void Shutdown(string message)
+        {
+            telepasu.log("Shutdown called at " + UserName + " by reason: " + message);
+            Cts.Cancel();
+            PersonalMail.SendMessage(message);
             PersonalMail.Disconnect();
             PersonalMail.MessageRecieved -= ObtainMessage;
             PersonalMail.Disconnected -= Disconnected;

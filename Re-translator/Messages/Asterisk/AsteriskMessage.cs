@@ -1,4 +1,5 @@
-﻿using Proxy.Helpers;
+﻿using System.Text;
+using Proxy.Helpers;
 
 namespace Proxy.ServerEntities.Messages
 {
@@ -7,7 +8,7 @@ namespace Proxy.ServerEntities.Messages
         protected AsteriskMessageType asterType = AsteriskMessageType.Default;
         public AsteriskMessage(string _message) : base()
         {
-            this._message = _message;
+            this._message = new StringBuilder(_message);
             EventName = Helper.GetValue(_message, "Event: ");
             if (EventName != null && EventName == "")
             {
@@ -17,14 +18,9 @@ namespace Proxy.ServerEntities.Messages
             type = MessageType.AsteriskMessage;
         }
 
-        public sealed override string Tag { get; set; }
+        public string Tag = "Asterisk Native";
         public virtual string EventName { get; set; }
 
-        public abstract override string ToApi();
-
-        public override string ToString()
-        {
-            return _message;
-        }
+        public abstract string ToApi();
     }
 }

@@ -1,4 +1,5 @@
-﻿using Proxy.ServerEntities;
+﻿using System.Text;
+using Proxy.ServerEntities;
 using Proxy.Helpers;
 
 namespace Proxy.Messages.API
@@ -7,16 +8,14 @@ namespace Proxy.Messages.API
     {
         public AuthAccepted(string actionId)
         {
-            this._message = "Response: Success" + Helper.LINE_SEPARATOR;
+            this._message = new StringBuilder("Response: Success" + Helper.LINE_SEPARATOR);
             if (actionId != null)
             {
-                this._message += "ActionID: " + actionId + Helper.LINE_SEPARATOR;
+                this._message.Append("ActionID: " + actionId + Helper.LINE_SEPARATOR);
             }
-            this._message += "Message: Authentication accepted" + Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR;
+            this._message.Append("Message: Authentication accepted" + Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR);
         }
-        public override string ToString()
-        {
-            return this._message;
-        }
+
+        public string Tag = "Asterisk Native";
     }
 }
