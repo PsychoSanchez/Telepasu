@@ -12,7 +12,7 @@ namespace Proxy.ServerEntities.SQL
         public FakeDB()
         {
         }
-        public FakeDB(TcpClient tcp, Socket client) : base(tcp, client)
+        public FakeDB(TcpClient tcp) : base(tcp)
         {
         }
 

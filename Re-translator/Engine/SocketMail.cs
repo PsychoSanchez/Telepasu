@@ -17,6 +17,7 @@ namespace Proxy
     }
     public class SocketMail
     {
+        private const string ModuleName = "#(User Mail) ";
         public event EventHandler<MessageArgs> MessageRecieved;
         public event EventHandler<MessageArgs> Disconnected;
         public event EventHandler TimeOut;
@@ -24,14 +25,12 @@ namespace Proxy
         //ConnectionTimer Timer = null;
         private BackgroundWorker _reciever;
         private readonly Socket _socket;
-        private TcpClient _tcp;
+        private readonly TcpClient _tcp;
         private NetworkStream _stream;
-        private Socket client;
 
-        public SocketMail(Socket socket, TcpClient tcp)
+        public SocketMail(TcpClient tcp)
         {
             _tcp = tcp;
-            _socket = socket;
         }
         public SocketMail(Socket socket, int timeout)
         {
@@ -58,7 +57,7 @@ namespace Proxy
         }
         private bool SocketConnected()
         {
-            return !(_socket.Poll(1000, SelectMode.SelectRead) && _socket.Available == 0 || !_socket.Connected);
+            return _socket != null && !(_socket.Poll(1000, SelectMode.SelectRead) && _socket.Available == 0 || !_socket.Connected);
         }
         private void Listen(object sender, DoWorkEventArgs e)
         {
@@ -170,8 +169,13 @@ namespace Proxy
         }
         public void SendMessage(string message)
         {
+            telepasu.log(ModuleName + "Message send: " + Helper.END_LINE + message);
             byte[] sendBuffer = Encoding.ASCII.GetBytes(message);
-            if (!_socket.Connected) return;
+            if (_socket == null || !_socket.Connected)
+            {
+                SendApiMessage(message);
+                return;
+            }
 
             try
             {
@@ -208,7 +212,6 @@ namespace Proxy
 
         }
         
-
         public void Disconnect()
         {
             _reciever.CancelAsync();

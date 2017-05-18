@@ -50,6 +50,7 @@ namespace Proxy.ServerEntities.Application
                         Shutdown();
                         break;
                     default:
+                        message.Tag = NativeModulesTags.Asterisk + NativeModulesTags.Incoming;
                         ProxyEngine.MailPost.PostMessage(message);
                         break;
                 }

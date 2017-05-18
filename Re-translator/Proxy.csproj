@@ -51,6 +51,7 @@
     <Compile Include="Engine\Module.cs" />
     <Compile Include="Engine\ModuleConnector.cs" />
     <Compile Include="Engine\ProxyEngine.cs" />
+    <Compile Include="Engine\NativeModulesTags.cs" />
     <Compile Include="Helpers\ConcurrentList.cs" />
     <Compile Include="Helpers\ConnectionTimer.cs" />
     <Compile Include="Helpers\Encryptor.cs" />

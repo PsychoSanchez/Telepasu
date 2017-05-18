@@ -32,12 +32,12 @@ namespace Proxy.Engine
     {
         public static void Subscribe(string tag, string id)
         {
-            
+
         }
 
         public static void Unsubscribe(string tag, string id)
         {
-            
+
         }
 
         public static void RequestModule(string ip, int port)
@@ -61,64 +61,10 @@ namespace Proxy.Engine
         }
 
         public static string[] GetAppList()
-        {    
+        {
             return new string[10];
         }
 
-        public static async void ConnectNativeModule(string type, ConnectionData data)
-        {
-            switch (type)
-            {
-                case "Asterisk":
-                    Socket socket = GetSocket();
-                    try
-                    {
-                        IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse(data.Ip), Convert.ToInt32(data.Port));
-                        socket.Connect(endpoint);
-                        AsteriskEntity asterisk = new AsteriskEntity(socket);
-                        if ( await asterisk.Login(data.Username, data.Password))
-                        {
-                            telepasu.log("#Asterisk connected...");
-                            ProxyEngine.MailPost.AddNativeModule("AsteriskServer1", asterisk);
-                            ThreadPool.QueueUserWorkItem(AsteriskThread, asterisk);
-                        }
-
-                        telepasu.log("#Failed to connect asterisk...");
-                    }
-                    catch (SocketException e)
-                    {
-                        if (e.SocketErrorCode != SocketError.TimedOut) return;
-
-                        telepasu.log("Сервер недоступен");
-                        throw new Exception("Сервер недоступен");
-                    }
-                    break;
-                case "Postgres":
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private static void AsteriskThread(object state)
-        {
-            EntityManager asterisk = (EntityManager)state;
-            asterisk.StartWork();
-        }
-
-        private static Socket GetSocket()
-        {
-            Socket newsocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-            {
-                ExclusiveAddressUse = true,
-                SendTimeout = 30000,
-                ReceiveTimeout = 70000,
-                Ttl = 42
-            };
-            // Don't allow another socket to bind to this port.
-            // Timeout 3 seconds
-            // Set the Time To Live (TTL) to 42 router hops.
-            return newsocket;
-        }
+       
     }
 }

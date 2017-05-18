@@ -6,7 +6,7 @@ namespace Proxy.ServerEntities.Application
 {
     public class DBEntity : EntityManager, IDB
     {
-        public DBEntity(TcpClient tcp, Socket client) : base(tcp, client)
+        public DBEntity(TcpClient tcp) : base(tcp)
         {
         }
 

@@ -43,7 +43,20 @@ namespace Proxy.Engine
             _listener.Start();
             telepasu.log(ModuleName + "#SocketServer initialized...");
         }
-
+         public Socket GetSocket()
+        {
+            Socket newsocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+            {
+                ExclusiveAddressUse = true,
+                SendTimeout = 30000,
+                ReceiveTimeout = 70000,
+                Ttl = 42
+            };
+            // Don't allow another socket to bind to this port.
+            // Timeout 3 seconds
+            // Set the Time To Live (TTL) to 42 router hops.
+            return newsocket;
+        }
         /// <summary>
         /// Функция подключения к астериску
         /// </summary>
@@ -110,7 +123,7 @@ namespace Proxy.Engine
             TcpListener listener = (TcpListener)ar.AsyncState;
             try
             {
-                EntityManager serverEntity = new GuestEntity(listener.AcceptTcpClient(), listener.EndAcceptSocket(ar), 5000);
+                EntityManager serverEntity = new GuestEntity(listener.EndAcceptTcpClient(ar), 5000);
                 ThreadPool.QueueUserWorkItem(ProcessIncomingData, serverEntity);
             }
             catch (Exception e)

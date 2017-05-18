@@ -14,11 +14,8 @@ namespace Proxy.ServerEntities.Messages
             {
                 EventName = _message.Contains("Ping: Pong") ? "Ping" : "Response";
             }
-            Tag = "AsteriskNativeMessage";
             type = MessageType.AsteriskMessage;
         }
-
-        public string Tag = "Asterisk Native";
         public virtual string EventName { get; set; }
 
         public abstract string ToApi();

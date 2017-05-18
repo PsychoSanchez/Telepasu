@@ -9,16 +9,15 @@ namespace Proxy.Messages.API
     {        
         public Challenge(string message, string challenge)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("Asterisk Call Manager/" + ProxyEngine.MailPost.AsteriskVersion + Helper.LINE_SEPARATOR);
-            sb.Append("Response: Success" + Helper.LINE_SEPARATOR);
-            var actionID = Helper.GetValue(message, "ActionID: ");
-            if (actionID != "")
+            _message.Append("Asterisk Call Manager/" + ProxyEngine.MailPost.AsteriskVersion + Helper.LINE_SEPARATOR);
+            _message.Append("Response: Success" + Helper.LINE_SEPARATOR);
+            var actionId = Helper.GetValue(message, "ActionID: ");
+            if (actionId != "")
             {
-                sb.Append("ActionID: " + actionID + Helper.LINE_SEPARATOR);
+                _message.Append("ActionID: " + actionId + Helper.LINE_SEPARATOR);
             }
-            sb.Append("Challenge: " + challenge + Helper.LINE_SEPARATOR);
-            sb.Append(Helper.LINE_SEPARATOR);
+            _message.Append("Challenge: " + challenge + Helper.LINE_SEPARATOR);
+            _message.Append(Helper.LINE_SEPARATOR);
         }
 
         public string Tag = "Asterisk Native";

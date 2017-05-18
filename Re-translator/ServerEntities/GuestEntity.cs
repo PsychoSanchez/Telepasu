@@ -33,7 +33,7 @@ namespace Proxy.ServerEntities.Application
         // TODO: Create async await functions instead of events
         public event EventHandler<AuthEventArgs> AuthorizationOver;
 
-        public GuestEntity(TcpClient tcp, Socket client, int timeout) : base(tcp, client)
+        public GuestEntity(TcpClient tcp, int timeout) : base(tcp)
         {
             //_timer = new ConnectionTimer(timeout);
         }
@@ -45,7 +45,7 @@ namespace Proxy.ServerEntities.Application
             //return _entity;
         }
 
-        private void OnAuthorizationOver (string message, EntityManager entity)
+        private void OnAuthorizationOver(string message, EntityManager entity)
         {
             var e = new AuthEventArgs(true, message, entity);
             AuthorizationOver?.Invoke(this, e);
@@ -104,15 +104,20 @@ namespace Proxy.ServerEntities.Application
                             StopListen();
                             UserName = username;
                             var type = Helper.GetValue(e.Message, "Type: ");
+                            EntityManager app;
                             switch (type)
                             {
                                 case "Light":
                                     break;
                                 case "Admin":
-                                    OnAuthorizationOver("Welcome", new AdminEntity(PersonalMail));
+                                    app = new AdminEntity(PersonalMail);
+                                    OnAuthorizationOver("Welcome", app);
                                     break;
                                 default:
-                                    OnAuthorizationOver("Welcome", new HardEntity(PersonalMail, actionId));
+                                    app = new HardEntity(PersonalMail, actionId);
+                                    ProxyEngine.MailPost.AddApplication(app.UserName, app);
+                                    ProxyEngine.MailPost.Subscribe(app, NativeModulesTags.Asterisk);
+                                    OnAuthorizationOver("Welcome", app);
                                     break;
                             }
                         }
@@ -133,7 +138,7 @@ namespace Proxy.ServerEntities.Application
                         var pingAction = new PingEvent();
                         if (message.ActionId != "")
                         {
-                            pingAction.ActionID = message.ActionId;
+                            pingAction.ActionId = message.ActionId;
                         }
                         PersonalMail.SendMessage(pingAction.ToString());
                         return;

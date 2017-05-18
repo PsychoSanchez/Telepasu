@@ -19,6 +19,7 @@ namespace Proxy.ServerEntities.Application
 
         public AsteriskEntity(Socket client) : base(client)
         {
+            UserName = "Asterisk Native Module";
         }
         public bool Connected { get; set; }
 
@@ -69,6 +70,7 @@ namespace Proxy.ServerEntities.Application
                     // recieve ping and not send back
                     if (message.EventName != "Ping")
                     {
+                        message.Tag = NativeModulesTags.Asterisk;
                         ProxyEngine.MailPost.PostMessage(message);
                     }
                 }

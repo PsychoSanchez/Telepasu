@@ -1,4 +1,9 @@
-﻿using System.Threading;
+﻿using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using Proxy.ServerEntities;
+using Proxy.ServerEntities.Application;
 using Proxy.ServerEntities.NativeModule;
 
 namespace Proxy.Engine
@@ -27,6 +32,48 @@ namespace Proxy.Engine
         {
             _cts.Cancel();
             _listener.Stop();
+        }
+        public async void ConnectNativeModule(string type, ConnectionData data)
+        {
+            switch (type)
+            {
+                case "Asterisk":
+                    Socket socket = _listener.GetSocket();
+                    try
+                    {
+                        IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse(data.Ip), Convert.ToInt32(data.Port));
+                        socket.Connect(endpoint);
+                        AsteriskEntity asterisk = new AsteriskEntity(socket);
+                        if (await asterisk.Login(data.Username, data.Password))
+                        {
+                            telepasu.log(ModuleName + "#Asterisk connected...");
+                            ProxyEngine.MailPost.AddNativeModule("AsteriskServer1", asterisk);
+                            ThreadPool.QueueUserWorkItem(AsteriskThread, asterisk);
+                            return;
+                        }
+
+                        telepasu.log(ModuleName + "#Failed to connect asterisk...");
+                    }
+                    catch (SocketException e)
+                    {
+                        if (e.SocketErrorCode != SocketError.TimedOut) return;
+
+                        telepasu.log("Сервер недоступен");
+                        throw new Exception("Сервер недоступен");
+                    }
+                    break;
+                case "Postgres":
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void AsteriskThread(object state)
+        {
+            EntityManager asterisk = (EntityManager)state;
+            ProxyEngine.MailPost.Subscribe(asterisk, NativeModulesTags.Asterisk + NativeModulesTags.Incoming);
+            asterisk.StartWork();
         }
 
         private void InnerEventsDoWork(object state)

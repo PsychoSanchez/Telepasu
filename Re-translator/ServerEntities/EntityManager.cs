@@ -36,9 +36,9 @@ namespace Proxy.ServerEntities
             PersonalMail.InitReciever();
         }
 
-        protected EntityManager(TcpClient tcp, Socket client)
+        protected EntityManager(TcpClient tcp)
         {
-            PersonalMail = new SocketMail(client, tcp);
+            PersonalMail = new SocketMail(tcp);
             PersonalMail.MessageRecieved += ObtainMessage;
             PersonalMail.Disconnected += Disconnected;
         }

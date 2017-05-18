@@ -23,6 +23,22 @@ namespace Proxy.ServerEntities.NativeModule
             var messages = GrabMessages();
             foreach (MethodCall message in messages)
             {
+                switch (message.Action)
+                {
+                    case "Add Module":
+                        var action = (AddModuleCommand) message;
+                        if (action.Type == "Asterisk")
+                        {
+                            _engine.ConnectNativeModule(action.Type, new ConnectionData()
+                            {
+                                Ip = action.Ip,
+                                Password = action.Pwd,
+                                Port = action.Port,
+                                Username = action.Username
+                            });
+                        }
+                        break;
+                }
                 //telepasu.log();
             }
         }
