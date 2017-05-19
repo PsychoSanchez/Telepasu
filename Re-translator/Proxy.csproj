@@ -74,7 +74,13 @@
     <Compile Include="Engine\IpTables.cs" />
     <Compile Include="Engine\MailPost.cs" />
     <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="LocalDB\AppTable\Applications.cs" />
+    <Compile Include="LocalDB\AppTable\ApplicationsMapper.cs" />
     <Compile Include="LocalDB\LocalDBCommandDispatcher.cs" />
+    <Compile Include="LocalDB\SubsTable\SubscribtionMapper.cs" />
+    <Compile Include="LocalDB\SubsTable\Subscribtions.cs" />
+    <Compile Include="LocalDB\UsersTable\Users.cs" />
+    <Compile Include="LocalDB\UsersTable\UsersMapper.cs" />
     <Compile Include="Messages\API\Admin\AddModuleCommand.cs" />
     <Compile Include="Messages\API\Admin\AuthResponse.cs" />
     <Compile Include="Messages\API\Admin\MethodCall.cs" />
@@ -148,10 +154,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="LocalDB\SubsTable\" />
     <Folder Include="Messages\API\Light\" />
     <Folder Include="Messages\API\Module\" />
     <Folder Include="ServerEntities\Module\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LocalDB\AppTable\Applications.hbm.xml" />
+    <Content Include="LocalDB\SubsTable\Subscribtions.hbm.xml" />
+    <Content Include="LocalDB\UsersTable\Users.hbm.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
