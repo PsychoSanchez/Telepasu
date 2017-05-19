@@ -36,10 +36,16 @@ namespace Proxy.ServerEntities.NativeModule
                         // Subscribe him
                         break;
                     case "Unsubscribe":
-                        // TODO: Subscribe
+                        // TODO: Unsubscribe
                         // Call localDb method
                         // Check if user connected 
                         // Subscribe him
+                        break;
+                    case "Register User":
+                        break;
+                    case "Delete User":
+                        break;
+                    case "Update Password":
                         break;
                 }
             }
