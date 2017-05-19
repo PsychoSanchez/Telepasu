@@ -35,7 +35,7 @@ namespace Proxy.ServerEntities.Application
                     case "Ping":
                         var action = new StringBuilder("");
                         action.Append("Response: Success" + Helper.LINE_SEPARATOR);
-                        //PingEvent pingAction = new PingEvent();
+                        PingEvent pingAction = new PingEvent();
                         if (message.ActionId != null)
                         {
                             action.Append("ActionID: " + message.ActionId + Helper.LINE_SEPARATOR);

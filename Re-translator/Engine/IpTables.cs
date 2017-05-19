@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Proxy
 {
@@ -20,14 +16,14 @@ namespace Proxy
                 string[] ip = temp.Split('-');
                 if (ip.Length == 1)
                 {
-                    if (String.Compare(ip[0], compIP) == 0)
+                    if (string.CompareOrdinal(ip[0], compIP) == 0)
                     {
                         return true;
                     }
                 }
                 else if (ip.Length == 2)
                 {
-                    if (String.Compare(ip[0], compIP) == -1 & String.Compare(compIP, ip[1]) == -1)
+                    if (string.CompareOrdinal(ip[0], compIP) == -1 & string.CompareOrdinal(compIP, ip[1]) == -1)
                     {
                         return true;
                     }
