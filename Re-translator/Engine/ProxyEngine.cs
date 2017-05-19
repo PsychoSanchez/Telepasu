@@ -5,6 +5,7 @@ using System.Threading;
 using Proxy.ServerEntities;
 using Proxy.ServerEntities.Application;
 using Proxy.ServerEntities.NativeModule;
+using Proxy.LocalDB;
 
 namespace Proxy.Engine
 {
@@ -17,6 +18,7 @@ namespace Proxy.Engine
         private bool _working = true;
         private SocketServer _listener;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly LocalDBCommandDispatcher localBD = new LocalDBCommandDispatcher(); 
 
         public ProxyEngine()
         {
@@ -27,6 +29,9 @@ namespace Proxy.Engine
             telepasu.log(ModuleName + "Proxy engine started. Welcome to Telepasu 2.0.");
             ThreadPool.QueueUserWorkItem(InnerEventsDoWork, this);
             ThreadPool.QueueUserWorkItem(ListenerDoWork);
+
+            localBD.ConnectLocalDB();
+            localBD.InitTables();
         }
         public void Stop()
         {
@@ -63,6 +68,10 @@ namespace Proxy.Engine
                     }
                     break;
                 case "LocalDB":
+                    {
+                        localBD.ConnectLocalDB();
+                        localBD.InitTables();
+                    }
                     break;
                 default:
                     break;
