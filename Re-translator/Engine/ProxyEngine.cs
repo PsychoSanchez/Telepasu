@@ -62,7 +62,7 @@ namespace Proxy.Engine
                         throw new Exception("Сервер недоступен");
                     }
                     break;
-                case "Postgres":
+                case "LocalDB":
                     break;
                 default:
                     break;

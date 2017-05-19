@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+	namespace="NHibernateBasics" assembly="NHibernateBasics">
+  <class name="Subscribtions" table="Subscribtions">
+    <id>
+      <generator class="identity" />
+    </id>
+    <property name="APP_ID" column="APP_ID" />
+    <property name="MESSAGE_TAG" column="MESSAGE_TAG" />
+    <property name="USER_ID" column="USER_ID" />
+  </class>
+</hibernate-mapping>

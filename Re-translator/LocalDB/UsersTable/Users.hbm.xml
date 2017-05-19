@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+	namespace="NHibernateBasics" assembly="NHibernateBasics">
+  <class name="Users" table="Users">
+    <id>
+      <generator class="identity" />
+    </id>
+    <property name="Login" column="Login" />
+    <property name="Password" column="Password" />
+  </class>
+</hibernate-mapping>
+
