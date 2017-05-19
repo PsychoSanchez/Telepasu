@@ -118,14 +118,15 @@ namespace Proxy.LocalDB
             }
         }
 
-        public bool AddUser(string login, string secret)
+        public bool AddUser(string login, string secret, string role)
         {
             try
             {
                 Users user = new Users
                 {
                     Login = login,
-                    Password = secret
+                    Password = secret,
+                    Role = role
                 };
                 var session = sf.OpenSession();
                 session.BeginTransaction();

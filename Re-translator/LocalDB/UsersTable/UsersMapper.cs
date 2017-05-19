@@ -14,6 +14,7 @@ namespace Proxy.LocalDB.UsersTable
             Id(c => c.ID);
             Map(c => c.Login);
             Map(c => c.Password);
+            Map(c => c.Role);
         }
     }
 }
