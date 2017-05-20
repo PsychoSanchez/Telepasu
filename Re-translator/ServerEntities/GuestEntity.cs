@@ -153,6 +153,8 @@ namespace Proxy.ServerEntities.Application
                 switch (type)
                 {
                     case "Light":
+                        app = new LightEntity(PersonalMail);
+                        OnAuthorizationOver("Welcome", app);
                         break;
                     case "Admin":
                         app = new AdminEntity(PersonalMail);
