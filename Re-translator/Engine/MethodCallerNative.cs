@@ -5,14 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Proxy.Engine;
 using Proxy.Messages.API.Admin;
+using Proxy.Messages.API.SystemCalls;
 
 namespace Proxy.ServerEntities.NativeModule
 {
-    class MethodCallerNativeModule : NativeModule
+    class MethodCallerNative : NativeModule
     {
         private readonly ProxyEngine _engine;
 
-        public MethodCallerNativeModule(ProxyEngine engine)
+        public MethodCallerNative(ProxyEngine engine)
         {
             _engine = engine;
         }
@@ -26,8 +27,15 @@ namespace Proxy.ServerEntities.NativeModule
                 var message = (MethodCall)serverMessage;
                 switch (message.Action)
                 {
+                    case "Add Native Module":
+                        AddModule(message);
+                        break;
                     case "Add Module":
                         AddModule(message);
+                        break;
+                    case "Get Modules List":
+                        break;
+                    case "Get Applications List":
                         break;
                     case "Subscribe":
                         // TODO: Subscribe
@@ -41,14 +49,29 @@ namespace Proxy.ServerEntities.NativeModule
                         // Check if user connected 
                         // Subscribe him
                         break;
-                    case "Register User":
+                    case "Login":
+
+                        break;
+                    case "Add User":
+                        break;
+                    case "Update User":
                         break;
                     case "Delete User":
                         break;
                     case "Update Password":
                         break;
+                    case "Restart":
+                        break;
                 }
             }
+        }
+
+        private void StartAuth(MethodCall message)
+        {
+            var action = (LocalDbLoginMessage) message;
+            var user = _engine.LocalDb.GetUser(action.Login, action.Secret);
+
+            action.Sender.OnLogin();
         }
 
         private void AddModule(MethodCall message)

@@ -8,7 +8,7 @@ namespace Proxy.Messages
     {
         public ResendAction(string message)
         {
-            this._message = new StringBuilder(message);
+            this.Message = new StringBuilder(message);
             Action = Helper.GetValue(message, "Action: ");
             ActionId = Helper.GetValue(message, "ActionID: ");
         }
@@ -16,7 +16,7 @@ namespace Proxy.Messages
 
         public override string ToString()
         {
-            return _message.Append(Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR).ToString();
+            return Message.Append(Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR).ToString();
         }
     }
 }

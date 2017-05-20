@@ -13,12 +13,11 @@ namespace Proxy.Engine
     {
         private const string ModuleName = "#(Engine) ";
         public static readonly MailPost MailPost = new MailPost();
-        private MethodCallerNativeModule _innerEvents;
-        private Methods _methods;
+        private MethodCallerNative _innerEvents;
         private bool _working = true;
         private SocketServer _listener;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        private readonly LocalDBCommandDispatcher localBD = new LocalDBCommandDispatcher(); 
+        public readonly LocalDBCommandDispatcher LocalBd = new LocalDBCommandDispatcher();
 
         public ProxyEngine()
         {
@@ -30,8 +29,8 @@ namespace Proxy.Engine
             ThreadPool.QueueUserWorkItem(InnerEventsDoWork, this);
             ThreadPool.QueueUserWorkItem(ListenerDoWork);
 
-            localBD.ConnectLocalDB();
-            localBD.InitTables();
+            LocalBd.ConnectLocalDB();
+            LocalBd.InitTables();
         }
         public void Stop()
         {
@@ -68,10 +67,8 @@ namespace Proxy.Engine
                     }
                     break;
                 case "LocalDB":
-                    {
-                        localBD.ConnectLocalDB();
-                        localBD.InitTables();
-                    }
+                    LocalBd.ConnectLocalDB();
+                    LocalBd.InitTables();
                     break;
                 default:
                     break;
@@ -88,7 +85,7 @@ namespace Proxy.Engine
         private void InnerEventsDoWork(object state)
         {
             telepasu.log(ModuleName + "Inner events initialized");
-            _innerEvents = new MethodCallerNativeModule(this);
+            _innerEvents = new MethodCallerNative(this);
             MailPost.AddNativeModule("Inner Calls", _innerEvents);
             while (!_cts.IsCancellationRequested)
             {

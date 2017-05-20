@@ -8,14 +8,13 @@ namespace Proxy.Messages.API
     {
         public AuthAccepted(string actionId)
         {
-            this._message = new StringBuilder("Response: Success" + Helper.LINE_SEPARATOR);
+            this.Message = new StringBuilder("Response: Success" + Helper.LINE_SEPARATOR);
             if (actionId != null)
             {
-                this._message.Append("ActionID: " + actionId + Helper.LINE_SEPARATOR);
+                this.Message.Append("ActionID: " + actionId + Helper.LINE_SEPARATOR);
             }
-            this._message.Append("Message: Authentication accepted" + Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR);
-        }
-
-        public string Tag = "Asterisk Native";
+            this.Message.Append("Message: Authentication accepted" + Helper.LINE_SEPARATOR + Helper.LINE_SEPARATOR);
+            Tag = "Asterisk Native";
+        } 
     }
 }

@@ -4,38 +4,42 @@ using System;
 using System.Diagnostics;
 using System.Net.Sockets;
 using Proxy.Engine;
+using Proxy.Messages.API.Admin;
+using Proxy.Messages.API.SystemCalls;
+using Proxy.ServerEntities.Messages;
+using PingEvent = Proxy.Messages.API.PingEvent;
 
 namespace Proxy.ServerEntities.Application
 {
     class AuthEventArgs : EventArgs
     {
-        public bool Authentificated;
+        public readonly bool Authentificated;
         public string Message;
-        public EntityManager Client;
-        public AuthEventArgs(bool authentificated, string message, EntityManager client)
+        public readonly EntityManager Client;
+        public AuthEventArgs(string message, EntityManager client)
         {
-            Authentificated = authentificated;
+            Authentificated = true;
             Message = message;
             Client = client;
         }
-        public AuthEventArgs(bool authentificated, string message)
+        public AuthEventArgs(string message)
         {
-            Authentificated = authentificated;
+            Authentificated = false;
             Message = message;
             Client = null;
         }
     }
     class GuestEntity : EntityManager
     {
-        //private readonly ConnectionTimer _timer;
-        private EntityManager _entity;
+        private readonly ConnectionTimer _timer;
         private string _challenge;
         // TODO: Create async await functions instead of events
         public event EventHandler<AuthEventArgs> AuthorizationOver;
+        private string _loginMessage = null;
 
         public GuestEntity(TcpClient tcp, int timeout) : base(tcp)
         {
-            //_timer = new ConnectionTimer(timeout);
+            _timer = new ConnectionTimer(timeout);
         }
 
         public void BeginAutorization()
@@ -47,12 +51,12 @@ namespace Proxy.ServerEntities.Application
 
         private void OnAuthorizationOver(string message, EntityManager entity)
         {
-            var e = new AuthEventArgs(true, message, entity);
+            var e = new AuthEventArgs(message, entity);
             AuthorizationOver?.Invoke(this, e);
         }
         private void OnAuthorizationOver(string message)
         {
-            var e = new AuthEventArgs(false, message);
+            var e = new AuthEventArgs(message);
             AuthorizationOver?.Invoke(this, e);
         }
         protected override void Disconnected(object sender, MessageArgs e)
@@ -75,57 +79,34 @@ namespace Proxy.ServerEntities.Application
                         //_timer.Reset();
                         break;
                     case "Login":
-                        var username = Helper.GetValue(e.Message, "UserName: ");
-                        if (username != null && username == "")
+                        if (_loginMessage == null)
                         {
-                            username = Helper.GetValue(e.Message, "Username: ");
-                        }
-                        var pwd = Helper.GetValue(e.Message, "Key");
-                        if (pwd == "")
-                        {
-                            pwd = Helper.GetValue(e.Message, "secret");
-                        }
-                        var actionId = Helper.GetValue(e.Message, "ActionID: ");
-
-                        try
-                        {
-                            //Authentificated = _challenge != null ? SocketServer.MailPost.DB.Authentificate(username, pwd, _challenge) : SocketServer.MailPost.DB.Authentificate(username, pwd);
-                            Authentificated = true;
-                        }
-                        catch (Exception exception)
-                        {
-                            Authentificated = false;
-                            telepasu.exc(exception);
-                            StopListen();
-                        }
-
-                        if (Authentificated)
-                        {
-                            StopListen();
-                            UserName = username;
-                            var type = Helper.GetValue(e.Message, "Type: ");
-                            EntityManager app;
-                            switch (type)
+                            _loginMessage = e.Message;
+                            var username = Helper.GetValue(_loginMessage, "UserName: ");
+                            if (username != null && username == "")
                             {
-                                case "Light":
-                                    break;
-                                case "Admin":
-                                    app = new AdminEntity(PersonalMail);
-                                    OnAuthorizationOver("Welcome", app);
-                                    break;
-                                default:
-                                    app = new HardEntity(PersonalMail, actionId);
-                                    ProxyEngine.MailPost.AddApplication(app.UserName, app);
-                                    ProxyEngine.MailPost.Subscribe(app, NativeModulesTags.Asterisk);
-                                    OnAuthorizationOver("Welcome", app);
-                                    break;
+                                username = Helper.GetValue(_loginMessage, "Username: ");
                             }
+                            var pwd = Helper.GetValue(_loginMessage, "Key");
+                            if (pwd == "")
+                            {
+                                pwd = Helper.GetValue(_loginMessage, "secret");
+                            }
+                            ProxyEngine.MailPost.PostMessage(new LocalDbLoginMessage
+                            {
+                                Login =  username,
+                                Secret = pwd,
+                                Role = Helper.GetValue(_loginMessage, "Type: "),
+                                Sender = this,
+                                Action = "Login"
+                            });
                         }
                         else
                         {
-                            // TODO: Add authentification failed message
-                            OnAuthorizationOver("Authentification failed");
+                            Shutdown();
+                            OnAuthorizationOver("Fock u");
                         }
+
                         //_timer.StopWait();
                         break;
                     case "Auth":
@@ -135,11 +116,7 @@ namespace Proxy.ServerEntities.Application
                         //_timer.StopWait();
                         break;
                     case "Ping":
-                        var pingAction = new PingEvent();
-                        if (message.ActionId != "")
-                        {
-                            pingAction.ActionId = message.ActionId;
-                        }
+                        var pingAction = new PingEvent(message.ActionId);
                         PersonalMail.SendMessage(pingAction.ToString());
                         return;
                     default:
@@ -150,6 +127,41 @@ namespace Proxy.ServerEntities.Application
                 }
             }
             return;
+        }
+
+        public void OnLogin(AuthResponse message)
+        {
+            if (message.Status == 200)
+            {
+                StopListen();
+
+                
+                var actionId = Helper.GetValue(_loginMessage, "ActionID: ");
+
+                var type = Helper.GetValue(_loginMessage, "Type: ");
+                EntityManager app;
+                switch (type)
+                {
+                    case "Light":
+                        break;
+                    case "Admin":
+                        app = new AdminEntity(PersonalMail);
+                        OnAuthorizationOver("Welcome", app);
+                        break;
+                    default:
+                        UserName = Helper.GetValue(_loginMessage, "username");
+                        app = new HardEntity(PersonalMail, actionId);
+                        ProxyEngine.MailPost.AddApplication(app.UserName, app);
+                        ProxyEngine.MailPost.Subscribe(app, NativeModulesTags.Asterisk);
+                        OnAuthorizationOver("Welcome", app);
+                        break;
+                }
+            }
+            else
+            {
+                // TODO: Add authentification failed message
+                OnAuthorizationOver("Authentification failed");
+            }
         }
 
         protected override void WorkAction()

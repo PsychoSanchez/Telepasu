@@ -1,4 +1,6 @@
-﻿using Proxy.ServerEntities;
+﻿using System.Runtime.CompilerServices;
+using Proxy.Engine;
+using Proxy.ServerEntities;
 
 namespace Proxy.Messages.API.Admin
 {
@@ -7,8 +9,7 @@ namespace Proxy.Messages.API.Admin
         public string Action;
         protected MethodCall()
         {
-            Tag = "Inner Calls";
+            Tag = NativeModulesTags.INNER_CALLS;
         }
-
     }
 }

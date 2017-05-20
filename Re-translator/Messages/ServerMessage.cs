@@ -6,18 +6,15 @@ namespace Proxy.ServerEntities
     {
         public MessageType type = MessageType.InnerMessage;
         public string Tag;
-        protected StringBuilder _message = new StringBuilder("");
-        public ServerMessage()
-        {
-        }
+        protected StringBuilder Message = new StringBuilder("");
 
         public new virtual string ToString()
         {
-            return _message.ToString();
+            return Message.ToString();
         }
         public string ToApi()
         {
-            return _message.ToString();
+            return Message.ToString();
         }
     }
 }

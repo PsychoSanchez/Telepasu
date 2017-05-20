@@ -33,18 +33,8 @@ namespace Proxy.ServerEntities.Application
                 switch (message.Action)
                 {
                     case "Ping":
-                        var action = new StringBuilder("");
-                        action.Append("Response: Success" + Helper.LINE_SEPARATOR);
-                        PingEvent pingAction = new PingEvent();
-                        if (message.ActionId != null)
-                        {
-                            action.Append("ActionID: " + message.ActionId + Helper.LINE_SEPARATOR);
-                        }
-                        action.Append("Ping: Pong" + Helper.LINE_SEPARATOR);
-                        var unixTimestamp = (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds.ToString(CultureInfo.InvariantCulture).Replace(',', '.');
-                        action.Append("Timestamp: " + unixTimestamp + Helper.LINE_SEPARATOR);
-                        action.Append(Helper.LINE_SEPARATOR);
-                        PersonalMail.SendMessage(action.ToString());
+                        PingEvent pingAction = new PingEvent(message.ActionId);
+                        PersonalMail.SendMessage(pingAction.ToString());
                         break;
                     case "Logoff":
                         Shutdown();

@@ -6,17 +6,17 @@ namespace Proxy.ServerEntities.Messages
     class NewChannelEvent : AsteriskMessage
     {
 
-        public NewChannelEvent(string _message) : base(_message)
+        public NewChannelEvent(string message) : base(message)
         {
-            ChannelID = Helper.GetValue(base._message.ToString(), "Channel: ");
-            Uniqueid = Helper.GetValue(base._message.ToString(), "Uniqueid: ");
-            CallerIDNum = Helper.GetValue(base._message.ToString(), "CallerIDNum: ");
-            CallerIDName = Helper.GetValue(base._message.ToString(), "CallerIDName: ");
-            Context = Helper.GetValue(base._message.ToString(), "Context: ");
-            ConnectedLineName = Helper.GetValue(base._message.ToString(), "ConnectedLineName: ");
-            ConnectedLineNum = Helper.GetValue(base._message.ToString(), "ConnectedLineNum: ");
-            Status = Helper.GetValue(base._message.ToString(), "ChannelState: ");
-            ChannelStateDesc = Helper.GetValue(base._message.ToString(), "ChannelStateDesc: ");
+            ChannelID = Helper.GetValue(base.Message.ToString(), "Channel: ");
+            Uniqueid = Helper.GetValue(base.Message.ToString(), "Uniqueid: ");
+            CallerIDNum = Helper.GetValue(base.Message.ToString(), "CallerIDNum: ");
+            CallerIDName = Helper.GetValue(base.Message.ToString(), "CallerIDName: ");
+            Context = Helper.GetValue(base.Message.ToString(), "Context: ");
+            ConnectedLineName = Helper.GetValue(base.Message.ToString(), "ConnectedLineName: ");
+            ConnectedLineNum = Helper.GetValue(base.Message.ToString(), "ConnectedLineNum: ");
+            Status = Helper.GetValue(base.Message.ToString(), "ChannelState: ");
+            ChannelStateDesc = Helper.GetValue(base.Message.ToString(), "ChannelStateDesc: ");
         }
 
         public string CallerIDName { get; private set; }

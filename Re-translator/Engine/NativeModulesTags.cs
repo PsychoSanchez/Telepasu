@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace Proxy.Engine
 {
-    class NativeModulesTags
+    struct NativeModulesTags
     {
-        public static string Incoming = "Action";
-        public static string Asterisk = "Asterisk Native";
+        public const string Incoming = "Action";
+        public const string Asterisk = "Asterisk Native";
+        public const string DB = "";
+        public const string INNER_CALLS = "Inner Calls";
     }
 }
