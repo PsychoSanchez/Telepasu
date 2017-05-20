@@ -22,12 +22,7 @@ namespace Proxy.LocalDB
 
         }
 
-        public void Dispose()
-        {
-            _client.Dispose();
-            sf.Dispose();
-        }
-
+        #region InitDBMethods
         public bool ConnectLocalDB()
         {
             Configuration cfg = new Configuration();
@@ -53,31 +48,24 @@ namespace Proxy.LocalDB
                 .BuildConfiguration();
             var exporter = new SchemaUpdate(createDBcofig);
             exporter.Execute(true, true);
-        }
 
-        public Applications CheckAppUID(int uid_to_find)
-        {
-            Applications temp = (from p in sf.OpenSession().QueryOver<Applications>() where p.APP_ID == uid_to_find select p).SingleOrDefault<Applications>();
-            return temp;
+            sf = createDBcofig.Configure().BuildSessionFactory();
         }
+        #endregion
 
+        #region AddMethods
         public bool AddAppUid(int uid)
         {
             try
             {
-                Applications temp = (from p in sf.OpenSession().QueryOver<Applications>() where p.APP_ID == uid select p).SingleOrDefault<Applications>();
-                if (temp == null)
+                if (CheckAppUID(uid) != null) return false;
+
+                sf.OpenSession().Save(new Applications()
                 {
-                    var session = sf.OpenSession();
-                    session.BeginTransaction();
-                    session.Save(new Applications()
-                    {
-                        APP_ID = uid
-                    });
-                    session.Close();
-                    return true;
-                }
-                else return false;
+                    APP_ID = uid
+                });
+
+                return true;
             }
             catch (Exception ex)
             {
@@ -86,6 +74,175 @@ namespace Proxy.LocalDB
             }
         }
 
+        public bool AddSubscribtion(string message_tag, int app_id, int user_id)
+        {
+            try
+            {
+                if (GetSubscribtions(message_tag, app_id, user_id) != null) return false;
+
+                Subscribtions sub = new Subscribtions
+                {
+                    APP_ID = app_id,
+                    MESSAGE_TAG = message_tag,
+                    USER_ID = user_id
+                };
+                sf.OpenSession().Save(sub);
+
+                var list = sf.OpenSession().CreateCriteria<Subscribtions>().List<Subscribtions>();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return false;
+            }
+        }
+
+        public bool AddUser(string login, string secret, string role)
+        {
+            try
+            {
+                if (GetUser(login, secret) != null) return false;
+
+                Users user = new Users
+                {
+                    Login = login,
+                    Password = secret,
+                    Role = role
+                };
+
+                sf.OpenSession().Save(user);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return false;
+            }
+        }
+        #endregion
+
+        #region GetMethods
+        public Applications CheckAppUID(int uid_to_find)
+        {
+            var asd = sf.OpenSession().CreateCriteria<Applications>().List<Applications>();
+
+            foreach (var item in asd)
+            {
+                if (item.APP_ID == uid_to_find)
+                    return item;
+            }
+
+            return null;
+        }
+
+
+        public Users GetUser(string login, string secret)
+        {
+            try
+            {
+                var asd = sf.OpenSession().CreateCriteria<Users>().List<Users>();
+
+                foreach (Users item in asd)
+                {
+                    if ((item.Login == login) && (item.Password == secret))
+                    {
+                        return item;
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public List<Subscribtions> GetSubscribtions(int app_id)
+        {
+            try
+            {
+                var list = sf.OpenSession().CreateCriteria<Subscribtions>().List<Subscribtions>();
+                List<Subscribtions> temp = new List<Subscribtions>();
+
+                foreach (var item in list)
+                {
+                    if (item.APP_ID == app_id)
+                        temp.Add(item);
+                }
+
+                return temp;
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return null;
+            }
+        }
+
+        public List<Subscribtions> GetSubscribtions(string message_tag, int app_id, int user_id)
+        {
+            try
+            {
+                var list = sf.OpenSession().CreateCriteria<Subscribtions>().List<Subscribtions>();
+                List<Subscribtions> temp = new List<Subscribtions>();
+
+                foreach (var item in list)
+                {
+                    if ((item.MESSAGE_TAG == message_tag) && (item.APP_ID == app_id) && (item.USER_ID == user_id))
+                        temp.Add(item);
+                }
+
+                return temp;
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return null;
+            }
+        }
+
+        public List<Subscribtions> GetSubscribtions(string message_tag)
+        {
+            try
+            {
+                var list = sf.OpenSession().CreateCriteria<Subscribtions>().List<Subscribtions>();
+                List<Subscribtions> temp = new List<Subscribtions>();
+
+                foreach (var item in list)
+                {
+                    if (item.MESSAGE_TAG == message_tag)
+                        temp.Add(item);
+                }
+
+                return temp;
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return null;
+            }
+        }
+        #endregion
+
+        #region DeleteMethods
+        public void DeleteSub(string message_tag, int app_id)
+        {
+            try
+            {
+                var session = sf.OpenSession();
+                session.BeginTransaction();
+                session.CreateSQLQuery("delete Subsctibtions where APP_ID = " + app_id.ToString() + " and MESSAGE_TAG = " + message_tag);
+                session.Close();
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+            }
+        }
         public void DeleteAppUid(int uid)
         {
             try
@@ -104,106 +261,12 @@ namespace Proxy.LocalDB
                 telepasu.exc(ex);
             }
         }
+        public void Dispose()
+        {
+            _client.Dispose();
+            sf.Dispose();
+        }
+        #endregion
 
-        public Users GetUser(string login, string secret)
-        {
-            try
-            {
-                Users temp = (from p in sf.OpenSession().QueryOver<Users>() where (p.Login == login && p.Password == secret) select p).SingleOrDefault<Users>();
-                return temp;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-
-        public bool AddUser(string login, string secret, string role)
-        {
-            try
-            {
-                Users user = new Users
-                {
-                    Login = login,
-                    Password = secret,
-                    Role = role
-                };
-                var session = sf.OpenSession();
-                session.BeginTransaction();
-                session.Save(user);
-                session.Close();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                telepasu.exc(ex);
-                return false;
-            }
-        }
-
-        public bool AddSubscribtion(string message_tag, int app_id, int user_id)
-        {
-            try
-            {
-                Subscribtions sub = new Subscribtions
-                {
-                    APP_ID = app_id,
-                    MESSAGE_TAG = message_tag,
-                    USER_ID = user_id
-                };
-                var session = sf.OpenSession();
-                session.BeginTransaction();
-                session.Save(sub);
-                session.Close();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                telepasu.exc(ex);
-                return false;
-            }
-        }
-
-        public List<Subscribtions> GetSubscribtions(int app_id)
-        {
-            try
-            {
-                List<Subscribtions> list = (List<Subscribtions>)(from p in sf.OpenSession().QueryOver<Subscribtions>() where p.APP_ID == app_id select p).List<Subscribtions>();
-                return list;
-            }
-            catch (Exception ex)
-            {
-                telepasu.exc(ex);
-                return null;
-            }
-        }
-        public List<Subscribtions> GetSubscribtions(string message_tag)
-        {
-            try
-            {
-                List<Subscribtions> list = (List<Subscribtions>)(from p in sf.OpenSession().QueryOver<Subscribtions>() where p.MESSAGE_TAG == message_tag select p).List<Subscribtions>();
-                return list;
-            }
-            catch (Exception ex)
-            {
-                telepasu.exc(ex);
-                return null;
-            }
-        }
-
-        public void DeleteSub(string message_tag, int app_id)
-        {
-            try
-            {
-                var session = sf.OpenSession();
-                session.BeginTransaction();
-                session.CreateSQLQuery("delete Subsctibtions where APP_ID = " + app_id.ToString() + " and MESSAGE_TAG = " + message_tag);
-                session.Close();
-            }
-            catch (Exception ex)
-            {
-                telepasu.exc(ex);
-            }
-        }
     }
 }
