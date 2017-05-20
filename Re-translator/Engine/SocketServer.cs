@@ -34,7 +34,7 @@ namespace Proxy.Engine
             _listener.Start();
             telepasu.log(ModuleName + "#SocketServer initialized...");
         }
-         public Socket GetSocket()
+        public Socket GetSocket()
         {
             Socket newsocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
             {
@@ -58,7 +58,7 @@ namespace Proxy.Engine
 
         public void DisconnectApplication()
         {
-            
+
         }
 
         void AsteriskThread(object obj)
@@ -69,16 +69,14 @@ namespace Proxy.Engine
 
         public void AcceptClient()
         {
+            _tcpClientConnected.Reset();
             if (_stopProxy)
             {
                 return;
             }
-            if (_listener.Pending())
-            {
-                telepasu.log(ModuleName + "Accepting client...");
-                _listener.BeginAcceptTcpClient(ProcessIncomingConnection, _listener);
-            }
-            _tcpClientConnected.WaitOne(500);
+            telepasu.log(ModuleName + "Accepting client...");
+            _listener.BeginAcceptTcpClient(ProcessIncomingConnection, _listener);
+            _tcpClientConnected.WaitOne();
         }
         void ProcessIncomingConnection(IAsyncResult ar)
         {
@@ -116,10 +114,15 @@ namespace Proxy.Engine
                 telepasu.log(ModuleName + "Authentification failed...\r\nClient kicked.");
                 return;
             }
+            ThreadPool.QueueUserWorkItem(ProcessUserData, e.Client);
+        }
 
+        private void ProcessUserData(object obj)
+        {
+            EntityManager Client = (EntityManager)obj;
             telepasu.log(ModuleName + "Client accepted...");
-            ProxyEngine.MailPost.AddApplication(e.Client.UserName, e.Client);
-            e.Client.StartWork();
+            ProxyEngine.MailPost.AddApplication(Client.UserName, Client);
+            Client.StartWork();
         }
     }
 }

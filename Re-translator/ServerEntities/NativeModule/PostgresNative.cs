@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Proxy.ServerEntities.Module.NativeModule
 {
-    class PostgresNativeModule
+    class PostgresNative
     {
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Proxy.Engine;
+using Proxy.LocalDB.UsersTable;
 using Proxy.Messages.API.Admin;
 using Proxy.Messages.API.SystemCalls;
 
@@ -13,14 +14,14 @@ namespace Proxy.ServerEntities.NativeModule
     {
         private readonly ProxyEngine _engine;
 
-        public MethodCallerNative(ProxyEngine engine)
+        public MethodCallerNative(ProxyEngine engine) : base()
         {
             _engine = engine;
         }
 
         public void HandleSystemCalls()
         {
-            MessagesReady.WaitOne(5000);
+            MessagesReady.WaitOne();
             var messages = GrabMessages();
             foreach (var serverMessage in messages)
             {
@@ -50,7 +51,7 @@ namespace Proxy.ServerEntities.NativeModule
                         // Subscribe him
                         break;
                     case "Login":
-
+                        StartAuth(message);
                         break;
                     case "Add User":
                         break;
@@ -68,10 +69,20 @@ namespace Proxy.ServerEntities.NativeModule
 
         private void StartAuth(MethodCall message)
         {
-            var action = (LocalDbLoginMessage) message;
+            var action = (LocalDbLoginMessage)message;
             var user = _engine.LocalDb.GetUser(action.Login, action.Secret);
-
-            action.Sender.OnLogin();
+            var data = user.Data as Users;
+            var response = new AuthResponse();
+            if (data != null)
+            {
+                var isAdmin = (action.Role.ToLower() == "admin" && data.Role == "admin");
+                response.Status = (isAdmin) ? 200 : 404;
+            }
+            else
+            {
+                response.Status = user.Status;
+            }
+            action.Sender.OnLogin(response);
         }
 
         private void AddModule(MethodCall message)
@@ -87,9 +98,9 @@ namespace Proxy.ServerEntities.NativeModule
                     Username = action.Username
                 });
             }
-            else if(action.Type == "LocalDB")
+            else if (action.Type == "LocalDB")
             {
-                
+
             }
         }
     }

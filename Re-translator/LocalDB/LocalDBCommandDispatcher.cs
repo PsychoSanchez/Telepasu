@@ -16,8 +16,8 @@ namespace Proxy.LocalDB
     public class LocalDbResponse
     {
         public object Data;
-        public string Status;
-        public LocalDbResponse(object data, string status)
+        public int Status;
+        public LocalDbResponse(object data, int status)
         {
             Data = data;
             Status = status;
@@ -63,19 +63,19 @@ namespace Proxy.LocalDB
         {
             try
             {
-                if (CheckAppUid(uid) != null) return new LocalDbResponse(false, "401");
+                if (CheckAppUid(uid) != null) return new LocalDbResponse(false, 401);
 
                 _sf.OpenSession().Save(new Applications()
                 {
                     APP_ID = uid
                 });
 
-                return new LocalDbResponse(true, "200");
+                return new LocalDbResponse(true, 200);
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return new LocalDbResponse(false, "408");
+                return new LocalDbResponse(false, 408);
             }
         }
 
@@ -83,7 +83,7 @@ namespace Proxy.LocalDB
         {
             try
             {
-                if (GetSubscribtions(messageTag, appId, userId) != null) return new LocalDbResponse(false, "401");
+                if (GetSubscribtions(messageTag, appId, userId) != null) return new LocalDbResponse(false, 401);
 
                 Subscribtions sub = new Subscribtions
                 {
@@ -93,12 +93,12 @@ namespace Proxy.LocalDB
                 };
                 _sf.OpenSession().Save(sub);
 
-                return new LocalDbResponse(true, "200");
+                return new LocalDbResponse(true, 200);
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return new LocalDbResponse(false, "408");
+                return new LocalDbResponse(false, 408);
             }
         }
 
@@ -106,7 +106,7 @@ namespace Proxy.LocalDB
         {
             try
             {
-                if (GetUser(login, secret).Data != null) return new LocalDbResponse(false, "401");
+                if (GetUser(login, secret).Data != null) return new LocalDbResponse(false, 401);
 
                 Users user = new Users
                 {
@@ -117,12 +117,12 @@ namespace Proxy.LocalDB
 
                 _sf.OpenSession().Save(user);
 
-                return new LocalDbResponse(true, "200");
+                return new LocalDbResponse(true, 200);
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return new LocalDbResponse(false, "408");
+                return new LocalDbResponse(false, 408);
             }
         }
         #endregion
@@ -135,18 +135,18 @@ namespace Proxy.LocalDB
             {
                 var response = GetUser(login);
                 var user = response.Data as Users;
-                if (user == null) return new LocalDbResponse(null, "404");
+                if (user == null) return new LocalDbResponse(null, 404);
                 
                 var query = "update Users set Password = '"+newPassword+"' where Login = :login";
                 var update = _sf.OpenSession().CreateQuery(query)
                                     .SetParameter("login", login);
                 update.ExecuteUpdate();
-                return new LocalDbResponse(null, "200");
+                return new LocalDbResponse(null, 200);
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return new LocalDbResponse(null, "408");
+                return new LocalDbResponse(null, 408);
             }
         }
 
@@ -162,15 +162,15 @@ namespace Proxy.LocalDB
                 foreach (var item in asd)
                 {
                     if (item.APP_ID == uidToFind)
-                        return new LocalDbResponse(item, "200");
+                        return new LocalDbResponse(item, 200);
                 }
 
-                return new LocalDbResponse(null, "404");
+                return new LocalDbResponse(null, 404);
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return new LocalDbResponse(null, "408");
+                return new LocalDbResponse(null, 408);
             }
         }
 
@@ -184,16 +184,16 @@ namespace Proxy.LocalDB
                 {
                     if ((item.Login == login))
                     {
-                        return new LocalDbResponse(item, "200");
+                        return new LocalDbResponse(item, 200);
                     }
                 }
 
-                return new LocalDbResponse(null, "404");
+                return new LocalDbResponse(null, 404);
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return new LocalDbResponse(null, "408");
+                return new LocalDbResponse(null, 408);
             }
         }
 
@@ -207,16 +207,16 @@ namespace Proxy.LocalDB
                 {
                     if ((item.Login == login) && (item.Password == secret))
                     {
-                        return new LocalDbResponse(item, "200");
+                        return new LocalDbResponse(item, 200);
                     }
                 }
 
-                return new LocalDbResponse(null, "404");
+                return new LocalDbResponse(null, 404);
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return new LocalDbResponse(null, "408");
+                return new LocalDbResponse(null, 408);
             }
         }
         public LocalDbResponse GetSubscribtions(int appId)
@@ -232,12 +232,12 @@ namespace Proxy.LocalDB
                         temp.Add(item);
                 }
 
-                return new LocalDbResponse(temp, "200");
+                return new LocalDbResponse(temp, 200);
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return new LocalDbResponse(null, "408");
+                return new LocalDbResponse(null, 408);
             }
         }
 
@@ -254,12 +254,12 @@ namespace Proxy.LocalDB
                         temp.Add(item);
                 }
 
-                return new LocalDbResponse(temp, "200");
+                return new LocalDbResponse(temp, 200);
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return new LocalDbResponse(null, "408");
+                return new LocalDbResponse(null, 408);
             }
         }
 
@@ -276,12 +276,12 @@ namespace Proxy.LocalDB
                         temp.Add(item);
                 }
 
-                return new LocalDbResponse(temp, "200");
+                return new LocalDbResponse(temp, 200);
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return new LocalDbResponse(null, "408");
+                return new LocalDbResponse(null, 408);
             }
         }
         #endregion

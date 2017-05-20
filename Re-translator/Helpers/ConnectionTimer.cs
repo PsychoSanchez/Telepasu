@@ -28,12 +28,9 @@ namespace Proxy.Helpers
                 {
                     return false;
                 }
-                else
+                if (_stopwaiting)
                 {
-                    if (_stopwaiting)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
         }
@@ -52,7 +49,7 @@ namespace Proxy.Helpers
         }
         private void Init()
         {
-            _worker = new BackgroundWorker {WorkerSupportsCancellation = true};
+            _worker = new BackgroundWorker { WorkerSupportsCancellation = true };
             _worker.DoWork += TimerWork;
         }
 
@@ -61,19 +58,19 @@ namespace Proxy.Helpers
             BackgroundWorker worker = sender as BackgroundWorker;
             while (worker != null && !worker.CancellationPending)
             {
-                if (!_timer.WaitOne(_timeout))
+                if (_timer.WaitOne(_timeout)) continue;
+
+                if (worker.CancellationPending)
                 {
-                    if (worker.CancellationPending)
-                    {
-                        return;
-                    }
-                    OnTimeOut();
+                    return;
                 }
+                OnTimeOut();
             }
         }
 
         private void OnTimeOut()
         {
+            _worker.CancelAsync();
             TimeOut?.Invoke(this, null);
         }
     }

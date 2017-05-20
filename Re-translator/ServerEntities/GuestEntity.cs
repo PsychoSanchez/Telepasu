@@ -40,30 +40,41 @@ namespace Proxy.ServerEntities.Application
         public GuestEntity(TcpClient tcp, int timeout) : base(tcp)
         {
             _timer = new ConnectionTimer(timeout);
+            _timer.TimeOut += _timer_TimeOut;
+        }
+
+        private void _timer_TimeOut(object sender, EventArgs e)
+        {
+            Shutdown();
+            OnAuthorizationOver("Fock u", 408); // 409 - Conflict
         }
 
         public void BeginAutorization()
         {
             Listen();
-            //_timer.Wait();
-            //return _entity;
+            _timer.Start();
         }
 
         private void OnAuthorizationOver(string message, EntityManager entity)
         {
             var e = new AuthEventArgs(message, entity);
-            AuthorizationOver?.Invoke(this, e);
+            AuthorizationOver?.BeginInvoke(this, e, ar => {}, null);
         }
-        private void OnAuthorizationOver(string message)
+        private void OnAuthorizationOver(string message, int status)
         {
             var e = new AuthEventArgs(message);
-            AuthorizationOver?.Invoke(this, e);
+            AuthorizationOver?.BeginInvoke(this, e, ar => {}, null);
         }
         protected override void Disconnected(object sender, MessageArgs e)
         {
             telepasu.log(UserName + " disconnected");
         }
 
+        /// <summary>
+        /// Recieves messages from client
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected override void ObtainMessage(object sender, MessageArgs e)
         {
             var actions = Parser.ToActionList(e.Message);
@@ -104,16 +115,14 @@ namespace Proxy.ServerEntities.Application
                         else
                         {
                             Shutdown();
-                            OnAuthorizationOver("Fock u");
+                            OnAuthorizationOver("Fock u", 409); // 409 - Conflict
                         }
 
-                        //_timer.StopWait();
                         break;
                     case "Auth":
                         telepasu.log("Auth not implemented yet");
                         Shutdown();
-                        OnAuthorizationOver("Auth not implemented yet");
-                        //_timer.StopWait();
+                        OnAuthorizationOver("Auth not implemented yet", 423); // 423 - Locked
                         break;
                     case "Ping":
                         var pingAction = new PingEvent(message.ActionId);
@@ -121,21 +130,22 @@ namespace Proxy.ServerEntities.Application
                         return;
                     default:
                         Shutdown();
-                        OnAuthorizationOver("Unknown message recieved");
-                        //_timer.StopWait();
+                        OnAuthorizationOver("Unknown message recieved", 500); // Internal error
                         break;
                 }
             }
-            return;
         }
 
+        /// <summary>
+        /// OnLogin Message 
+        /// Called from engine
+        /// </summary>
+        /// <param name="message"></param>
         public void OnLogin(AuthResponse message)
         {
             if (message.Status == 200)
             {
                 StopListen();
-
-                
                 var actionId = Helper.GetValue(_loginMessage, "ActionID: ");
 
                 var type = Helper.GetValue(_loginMessage, "Type: ");
@@ -160,7 +170,7 @@ namespace Proxy.ServerEntities.Application
             else
             {
                 // TODO: Add authentification failed message
-                OnAuthorizationOver("Authentification failed");
+                OnAuthorizationOver("Authentification failed", message.Status);
             }
         }
 

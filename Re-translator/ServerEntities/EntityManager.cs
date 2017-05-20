@@ -59,7 +59,12 @@ namespace Proxy.ServerEntities
         }
 
         protected abstract void ObtainMessage(object sender, MessageArgs e);
-        protected abstract void Disconnected(object sender, MessageArgs e);
+
+        protected virtual void Disconnected(object sender, MessageArgs e)
+        {
+            telepasu.log(ModuleName + "User " + UserName + " Disconnected: " + e.Message);
+            Shutdown();
+        }
 
         protected virtual void WorkAction()
         {

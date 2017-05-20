@@ -141,6 +141,7 @@ namespace Proxy
             }
             catch (Exception exception)
             {
+                OnConnectionLost(new MessageArgs(exception.Message));
                 telepasu.exc(exception);
             }
            

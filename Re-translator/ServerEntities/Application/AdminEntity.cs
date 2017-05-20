@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Sockets;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Proxy.Engine;
 using Proxy.Helpers;
 using Proxy.Messages.API.Admin;
@@ -14,7 +11,12 @@ namespace Proxy.ServerEntities.Application
         {
             Role = UserRole.Admin;
             PersonalMail.IsApi = true;
-            PersonalMail.SendApiMessage(JsonConvert.SerializeObject(new AuthResponse(true)));
+            PersonalMail.SendApiMessage(JsonConvert.SerializeObject(new AuthResponse
+            {
+                Status = 200,
+                Action = "Login",
+                Message = ResponseMessages.WELCOME_MESSAGE
+            }));
         }
 
         protected override void Disconnected(object sender, MessageArgs e)
