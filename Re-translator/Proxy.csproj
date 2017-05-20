@@ -159,9 +159,9 @@
     <Folder Include="ServerEntities\Module\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LocalDB\AppTable\Applications.hbm.xml" />
-    <Content Include="LocalDB\SubsTable\Subscribtions.hbm.xml" />
-    <Content Include="LocalDB\UsersTable\Users.hbm.xml" />
+    <EmbeddedResource Include="LocalDB\AppTable\Applications.hbm.xml" />
+    <EmbeddedResource Include="LocalDB\SubsTable\Subscribtions.hbm.xml" />
+    <EmbeddedResource Include="LocalDB\UsersTable\Users.hbm.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

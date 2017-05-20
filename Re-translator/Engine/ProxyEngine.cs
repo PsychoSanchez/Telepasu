@@ -13,11 +13,11 @@ namespace Proxy.Engine
     {
         private const string ModuleName = "#(Engine) ";
         public static readonly MailPost MailPost = new MailPost();
-        private MethodCallerNative _innerEvents;
+        private MethodCallerNativeModule _innerEvents;
         private bool _working = true;
         private SocketServer _listener;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        public readonly LocalDBCommandDispatcher LocalBd = new LocalDBCommandDispatcher();
+        private readonly LocalDbCommandDispatcher _localDb = new LocalDbCommandDispatcher(); 
 
         public ProxyEngine()
         {
@@ -29,8 +29,8 @@ namespace Proxy.Engine
             ThreadPool.QueueUserWorkItem(InnerEventsDoWork, this);
             ThreadPool.QueueUserWorkItem(ListenerDoWork);
 
-            LocalBd.ConnectLocalDB();
-            LocalBd.InitTables();
+            _localDb.ConnectLocalDb();
+            _localDb.InitTables();
         }
         public void Stop()
         {
@@ -67,8 +67,10 @@ namespace Proxy.Engine
                     }
                     break;
                 case "LocalDB":
-                    LocalBd.ConnectLocalDB();
-                    LocalBd.InitTables();
+                    {
+                        _localDb.ConnectLocalDb();
+                        _localDb.InitTables();
+                    }
                     break;
                 default:
                     break;

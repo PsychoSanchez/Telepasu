@@ -9,26 +9,31 @@ using Proxy.LocalDB.UsersTable;
 using System;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using FluentNHibernate.Visitors;
 
 namespace Proxy.LocalDB
 {
-    public class LocalDBCommandDispatcher
+    public class LocalDbResponse
     {
-        private TcpClient _client;
-        private static ISessionFactory sf;
-
-        public LocalDBCommandDispatcher()
+        public object Data;
+        public string Status;
+        public LocalDbResponse(object data, string status)
         {
-
+            Data = data;
+            Status = status;
         }
+    }
+    public class LocalDbCommandDispatcher
+    {
+        private static ISessionFactory _sf;
 
         #region InitDBMethods
-        public bool ConnectLocalDB()
+        public bool ConnectLocalDb()
         {
             Configuration cfg = new Configuration();
             try
             {
-                sf = cfg.Configure().BuildSessionFactory();
+                _sf = cfg.Configure().BuildSessionFactory();
             }
             catch (SocketException)
             {
@@ -49,61 +54,59 @@ namespace Proxy.LocalDB
             var exporter = new SchemaUpdate(createDBcofig);
             exporter.Execute(true, true);
 
-            sf = createDBcofig.Configure().BuildSessionFactory();
+            _sf = createDBcofig.Configure().BuildSessionFactory();
         }
         #endregion
 
         #region AddMethods
-        public bool AddAppUid(int uid)
+        public LocalDbResponse AddAppUid(int uid)
         {
             try
             {
-                if (CheckAppUID(uid) != null) return false;
+                if (CheckAppUid(uid) != null) return new LocalDbResponse(false, "401");
 
-                sf.OpenSession().Save(new Applications()
+                _sf.OpenSession().Save(new Applications()
                 {
                     APP_ID = uid
                 });
 
-                return true;
+                return new LocalDbResponse(true, "200");
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return false;
+                return new LocalDbResponse(false, "408");
             }
         }
 
-        public bool AddSubscribtion(string message_tag, int app_id, int user_id)
+        public LocalDbResponse AddSubscribtion(string messageTag, int appId, int userId)
         {
             try
             {
-                if (GetSubscribtions(message_tag, app_id, user_id) != null) return false;
+                if (GetSubscribtions(messageTag, appId, userId) != null) return new LocalDbResponse(false, "401");
 
                 Subscribtions sub = new Subscribtions
                 {
-                    APP_ID = app_id,
-                    MESSAGE_TAG = message_tag,
-                    USER_ID = user_id
+                    APP_ID = appId,
+                    MESSAGE_TAG = messageTag,
+                    USER_ID = userId
                 };
-                sf.OpenSession().Save(sub);
+                _sf.OpenSession().Save(sub);
 
-                var list = sf.OpenSession().CreateCriteria<Subscribtions>().List<Subscribtions>();
-
-                return true;
+                return new LocalDbResponse(true, "200");
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return false;
+                return new LocalDbResponse(false, "408");
             }
         }
 
-        public bool AddUser(string login, string secret, string role)
+        public LocalDbResponse AddUser(string login, string secret, string role)
         {
             try
             {
-                if (GetUser(login, secret) != null) return false;
+                if (GetUser(login, secret).Data != null) return new LocalDbResponse(false, "401");
 
                 Users user = new Users
                 {
@@ -112,130 +115,185 @@ namespace Proxy.LocalDB
                     Role = role
                 };
 
-                sf.OpenSession().Save(user);
+                _sf.OpenSession().Save(user);
 
-                return true;
+                return new LocalDbResponse(true, "200");
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return false;
+                return new LocalDbResponse(false, "408");
             }
         }
         #endregion
 
-        #region GetMethods
-        public Applications CheckAppUID(int uid_to_find)
-        {
-            var asd = sf.OpenSession().CreateCriteria<Applications>().List<Applications>();
+        #region UpdateMethods
 
-            foreach (var item in asd)
-            {
-                if (item.APP_ID == uid_to_find)
-                    return item;
-            }
-
-            return null;
-        }
-
-
-        public Users GetUser(string login, string secret)
+        public LocalDbResponse UpdateUserPassword(string login, string newPassword)
         {
             try
             {
-                var asd = sf.OpenSession().CreateCriteria<Users>().List<Users>();
+                var response = GetUser(login);
+                var user = response.Data as Users;
+                if (user == null) return new LocalDbResponse(null, "404");
+                
+                var query = "update Users set Password = '"+newPassword+"' where Login = :login";
+                var update = _sf.OpenSession().CreateQuery(query)
+                                    .SetParameter("login", login);
+                update.ExecuteUpdate();
+                return new LocalDbResponse(null, "200");
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return new LocalDbResponse(null, "408");
+            }
+        }
+
+        #endregion
+
+        #region GetMethods
+        public LocalDbResponse CheckAppUid(int uidToFind)
+        {
+            try
+            {
+                var asd = _sf.OpenSession().CreateCriteria<Applications>().List<Applications>();
+
+                foreach (var item in asd)
+                {
+                    if (item.APP_ID == uidToFind)
+                        return new LocalDbResponse(item, "200");
+                }
+
+                return new LocalDbResponse(null, "404");
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return new LocalDbResponse(null, "408");
+            }
+        }
+
+        public LocalDbResponse GetUser(string login)
+        {
+            try
+            {
+                var asd = _sf.OpenSession().CreateCriteria<Users>().List<Users>();
+
+                foreach (Users item in asd)
+                {
+                    if ((item.Login == login))
+                    {
+                        return new LocalDbResponse(item, "200");
+                    }
+                }
+
+                return new LocalDbResponse(null, "404");
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return new LocalDbResponse(null, "408");
+            }
+        }
+
+        public LocalDbResponse GetUser(string login, string secret)
+        {
+            try
+            {
+                var asd = _sf.OpenSession().CreateCriteria<Users>().List<Users>();
 
                 foreach (Users item in asd)
                 {
                     if ((item.Login == login) && (item.Password == secret))
                     {
-                        return item;
+                        return new LocalDbResponse(item, "200");
                     }
                 }
 
-                return null;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-
-        public List<Subscribtions> GetSubscribtions(int app_id)
-        {
-            try
-            {
-                var list = sf.OpenSession().CreateCriteria<Subscribtions>().List<Subscribtions>();
-                List<Subscribtions> temp = new List<Subscribtions>();
-
-                foreach (var item in list)
-                {
-                    if (item.APP_ID == app_id)
-                        temp.Add(item);
-                }
-
-                return temp;
+                return new LocalDbResponse(null, "404");
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return null;
+                return new LocalDbResponse(null, "408");
             }
         }
-
-        public List<Subscribtions> GetSubscribtions(string message_tag, int app_id, int user_id)
+        public LocalDbResponse GetSubscribtions(int appId)
         {
             try
             {
-                var list = sf.OpenSession().CreateCriteria<Subscribtions>().List<Subscribtions>();
+                var list = _sf.OpenSession().CreateCriteria<Subscribtions>().List<Subscribtions>();
                 List<Subscribtions> temp = new List<Subscribtions>();
 
                 foreach (var item in list)
                 {
-                    if ((item.MESSAGE_TAG == message_tag) && (item.APP_ID == app_id) && (item.USER_ID == user_id))
+                    if (item.APP_ID == appId)
                         temp.Add(item);
                 }
 
-                return temp;
+                return new LocalDbResponse(temp, "200");
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return null;
+                return new LocalDbResponse(null, "408");
             }
         }
 
-        public List<Subscribtions> GetSubscribtions(string message_tag)
+        public LocalDbResponse GetSubscribtions(string messageTag, int appId, int userId)
         {
             try
             {
-                var list = sf.OpenSession().CreateCriteria<Subscribtions>().List<Subscribtions>();
+                var list = _sf.OpenSession().CreateCriteria<Subscribtions>().List<Subscribtions>();
                 List<Subscribtions> temp = new List<Subscribtions>();
 
                 foreach (var item in list)
                 {
-                    if (item.MESSAGE_TAG == message_tag)
+                    if ((item.MESSAGE_TAG == messageTag) && (item.APP_ID == appId) && (item.USER_ID == userId))
                         temp.Add(item);
                 }
 
-                return temp;
+                return new LocalDbResponse(temp, "200");
             }
             catch (Exception ex)
             {
                 telepasu.exc(ex);
-                return null;
+                return new LocalDbResponse(null, "408");
+            }
+        }
+
+        public LocalDbResponse GetSubscribtions(string messageTag)
+        {
+            try
+            {
+                var list = _sf.OpenSession().CreateCriteria<Subscribtions>().List<Subscribtions>();
+                List<Subscribtions> temp = new List<Subscribtions>();
+
+                foreach (var item in list)
+                {
+                    if (item.MESSAGE_TAG == messageTag)
+                        temp.Add(item);
+                }
+
+                return new LocalDbResponse(temp, "200");
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return new LocalDbResponse(null, "408");
             }
         }
         #endregion
 
         #region DeleteMethods
-        public void DeleteSub(string message_tag, int app_id)
+        public void DeleteSub(string messageTag, int appId)
         {
             try
             {
-                var session = sf.OpenSession();
+                var session = _sf.OpenSession();
                 session.BeginTransaction();
-                session.CreateSQLQuery("delete Subsctibtions where APP_ID = " + app_id.ToString() + " and MESSAGE_TAG = " + message_tag);
+                session.CreateSQLQuery("delete Subsctibtions where APP_ID = " + appId + " and MESSAGE_TAG = " + messageTag);
                 session.Close();
             }
             catch (Exception ex)
@@ -247,7 +305,7 @@ namespace Proxy.LocalDB
         {
             try
             {
-                var session = sf.OpenSession();
+                var session = _sf.OpenSession();
                 Applications app = new Applications
                 {
                     APP_ID = uid
@@ -263,8 +321,20 @@ namespace Proxy.LocalDB
         }
         public void Dispose()
         {
-            _client.Dispose();
-            sf.Dispose();
+            _sf.Dispose();
+        }
+
+        public void DropTable(string tableName)
+        {
+            try
+            {
+                _sf.OpenSession().CreateQuery("delete " + tableName + " e").ExecuteUpdate();
+                var asd = _sf.OpenSession().CreateCriteria<Users>().List<Users>();
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+            }
         }
         #endregion
 
