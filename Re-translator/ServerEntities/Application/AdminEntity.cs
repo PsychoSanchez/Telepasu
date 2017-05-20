@@ -2,6 +2,7 @@
 using Proxy.Engine;
 using Proxy.Helpers;
 using Proxy.Messages.API.Admin;
+using Proxy.Messages.API.Light;
 
 namespace Proxy.ServerEntities.Application
 {
@@ -26,14 +27,18 @@ namespace Proxy.ServerEntities.Application
 
         protected override void ObtainMessage(object sender, MessageArgs e)
         {
-            telepasu.log(e.Message);
             var action = Helper.GetJsonValue(e.Message, "action");
-            telepasu.log(action);
             switch (action)
             {
                 case "Add Module":
                     var command = JsonConvert.DeserializeObject<AddModuleCommand>(e.Message);
                     ProxyEngine.MailPost.PostMessage(command);
+                    break;
+                case "Ping":
+                    PersonalMail.SendApiMessage(JsonConvert.SerializeObject(new Ping
+                    {
+                        Action = "Ping"
+                    }));
                     break;
                 default:
                     break;

@@ -27,18 +27,26 @@ namespace Proxy
         private readonly Socket _socket;
         private readonly TcpClient _tcp;
         private NetworkStream _stream;
+        private ConnectionTimer _timer;
 
         public SocketMail(TcpClient tcp)
         {
             _tcp = tcp;
+            _timer = new ConnectionTimer(7500);
+            _timer.TimeOut += _timer_TimeOut;
         }
         public SocketMail(Socket socket, int timeout)
         {
             _socket = socket;
             InitReciever();
-            //Timer = new ConnectionTimer(timeout);
-            //Timer.TimeOut += OnTimeOut;
-            //Timer.Start();
+
+            _timer = new ConnectionTimer(timeout);
+            _timer.TimeOut += _timer_TimeOut;
+        }
+
+        private void _timer_TimeOut(object sender, EventArgs e)
+        {
+            Disconnected?.Invoke(this, null);
         }
 
         public SocketMail(Socket client)
@@ -54,6 +62,11 @@ namespace Proxy
             _reciever.DoWork += Listen;
             _reciever.WorkerSupportsCancellation = true;
             _reciever.RunWorkerAsync();
+            if (_timer != null) return;
+
+            _timer = new ConnectionTimer(7500);
+            _timer.TimeOut += _timer_TimeOut;
+            _timer?.Start();
         }
         private bool SocketConnected()
         {
@@ -108,9 +121,9 @@ namespace Proxy
 
         private bool CheckCancel(BackgroundWorker worker)
         {
-            if (worker == null || !worker.CancellationPending) return false;
+            if (worker != null && !worker.CancellationPending) return false;
 
-            telepasu.log("Stopped listening");
+            telepasu.log(ModuleName + "Stopped listening");
             return true;
         }
 
@@ -125,7 +138,7 @@ namespace Proxy
             try
             {
                 // Loop to receive all the data sent by the client.
-                while ((i = _stream.Read(bytes, 0, bytes.Length)) != 0)
+                while (!e.Cancel && (i = _stream.Read(bytes, 0, bytes.Length)) != 0)
                 {
                     // Translate data bytes to a ASCII string.
                     var data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
@@ -144,7 +157,7 @@ namespace Proxy
                 OnConnectionLost(new MessageArgs(exception.Message));
                 telepasu.exc(exception);
             }
-           
+
         }
         public void StopListen()
         {
@@ -158,10 +171,7 @@ namespace Proxy
         }
         private void OnMessageRecieved(MessageArgs e)
         {
-            //if (Timer != null)
-            //{
-            //    Timer.Reset();
-            //}
+            _timer?.Reset();
             MessageRecieved?.Invoke(this, e);
         }
         private void OnConnectionLost(MessageArgs e)
@@ -201,18 +211,19 @@ namespace Proxy
         {
             try
             {
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(message);
+                byte[] msg = Encoding.ASCII.GetBytes(message);
                 // Send back a response.
                 _stream.Write(msg, 0, msg.Length);
 
             }
             catch (Exception exception)
             {
+                Disconnect();
                 telepasu.exc(exception);
             }
 
         }
-        
+
         public void Disconnect()
         {
             _reciever.CancelAsync();

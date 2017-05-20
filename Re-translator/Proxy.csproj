@@ -82,6 +82,8 @@
     <Compile Include="LocalDB\UsersTable\UsersMapper.cs" />
     <Compile Include="Messages\API\Admin\AddModuleCommand.cs" />
     <Compile Include="Messages\API\Admin\AuthResponse.cs" />
+    <Compile Include="Messages\API\JsonMessage.cs" />
+    <Compile Include="Messages\API\Light\Ping.cs" />
     <Compile Include="Messages\API\ResponseMessages.cs" />
     <Compile Include="Messages\API\MethodCall.cs" />
     <Compile Include="Messages\API\AuthAccepted.cs" />
@@ -155,7 +157,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Messages\API\Light\" />
     <Folder Include="Messages\API\Module\" />
     <Folder Include="ServerEntities\Module\" />
   </ItemGroup>
