@@ -31,7 +31,6 @@ namespace Proxy.ServerEntities.Application
     }
     class GuestEntity : EntityManager
     {
-        private readonly ConnectionTimer _timer;
         private string _challenge;
         // TODO: Create async await functions instead of events
         public event EventHandler<AuthEventArgs> AuthorizationOver;
@@ -39,11 +38,10 @@ namespace Proxy.ServerEntities.Application
 
         public GuestEntity(TcpClient tcp, int timeout) : base(tcp)
         {
-            _timer = new ConnectionTimer(timeout);
-            _timer.TimeOut += _timer_TimeOut;
+            PersonalMail.Disconnected += PersonalMail_Disconnected;
         }
 
-        private void _timer_TimeOut(object sender, EventArgs e)
+        private void PersonalMail_Disconnected(object sender, MessageArgs e)
         {
             Shutdown();
             OnAuthorizationOver("Fock u", 408); // 409 - Conflict
@@ -52,7 +50,6 @@ namespace Proxy.ServerEntities.Application
         public void BeginAutorization()
         {
             Listen();
-            _timer.Start();
         }
 
         private void OnAuthorizationOver(string message, EntityManager entity)

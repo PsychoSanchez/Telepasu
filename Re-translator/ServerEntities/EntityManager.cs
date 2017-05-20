@@ -20,7 +20,7 @@ namespace Proxy.ServerEntities
         protected readonly AutoResetEvent MessagesReady = new AutoResetEvent(false);
         protected UserRole Role = UserRole.Guest;
         protected bool Authentificated = false;
-        protected readonly SocketMail PersonalMail;
+        protected SocketMail PersonalMail;
         protected readonly MessagesParser Parser = new MessagesParser();
         protected readonly ConcurrentQueue<ServerMessage> Mailbox = new ConcurrentQueue<ServerMessage>();
 
@@ -126,22 +126,30 @@ namespace Proxy.ServerEntities
         {
             telepasu.log("Shutdown called at " + UserName);
             Cts.Cancel();
-            PersonalMail.SendMessage("Disconnected");
-            PersonalMail.Disconnect();
-            PersonalMail.MessageRecieved -= ObtainMessage;
-            PersonalMail.Disconnected -= Disconnected;
-            PersonalMail.TimeOut -= TimeOut;
+            PersonalMail?.SendMessage("Disconnected");
+            PersonalMail?.Disconnect();
+            if (PersonalMail != null)
+            {
+                PersonalMail.MessageRecieved -= ObtainMessage;
+                PersonalMail.Disconnected -= Disconnected;
+                PersonalMail.TimeOut -= TimeOut;
+            }
+            PersonalMail = null;
         }
 
         public void Shutdown(string message)
         {
             telepasu.log("Shutdown called at " + UserName + " by reason: " + message);
             Cts.Cancel();
-            PersonalMail.SendMessage(message);
-            PersonalMail.Disconnect();
-            PersonalMail.MessageRecieved -= ObtainMessage;
-            PersonalMail.Disconnected -= Disconnected;
-            PersonalMail.TimeOut -= TimeOut;
+            if (PersonalMail != null)
+            {
+                PersonalMail.SendMessage(message);
+                PersonalMail.Disconnect();
+                PersonalMail.MessageRecieved -= ObtainMessage;
+                PersonalMail.Disconnected -= Disconnected;
+                PersonalMail.TimeOut -= TimeOut;
+            }
+            PersonalMail = null;
         }
     }
 }

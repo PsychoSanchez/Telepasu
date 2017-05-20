@@ -146,7 +146,12 @@ namespace Proxy.Helpers
             var message = msg.Substring(index);
 
             int startPos = (parameter + "\":\"").Length;
-            int length = message.IndexOf("\",", StringComparison.Ordinal) - startPos;
+            int endPos = message.IndexOf("\",", StringComparison.Ordinal);
+            if (endPos == -1)
+            {
+                endPos = message.IndexOf("\"}", StringComparison.Ordinal);
+            }
+            int length = endPos - startPos;
             message = message.Substring(startPos, length);
 
             return !string.IsNullOrEmpty(message) ? message : string.Empty;
