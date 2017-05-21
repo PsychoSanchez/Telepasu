@@ -131,6 +131,7 @@ namespace Proxy.Engine
             telepasu.log(ModuleName + "Client accepted...");
             ProxyEngine.MailPost.AddApplication(client.UserName, client);
             client.StartWork();
+            telepasu.log(ModuleName + "Client disconnected...");
         }
     }
 }

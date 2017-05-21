@@ -40,8 +40,8 @@ namespace Proxy.ServerEntities.Application
 
         protected override void Disconnected(object sender, MessageArgs e)
         {
-            Shutdown();
             OnAuthorizationOver(ResponseMessages.LOGIN_FAILED, 408); // 409 - Conflict
+            Shutdown();
         }
 
         public void BeginAutorization()
@@ -52,28 +52,28 @@ namespace Proxy.ServerEntities.Application
         /// <summary>
         /// Method called when authorization successfull
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="username"></param>
         /// <param name="entity"></param>
-        private void OnAuthorizationOver(string message, EntityManager entity)
+        private void OnAuthorizationOver(string username, EntityManager entity)
         {
-            var e = new AuthEventArgs(message, entity);
-            AuthorizationOver?.BeginInvoke(this, e, ar => {}, null);
+            var e = new AuthEventArgs(username, entity);
+            AuthorizationOver?.BeginInvoke(this, e, ar => { }, null);
         }
 
         /// <summary>
         /// Method called when user kicked by som reason
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="username"></param>
         /// <param name="status"></param>
-        private void OnAuthorizationOver(string message, int status)
+        private void OnAuthorizationOver(string username, int status)
         {
-            var e = new AuthEventArgs(message);
+            var e = new AuthEventArgs(username);
             PersonalMail.SendJsonMessage(new Disconnected
             {
-                  Message = message,
-                  Status = status
+                Message = username,
+                Status = status
             });
-            AuthorizationOver?.BeginInvoke(this, e, ar => {}, null);
+            AuthorizationOver?.BeginInvoke(this, e, ar => { }, null);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Proxy.ServerEntities.Application
                             }
                             ProxyEngine.MailPost.PostMessage(new LocalDbLoginMessage
                             {
-                                Login =  username,
+                                Login = username,
                                 Secret = pwd,
                                 Role = Helper.GetValue(_loginMessage, "Type: "),
                                 Sender = this,
@@ -120,23 +120,23 @@ namespace Proxy.ServerEntities.Application
                         }
                         else
                         {
-                            Shutdown();
                             OnAuthorizationOver(ResponseMessages.DDOS_RESPONSE, 409); // 409 - Conflict
+                            Shutdown();
                         }
 
                         break;
                     case "Auth":
                         telepasu.log("Auth not implemented yet");
-                        Shutdown();
                         OnAuthorizationOver(ResponseMessages.NOT_IMPLEMENTED, 423); // 423 - Locked
+                        Shutdown();
                         break;
                     case "Ping":
                         var pingAction = new PingEvent(message.ActionId);
                         PersonalMail.SendMessage(pingAction.ToString());
                         return;
                     default:
-                        Shutdown();
                         OnAuthorizationOver(ResponseMessages.UNKNOWN_MESSAGE_RECIEVED, 500); // Internal error
+                        Shutdown();
                         break;
                 }
             }
@@ -153,22 +153,31 @@ namespace Proxy.ServerEntities.Application
             {
                 StopListen();
                 var actionId = Helper.GetValue(_loginMessage, "ActionID: ");
+                var userName = Helper.GetValue(_loginMessage, "username");
 
                 var type = Helper.GetValue(_loginMessage, "Type: ");
                 EntityManager app;
                 switch (type)
                 {
                     case "Light":
-                        app = new LightEntity(PersonalMail);
-                        OnAuthorizationOver("Welcome", app);
+                        app = new LightEntity(PersonalMail)
+                        {
+                            UserName = userName
+                        };
+                        OnAuthorizationOver(userName, app);
                         break;
                     case "Admin":
-                        app = new AdminEntity(PersonalMail);
-                        OnAuthorizationOver("Welcome", app);
+                        app = new AdminEntity(PersonalMail)
+                        {
+                            UserName = userName
+                        };
+                        OnAuthorizationOver(userName, app);
                         break;
                     default:
-                        UserName = Helper.GetValue(_loginMessage, "username");
-                        app = new HardEntity(PersonalMail, actionId);
+                        app = new HardEntity(PersonalMail, actionId)
+                        {
+                            UserName = UserName
+                        };
                         ProxyEngine.MailPost.AddApplication(app.UserName, app);
                         ProxyEngine.MailPost.Subscribe(app, NativeModulesTags.Asterisk);
                         OnAuthorizationOver("Welcome", app);

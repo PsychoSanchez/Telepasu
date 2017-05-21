@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 using Proxy.Engine;
+using Proxy.Messages.API.Light;
 
 namespace Proxy.ServerEntities
 {
@@ -119,7 +120,6 @@ namespace Proxy.ServerEntities
             PersonalMail.StopListen();
             PersonalMail.MessageRecieved -= ObtainMessage;
             PersonalMail.Disconnected -= Disconnected;
-            PersonalMail.TimeOut -= TimeOut;
         }
 
         protected void Shutdown()
@@ -142,10 +142,24 @@ namespace Proxy.ServerEntities
                 PersonalMail.Disconnect();
                 PersonalMail.MessageRecieved -= ObtainMessage;
                 PersonalMail.Disconnected -= Disconnected;
-                PersonalMail.TimeOut -= TimeOut;
             }
             PersonalMail = null;
             StopWork();
+        }
+        protected void Disconnect()
+        {
+            var subs = ProxyEngine.MailPost.GetSubscribtions(this);
+            foreach (string sub in subs)
+            {
+                telepasu.log(ModuleName + UserName + " sub removed: " + sub);
+                ProxyEngine.MailPost.Unsubscrive(this, sub);
+            }
+            PersonalMail.SendJsonMessage(new Disconnected()
+            {
+                Status = 200,
+                Message = "Thanks for all the fish!"
+            });
+            Shutdown();
         }
     }
 }

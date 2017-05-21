@@ -23,7 +23,6 @@ namespace Proxy
         private const string ModuleName = "#(User Mail) ";
         public event EventHandler<MessageArgs> MessageRecieved;
         public event EventHandler<MessageArgs> Disconnected;
-        public event EventHandler TimeOut;
         public bool IsApi = false;
         //ConnectionTimer Timer = null;
         private BackgroundWorker _reciever;
@@ -193,7 +192,7 @@ namespace Proxy
         }
         public void SendMessage(string message)
         {
-            telepasu.log(ModuleName + "Message send: " + Helper.END_LINE + message);
+            //telepasu.log(ModuleName + "Message send: " + Helper.END_LINE + message);
             byte[] sendBuffer = Encoding.ASCII.GetBytes(message);
             if (_socket == null || !_socket.Connected)
             {

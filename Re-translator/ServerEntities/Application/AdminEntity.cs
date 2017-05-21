@@ -38,11 +38,13 @@ namespace Proxy.ServerEntities.Application
                     PersonalMail.SendApiMessage(JsonConvert.SerializeObject(new Ping()));
                     break;
                 case "Disconnect":
+                    Disconnect();
                     break;
                 default:
                     break;
             }
         }
 
+       
     }
 }
