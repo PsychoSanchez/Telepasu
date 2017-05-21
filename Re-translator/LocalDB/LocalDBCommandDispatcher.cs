@@ -10,6 +10,7 @@ using System;
 using System.Net.Sockets;
 using System.Collections.Generic;
 using FluentNHibernate.Visitors;
+using Proxy.Helpers;
 
 namespace Proxy.LocalDB
 {
@@ -197,21 +198,28 @@ namespace Proxy.LocalDB
             }
         }
 
-        public LocalDbResponse GetUser(string login, string secret)
+        public LocalDbResponse GetUser(string login, string secret, string actionChallenge)
         {
             try
             {
                 var asd = _sf.OpenSession().CreateCriteria<Users>().List<Users>();
 
-                foreach (Users item in asd)
+                foreach (var item in asd)
                 {
-                    if ((item.Login == login) && (item.Password == secret))
+                    if (actionChallenge == null)
                     {
-                        return new LocalDbResponse(item, 200);
+                        if ((item.Login == login) && (item.Password == secret))
+                        {
+                            return new LocalDbResponse(item, 200);
+                        }
                     }
+                    if (item.Login != login) continue;
+                    var stringToHash = item.Password + actionChallenge;
+                    var hash = Encryptor.CalculateMD5Hash(stringToHash);
+                    if (hash == secret) return new LocalDbResponse(item, 200);
                 }
-
                 return new LocalDbResponse(null, 404);
+
             }
             catch (Exception ex)
             {

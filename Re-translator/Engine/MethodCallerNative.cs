@@ -76,7 +76,7 @@ namespace Proxy.ServerEntities.NativeModule
             if (data != null)
             {
                 //var isAdmin = (action.Role.ToLower() == "admin" && data.Role == "admin");
-                var isAdmin = (action.Role.ToLower() == data.Role.ToLower());
+                var isAdmin = (String.Equals(action.Role, data.Role, StringComparison.CurrentCultureIgnoreCase));
                 response.Status = (isAdmin) ? 200 : 404;
             }
             else
