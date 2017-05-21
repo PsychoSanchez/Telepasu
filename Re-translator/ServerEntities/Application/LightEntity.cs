@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Proxy.Helpers;
 using Proxy.Messages.API.Admin;
+using Proxy.Messages.API.Light;
 
 namespace Proxy.ServerEntities.Application
 {
@@ -26,14 +27,34 @@ namespace Proxy.ServerEntities.Application
 
         protected override void ObtainMessage(object sender, MessageArgs e)
         {
-            telepasu.log(e.Message);
             var action = Helper.GetJsonValue(e.Message, "action");
-            telepasu.log(action);
+            switch (action)
+            {
+                case "Ping":
+                    PersonalMail.SendApiMessage(JsonConvert.SerializeObject(new Ping
+                    {
+                        Action = "Ping"
+                    }));
+                    break;
+                default:
+                    break;
+            }
         }
 
-        protected override void WorkAction()
-        {
-            throw new NotImplementedException();
-        }
+        //protected override void WorkAction()
+        //{
+        //    var action = Helper.GetJsonValue(e.Message, "action");
+        //    switch (action)
+        //    {
+        //        case "Ping":
+        //                PersonalMail.SendApiMessage(JsonConvert.SerializeObject(new Ping
+        //                {
+        //                    Action = "Ping"
+        //                }));
+        //                break;
+        //        default:
+        //                break;
+        //    }
+        //}
     }
 }
