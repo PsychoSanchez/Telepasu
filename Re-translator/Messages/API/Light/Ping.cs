@@ -8,6 +8,7 @@ namespace Proxy.Messages.API.Light
 
         public Ping()
         {
+            Action = "Ping";
             Timestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
         }
     }

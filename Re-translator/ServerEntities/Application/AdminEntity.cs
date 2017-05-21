@@ -35,10 +35,9 @@ namespace Proxy.ServerEntities.Application
                     ProxyEngine.MailPost.PostMessage(command);
                     break;
                 case "Ping":
-                    PersonalMail.SendApiMessage(JsonConvert.SerializeObject(new Ping
-                    {
-                        Action = "Ping"
-                    }));
+                    PersonalMail.SendApiMessage(JsonConvert.SerializeObject(new Ping()));
+                    break;
+                case "Disconnect":
                     break;
                 default:
                     break;

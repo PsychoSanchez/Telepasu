@@ -31,7 +31,15 @@ namespace Proxy.Engine
         {
             _endpoint = new IPEndPoint(IPAddress.Any, 5000);
             _listener = new TcpListener(_endpoint);
-            _listener.Start();
+            try
+            {
+                _listener.Start();
+            }
+            catch (SocketException e)
+            {
+                telepasu.log(ModuleName + "#Failed to initialize. Reason: " + e.Message);
+                return;
+            }
             telepasu.log(ModuleName + "#SocketServer initialized...");
         }
         public Socket GetSocket()
@@ -119,10 +127,10 @@ namespace Proxy.Engine
 
         private void ProcessUserData(object obj)
         {
-            EntityManager Client = (EntityManager)obj;
+            EntityManager client = (EntityManager)obj;
             telepasu.log(ModuleName + "Client accepted...");
-            ProxyEngine.MailPost.AddApplication(Client.UserName, Client);
-            Client.StartWork();
+            ProxyEngine.MailPost.AddApplication(client.UserName, client);
+            client.StartWork();
         }
     }
 }

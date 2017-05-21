@@ -1,13 +1,11 @@
 ﻿using Proxy.Helpers;
 using Proxy.Messages.API;
 using System;
-using System.Diagnostics;
 using System.Net.Sockets;
 using Proxy.Engine;
 using Proxy.Messages.API.Admin;
+using Proxy.Messages.API.Light;
 using Proxy.Messages.API.SystemCalls;
-using Proxy.ServerEntities.Messages;
-using PingEvent = Proxy.Messages.API.PingEvent;
 
 namespace Proxy.ServerEntities.Application
 {
@@ -38,13 +36,12 @@ namespace Proxy.ServerEntities.Application
 
         public GuestEntity(TcpClient tcp, int timeout) : base(tcp)
         {
-            PersonalMail.Disconnected += PersonalMail_Disconnected;
         }
 
-        private void PersonalMail_Disconnected(object sender, MessageArgs e)
+        protected override void Disconnected(object sender, MessageArgs e)
         {
             Shutdown();
-            OnAuthorizationOver("Fock u", 408); // 409 - Conflict
+            OnAuthorizationOver(ResponseMessages.LOGIN_FAILED, 408); // 409 - Conflict
         }
 
         public void BeginAutorization()
@@ -52,19 +49,31 @@ namespace Proxy.ServerEntities.Application
             Listen();
         }
 
+        /// <summary>
+        /// Method called when authorization successfull
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="entity"></param>
         private void OnAuthorizationOver(string message, EntityManager entity)
         {
             var e = new AuthEventArgs(message, entity);
             AuthorizationOver?.BeginInvoke(this, e, ar => {}, null);
         }
+
+        /// <summary>
+        /// Method called when user kicked by som reason
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="status"></param>
         private void OnAuthorizationOver(string message, int status)
         {
             var e = new AuthEventArgs(message);
+            PersonalMail.SendJsonMessage(new Disconnected
+            {
+                  Message = message,
+                  Status = status
+            });
             AuthorizationOver?.BeginInvoke(this, e, ar => {}, null);
-        }
-        protected override void Disconnected(object sender, MessageArgs e)
-        {
-            telepasu.log(UserName + " disconnected");
         }
 
         /// <summary>
@@ -112,14 +121,14 @@ namespace Proxy.ServerEntities.Application
                         else
                         {
                             Shutdown();
-                            OnAuthorizationOver("Fock u", 409); // 409 - Conflict
+                            OnAuthorizationOver(ResponseMessages.DDOS_RESPONSE, 409); // 409 - Conflict
                         }
 
                         break;
                     case "Auth":
                         telepasu.log("Auth not implemented yet");
                         Shutdown();
-                        OnAuthorizationOver("Auth not implemented yet", 423); // 423 - Locked
+                        OnAuthorizationOver(ResponseMessages.NOT_IMPLEMENTED, 423); // 423 - Locked
                         break;
                     case "Ping":
                         var pingAction = new PingEvent(message.ActionId);
@@ -127,7 +136,7 @@ namespace Proxy.ServerEntities.Application
                         return;
                     default:
                         Shutdown();
-                        OnAuthorizationOver("Unknown message recieved", 500); // Internal error
+                        OnAuthorizationOver(ResponseMessages.UNKNOWN_MESSAGE_RECIEVED, 500); // Internal error
                         break;
                 }
             }
@@ -166,8 +175,7 @@ namespace Proxy.ServerEntities.Application
             }
             else
             {
-                // TODO: Add authentification failed message
-                OnAuthorizationOver("Authentification failed", message.Status);
+                OnAuthorizationOver(ResponseMessages.LOGIN_FAILED, message.Status);
             }
         }
 

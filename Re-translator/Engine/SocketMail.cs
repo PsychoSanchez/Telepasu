@@ -1,9 +1,12 @@
 ﻿using Proxy.Helpers;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using Newtonsoft.Json;
+using Proxy.Messages.API;
 
 namespace Proxy
 {
@@ -98,7 +101,10 @@ namespace Proxy
                 {
                     Thread.Sleep(50);
 
-                    e.Cancel = CheckCancel(worker);
+                    if (CheckCancel(worker))
+                    {
+                        return;
+                    }
 
                     var buffersize = _socket.Receive(recvBuffer);
                     response += Encoding.ASCII.GetString(recvBuffer, 0, buffersize);
@@ -141,10 +147,13 @@ namespace Proxy
                 while (!e.Cancel && (i = _stream.Read(bytes, 0, bytes.Length)) != 0)
                 {
                     // Translate data bytes to a ASCII string.
-                    var data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                    var data = Encoding.ASCII.GetString(bytes, 0, i);
 
                     // Process the data sent by the client.
-                    e.Cancel = CheckCancel(worker);
+                    if (CheckCancel(worker))
+                    {
+                        return;
+                    }
 
                     OnMessageRecieved(new MessageArgs(data));
 
@@ -152,23 +161,27 @@ namespace Proxy
                     Thread.Sleep(5);
                 }
             }
-            catch (Exception exception)
+            catch (ObjectDisposedException exception)
             {
                 OnConnectionLost(new MessageArgs(exception.Message));
+                telepasu.log(ModuleName + exception.Message);
+            }
+            catch (IOException exception)
+            {
+                OnConnectionLost(new MessageArgs(exception.Message));
+                telepasu.log(ModuleName + exception.Message);
+            }
+            catch (Exception exception)
+            {
                 telepasu.exc(exception);
             }
-
         }
         public void StopListen()
         {
             _reciever.CancelAsync();
             _reciever.Dispose();
         }
-        private void OnTimeOut(object sender, EventArgs e)
-        {
-            //Timer.Stop();
-            TimeOut?.Invoke(this, null);
-        }
+
         private void OnMessageRecieved(MessageArgs e)
         {
             _timer?.Reset();
@@ -222,6 +235,11 @@ namespace Proxy
                 telepasu.exc(exception);
             }
 
+        }
+
+        public void SendJsonMessage(JsonMessage message)
+        {
+            SendApiMessage(JsonConvert.SerializeObject(message));
         }
 
         public void Disconnect()

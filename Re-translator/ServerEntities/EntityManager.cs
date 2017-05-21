@@ -14,8 +14,6 @@ namespace Proxy.ServerEntities
     {
         private const string ModuleName = "#(Entity Manager) ";
         public string UserName = "guest";
-        public string UId = null;
-        public int ThreadNumber;
         protected readonly CancellationTokenSource Cts = new CancellationTokenSource();
         protected readonly AutoResetEvent MessagesReady = new AutoResetEvent(false);
         protected UserRole Role = UserRole.Guest;
@@ -116,40 +114,38 @@ namespace Proxy.ServerEntities
 
         protected void StopListen()
         {
-            telepasu.log("Shutdown called at " + UserName);
+            telepasu.log(ModuleName + "Shutdown called at " + UserName);
+            if (PersonalMail == null) return;
             PersonalMail.StopListen();
             PersonalMail.MessageRecieved -= ObtainMessage;
             PersonalMail.Disconnected -= Disconnected;
             PersonalMail.TimeOut -= TimeOut;
         }
-        public void Shutdown()
+
+        protected void Shutdown()
         {
-            telepasu.log("Shutdown called at " + UserName);
-            Cts.Cancel();
-            PersonalMail?.SendMessage("Disconnected");
-            PersonalMail?.Disconnect();
-            if (PersonalMail != null)
-            {
-                PersonalMail.MessageRecieved -= ObtainMessage;
-                PersonalMail.Disconnected -= Disconnected;
-                PersonalMail.TimeOut -= TimeOut;
-            }
-            PersonalMail = null;
+            telepasu.log(ModuleName + "Shutdown called at " + UserName);
+            ShutdownConnection();
         }
 
         public void Shutdown(string message)
         {
-            telepasu.log("Shutdown called at " + UserName + " by reason: " + message);
-            Cts.Cancel();
+            telepasu.log(ModuleName + "Shutdown called at " + UserName + " by reason: " + message);
+            PersonalMail.SendMessage(message);
+            ShutdownConnection();
+        }
+
+        private void ShutdownConnection()
+        {
             if (PersonalMail != null)
             {
-                PersonalMail.SendMessage(message);
                 PersonalMail.Disconnect();
                 PersonalMail.MessageRecieved -= ObtainMessage;
                 PersonalMail.Disconnected -= Disconnected;
                 PersonalMail.TimeOut -= TimeOut;
             }
             PersonalMail = null;
+            StopWork();
         }
     }
 }
