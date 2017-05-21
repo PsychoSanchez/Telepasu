@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using NHibernate.Event;
 using Proxy.ServerEntities;
 using Proxy.ServerEntities.Application;
 
@@ -117,9 +118,15 @@ namespace Proxy.Engine
 
         private void Guest_AuthorizationOver(object sender, AuthEventArgs e)
         {
+            GuestEntity guest = sender as GuestEntity;
+            if (guest != null)
+            {
+                guest.AuthorizationOver -= Guest_AuthorizationOver;
+            }
             if (!e.Authentificated)
             {
-                telepasu.log(ModuleName + "Authentification failed...\r\nClient kicked.");
+                telepasu.log(ModuleName + "Authentification failed... Client kicked.");
+
                 return;
             }
             ThreadPool.QueueUserWorkItem(ProcessUserData, e.Client);

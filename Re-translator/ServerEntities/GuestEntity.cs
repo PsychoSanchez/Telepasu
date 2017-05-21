@@ -112,6 +112,7 @@ namespace Proxy.ServerEntities.Application
                             ProxyEngine.MailPost.PostMessage(new LocalDbLoginMessage
                             {
                                 Login = username,
+                                Challenge = _challenge,
                                 Secret = pwd,
                                 Role = Helper.GetValue(_loginMessage, "Type: "),
                                 Sender = this,
@@ -167,10 +168,17 @@ namespace Proxy.ServerEntities.Application
                         OnAuthorizationOver(userName, app);
                         break;
                     case "Admin":
-                        app = new AdminEntity(PersonalMail)
+                        try
                         {
-                            UserName = userName
-                        };
+                            app = new AdminEntity(PersonalMail)
+                            {
+                                UserName = userName
+                            };
+                        }
+                        catch (Exception e)
+                        {
+                            return;
+                        }
                         OnAuthorizationOver(userName, app);
                         break;
                     default:

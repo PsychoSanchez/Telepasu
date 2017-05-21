@@ -30,6 +30,10 @@ namespace Proxy.ServerEntities
         protected EntityManager(SocketMail mail)
         {
             PersonalMail = mail;
+            if (PersonalMail == null)
+            {
+                throw new Exception("Mail null");
+            }
             PersonalMail.MessageRecieved += ObtainMessage;
             PersonalMail.Disconnected += Disconnected;
             PersonalMail.InitReciever();

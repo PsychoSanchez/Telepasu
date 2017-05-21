@@ -54,6 +54,7 @@ namespace Proxy
         public SocketMail(Socket client)
         {
             _socket = client;
+            _timer = new ConnectionTimer(7500);
             InitReciever();
         }
 

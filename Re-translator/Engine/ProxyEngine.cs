@@ -62,8 +62,7 @@ namespace Proxy.Engine
                     {
                         if (e.SocketErrorCode != SocketError.TimedOut) return;
 
-                        telepasu.log("Сервер недоступен");
-                        throw new Exception("Сервер недоступен");
+                        telepasu.log(ModuleName + "Сервер Asterisk недоступен");
                     }
                     break;
                 case "LocalDB":

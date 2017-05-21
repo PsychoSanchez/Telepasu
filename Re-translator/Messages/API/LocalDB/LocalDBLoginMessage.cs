@@ -6,6 +6,7 @@ namespace Proxy.Messages.API.SystemCalls
     internal class LocalDbLoginMessage : MethodCall
     {
         public string Login;
+        public string Challenge;
         public string Secret;
         public string Role;
         public GuestEntity Sender;
