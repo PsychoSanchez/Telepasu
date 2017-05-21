@@ -36,6 +36,11 @@ namespace Proxy.ServerEntities.Application
                         Action = "Ping"
                     }));
                     break;
+                case "DBGetContactsAction":
+                    Console.WriteLine(e.Message);
+                    break;
+                case "AsteriskCall":
+                    break;
                 default:
                     break;
             }
