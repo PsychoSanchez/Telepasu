@@ -119,7 +119,7 @@ namespace Proxy.ServerEntities
 
         protected void StopListen()
         {
-            telepasu.log(ModuleName + "Shutdown called at " + UserName);
+            telepasu.log(ModuleName + "Stopped listening" + UserName);
             if (PersonalMail == null) return;
             PersonalMail.StopListen();
             PersonalMail.MessageRecieved -= ObtainMessage;

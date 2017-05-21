@@ -8,9 +8,9 @@ namespace Proxy.Helpers
     class Encryptor
     {
         private static Random random = new Random();
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgjklmznxlwqe0123456789";
         public static string GenerateChallenge()
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgjklmznxlwqe0123456789";
             return new string(Enumerable.Repeat(chars, 10)
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }

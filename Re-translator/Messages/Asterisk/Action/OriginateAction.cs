@@ -245,14 +245,9 @@ namespace Proxy.ServerEntities.Messages
                             foreach (KeyValuePair<string, string> value in variables)
                             {
                                 i++;
-                                if (i == variables.Count)
-                                {
-                                    sb.Append(string.Concat(value.Key, value.Value));
-                                }
-                                else
-                                {
-                                    sb.Append(string.Concat(value.Key, "=\"", value.Value, "\"", "|"));
-                                }
+                                sb.Append(i == variables.Count
+                                    ? string.Concat(value.Key, value.Value)
+                                    : string.Concat(value.Key, "=\"", value.Value, "\"", "|"));
                             }
                             sb.Length--;
                             sb.Append(Helper.LINE_SEPARATOR);
@@ -282,26 +277,20 @@ namespace Proxy.ServerEntities.Messages
                         {
                             sb.Append(string.Concat("Async: ", _async, Helper.LINE_SEPARATOR));
                         }
-                        if (variables != null)
-                            if (variables.Count > 0)
+                        if (variables?.Count > 0)
+                        {
+                            sb.Append(string.Concat("Variable: "));
+                            int i = 0;
+                            foreach (KeyValuePair<string, string> value in variables)
                             {
-                                sb.Append(string.Concat("Variable: "));
-                                int i = 0;
-                                foreach (KeyValuePair<string, string> value in variables)
-                                {
-                                    i++;
-                                    if (i == variables.Count)
-                                    {
-                                        sb.Append(string.Concat(value.Key, value.Value));
-                                    }
-                                    else
-                                    {
-                                        sb.Append(string.Concat(value.Key, "=\"", value.Value, "\"", "|"));
-                                    }
-                                }
-                                sb.Length--;
-                                sb.Append(Helper.LINE_SEPARATOR);
+                                i++;
+                                sb.Append(i == variables.Count
+                                    ? string.Concat(value.Key, value.Value)
+                                    : string.Concat(value.Key, "=\"", value.Value, "\"", "|"));
                             }
+                            sb.Length--;
+                            sb.Append(Helper.LINE_SEPARATOR);
+                        }
                         if (_timeout != 30000)
                             sb.Append(string.Concat("Timeout: ", _timeout, Helper.LINE_SEPARATOR));
                         return sb.ToString();
