@@ -5,14 +5,14 @@ using System.Text;
 
 namespace Proxy.Helpers
 {
-    class Encryptor
+    internal static class Encryptor
     {
-        private static Random random = new Random();
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgjklmznxlwqe0123456789";
+        private static readonly Random Random = new Random();
+        const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgjklmznxlwqe0123456789";
         public static string GenerateChallenge()
         {
-            return new string(Enumerable.Repeat(chars, 10)
-              .Select(s => s[random.Next(s.Length)]).ToArray());
+            return new string(Enumerable.Repeat(Chars, 10)
+              .Select(s => s[Random.Next(s.Length)]).ToArray());
         }
         public static string CalculateMD5Hash(string input)
         {
@@ -23,9 +23,9 @@ namespace Proxy.Helpers
 
             // step 2, convert byte array to hex string
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < hash.Length; i++)
+            foreach (byte b in hash)
             {
-                sb.Append(hash[i].ToString("x2"));
+                sb.Append(b.ToString("x2"));
             }
             return sb.ToString();
         }

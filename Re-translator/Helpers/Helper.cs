@@ -69,27 +69,10 @@ namespace Proxy.Helpers
 
         public static char INTERNAL_CATION_ID_DELIMETER = '#';
 
-        public static string[] END_MESSAGE = new string[] { "\r\n\r\n" };
-        private static string[] ChannelSplit = new string[] { " " };
+        public static string[] END_MESSAGE = { "\r\n\r\n" };
+        private static string[] ChannelSplit = { " " };
         public static Dictionary<string, string> vars = new Dictionary<string, string>();
         #endregion
-
-        public static string BuildMessage(AsteriskAction action)
-        {
-            StringBuilder sb = new StringBuilder();
-            //if (string.IsNullOrEmpty(action.ActionID))
-            //{
-            //    action.ActionID = MachineID;
-            //}
-            //sb.Append(string.Concat("Action: ", action.Action, LINE_SEPARATOR));
-            //if (action.ActionID != null)
-            //{
-            //    sb.Append(string.Concat("ActionID: ", action.ActionID, LINE_SEPARATOR));
-            //}
-            sb.Append(action.ToString());
-            //sb.Append(LINE_SEPARATOR);
-            return sb.ToString();
-        }
 
         public static string GetAsteriskMessageType(string message)
         {

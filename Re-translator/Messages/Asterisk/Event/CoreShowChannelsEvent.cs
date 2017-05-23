@@ -4,8 +4,9 @@ namespace Proxy.ServerEntities.Messages
 {
     class CoreShowChannelsEvent : AsteriskMessage
     {
-        public CoreShowChannelsEvent(string _message) : base(_message)
+        public CoreShowChannelsEvent(string message) : base(message)
         {
+
         }
 
         public override string ToApi()

@@ -70,7 +70,7 @@ namespace Proxy.ServerEntities.NativeModule
         private void StartAuth(MethodCall message)
         {
             var action = (LocalDbLoginMessage)message;
-            var user = _engine.LocalDb.GetUser(action.Login, action.Secret);
+            var user = _engine.LocalDb.GetUser(action.Login, action.Secret, action.Challenge);
             var data = user.Data as Users;
             var response = new AuthResponse();
             if (data != null)

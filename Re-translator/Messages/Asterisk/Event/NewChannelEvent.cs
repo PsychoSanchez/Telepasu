@@ -33,23 +33,5 @@ namespace Proxy.ServerEntities.Messages
         {
             throw new NotImplementedException();
         }
-        //public NewChannelEvent(ChannelData _channel)
-        //{
-        //    Channel = _channel;
-        //    RaiseNewchannelEvent(this);
-        //}
-        //public NewChannelEvent(string message)
-        //{
-        //    Channel.ChannelID = Helper.GetValue(message, "Channel: ");
-        //    Channel.Uniqueid = Helper.GetValue(message, "Uniqueid: ");
-        //    Channel.CallerIDNum = Helper.GetValue(message, "CallerIDNum: ");
-        //    Channel.CallerIDName = Helper.GetValue(message, "CallerIDName: ");
-        //    Channel.Context = Helper.GetValue(message, "Context: ");
-        //    Channel.ConnectedLineName = Helper.GetValue(message, "ConnectedLineName: ");
-        //    Channel.ConnectedLineNum = Helper.GetValue(message, "ConnectedLineNum: ");
-        //    Channel.Status = Helper.GetValue(message, "ChannelState: ");
-        //    Channel.ChannelStateDesc = Helper.GetValue(message, "ChannelStateDesc: ");
-        //    RaiseNewchannelEvent(this);
-        //}
     }
 }

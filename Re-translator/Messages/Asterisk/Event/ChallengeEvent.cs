@@ -6,11 +6,11 @@ namespace Proxy.ServerEntities.Messages
 {
     class ChallengeEvent : AsteriskMessage
     {
-        public ChallengeEvent(string _message) : base(_message)
+        public ChallengeEvent(string message) : base(message)
         {
-            Version = Helper.GetValue(_message, "Asterisk Call Manager/");
-            Challenge = Helper.GetValue(_message, "Challenge: ");
-            ActionID = Helper.GetValue(_message, "ActionID: ");
+            Version = Helper.GetValue(message, "Asterisk Call Manager/");
+            Challenge = Helper.GetValue(message, "Challenge: ");
+            ActionID = Helper.GetValue(message, "ActionID: ");
         }
         public string ActionID { get; private set; }
         public string Challenge { get; private set; }
