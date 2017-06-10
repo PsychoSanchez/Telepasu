@@ -107,7 +107,7 @@ namespace Proxy.LocalDB
         {
             try
             {
-                if (GetUser(login, secret).Data != null) return new LocalDbResponse(false, 401);
+                if (GetUser(login, secret, null).Data != null) return new LocalDbResponse(false, 401);
 
                 Users user = new Users
                 {
@@ -183,7 +183,7 @@ namespace Proxy.LocalDB
 
                 foreach (Users item in asd)
                 {
-                    if ((item.Login == login))
+                    if (item.Login == login)
                     {
                         return new LocalDbResponse(item, 200);
                     }

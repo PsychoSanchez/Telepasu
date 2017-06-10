@@ -40,6 +40,7 @@ namespace Proxy.ServerEntities.Application
                     Console.WriteLine(e.Message);
                     break;
                 case "AsteriskCall":
+                    Console.WriteLine(e.Message);
                     break;
                 default:
                     break;

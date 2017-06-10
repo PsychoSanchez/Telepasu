@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Proxy.Helpers
 {
-    public class Helper
+    public static class Helper
     {
         #region API CONSTANTS
         public static string MachineID = Helper.ConvertToTranslit(Environment.MachineName.Replace(" ", "")) + Helper.ConvertToTranslit(Environment.UserName.Replace(" ", ""));
@@ -76,6 +76,10 @@ namespace Proxy.Helpers
 
         public static string GetAsteriskMessageType(string message)
         {
+            if (string.IsNullOrEmpty(message))
+            {
+                return "";
+            }
             var firstLine = message.Substring(0, message.IndexOf(LINE_SEPARATOR, StringComparison.Ordinal));
             if (firstLine.Contains("Asterisk Call Manager"))
             {
@@ -91,11 +95,19 @@ namespace Proxy.Helpers
         /// <param name="parameter">Указатель на искомые данные</param>
         public static string GetValue(string msg, string parameter)
         {
+            // Check for null
+            if (string.IsNullOrEmpty(parameter) || string.IsNullOrEmpty(msg))
+            {
+                return string.Empty;
+            }
+
             if (!parameter.Contains(ASTERISK_MESSAGE_PARAMETER_DELIMETER))
             {
                 parameter += ASTERISK_MESSAGE_PARAMETER_DELIMETER;
             }
             var msgLower = msg.ToLower();
+            
+            // Parameter not found
             if (!msg.Contains(parameter) && !msgLower.Contains(parameter.ToLower()))
             {
                 return string.Empty;
@@ -109,6 +121,7 @@ namespace Proxy.Helpers
             int length = message.IndexOf(LINE_SEPARATOR, StringComparison.Ordinal) - startPos;
             message = message.Substring(startPos, length);
 
+            // Return parameter value
             return !string.IsNullOrEmpty(message) ? message : string.Empty;
         }
 
@@ -119,6 +132,10 @@ namespace Proxy.Helpers
         /// <param name="parameter">Указатель на искомые данные</param>
         public static string GetJsonValue(string msg, string parameter)
         {
+            if (string.IsNullOrEmpty(parameter) || string.IsNullOrEmpty(msg))
+            {
+                return "";
+            }
             var msgLower = msg.ToLower();
             if (!msg.Contains(parameter) && !msgLower.Contains(parameter.ToLower()))
             {
@@ -146,6 +163,10 @@ namespace Proxy.Helpers
         /// <returns></returns>
         public static string GetNumberFromChannel(string channelId)
         {
+            if (string.IsNullOrEmpty(channelId))
+            {
+                return "";
+            }
             if (!channelId.ToLower().Contains("sip")) return string.Empty;
 
             channelId = channelId.Replace("SIP/", "");

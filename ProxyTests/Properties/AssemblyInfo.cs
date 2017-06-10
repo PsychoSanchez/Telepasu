@@ -2,25 +2,25 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// Управление общими сведениями о сборке осуществляется с помощью 
+// Управление общими сведениями о сборке осуществляется посредством следующего 
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
-[assembly: AssemblyTitle("Proxy")]
+[assembly: AssemblyTitle("ProxyTests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Proxy")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyProduct("ProxyTests")]
+[assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-// Параметр ComVisible со значением FALSE делает типы в сборке невидимыми 
-// для COM-компонентов.  Если требуется обратиться к типу в этой сборке через 
-// COM, задайте атрибуту ComVisible значение TRUE для этого типа.
+// Задание значения false для атрибута ComVisible приведет к тому, что типы из этой сборки станут невидимыми 
+// для COM-компонентов.  Если к одному из типов этой сборки необходимо обращаться из 
+// модели COM, задайте для атрибута ComVisible этого типа значение true.
 [assembly: ComVisible(false)]
 
-// Следующий GUID служит для идентификации библиотеки типов, если этот проект будет видимым для COM
-[assembly: Guid("39948d5d-e80c-4748-8a92-bfc3129384a1")]
+// Если данный проект доступен для модели COM, следующий GUID используется в качестве идентификатора библиотеки типов
+[assembly: Guid("fb0caa1f-e8c0-42d9-971f-3e3608f5951d")]
 
 // Сведения о версии сборки состоят из следующих четырех значений:
 //
@@ -31,11 +31,6 @@ using System.Runtime.InteropServices;
 //
 // Можно задать все значения или принять номера сборки и редакции по умолчанию 
 // используя "*", как показано ниже:
-// [assembly: AssemblyVersion("1.0.*")]
+// [сборка: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: InternalsVisibleTo("Proxy.Tests")]
-[assembly: InternalsVisibleTo("Proxy.Explorables")]
-[assembly: InternalsVisibleTo("Proxy.Tests1")]
-[assembly: InternalsVisibleTo("Proxy.Tests2")]
-

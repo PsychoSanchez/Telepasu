@@ -55,7 +55,7 @@ namespace Proxy.Engine
         {
             Messages type = AsteriskMessageTypes[original.GetType()];
 
-            JsonMessage json;
+            JsonMessage json = null;
             switch (type)
             {
                 case Messages.DialBeginEvent:
