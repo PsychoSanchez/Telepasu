@@ -156,7 +156,7 @@ namespace Proxy.ServerEntities
             foreach (string sub in subs)
             {
                 telepasu.log(ModuleName + UserName + " sub removed: " + sub);
-                ProxyEngine.MailPost.Unsubscrive(this, sub);
+                ProxyEngine.MailPost.Unsubscribe(this, sub);
             }
             PersonalMail.SendJsonMessage(new Disconnected()
             {

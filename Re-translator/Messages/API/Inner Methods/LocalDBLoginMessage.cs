@@ -1,4 +1,6 @@
-﻿using Proxy.Messages.API.Admin;
+﻿using Proxy.Engine;
+using Proxy.Messages.API.Admin;
+using Proxy.ServerEntities;
 using Proxy.ServerEntities.Application;
 
 namespace Proxy.Messages.API.SystemCalls
@@ -9,6 +11,9 @@ namespace Proxy.Messages.API.SystemCalls
         public string Challenge;
         public string Secret;
         public string Role;
-        public GuestEntity Sender;
+
+        public LocalDbLoginMessage(EntityManager sender) : base(sender)
+        {
+        }
     }
 }

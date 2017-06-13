@@ -109,7 +109,7 @@ namespace Proxy.ServerEntities.Application
                             {
                                 pwd = Helper.GetValue(_loginMessage, "secret");
                             }
-                            ProxyEngine.MailPost.PostMessage(new LocalDbLoginMessage
+                            ProxyEngine.MailPost.PostMessage(new LocalDbLoginMessage(this)
                             {
                                 Login = username,
                                 Challenge = _challenge,

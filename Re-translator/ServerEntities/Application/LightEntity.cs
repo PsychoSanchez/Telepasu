@@ -4,6 +4,7 @@ using Proxy.Engine;
 using Proxy.Helpers;
 using Proxy.Messages.API.Admin;
 using Proxy.Messages.API.Light;
+using Proxy.Messages.API.SystemCalls;
 using Proxy.ServerEntities.Messages;
 
 namespace Proxy.ServerEntities.Application
@@ -44,8 +45,16 @@ namespace Proxy.ServerEntities.Application
                 case "AsteriskCall":
                     var callAction = JsonConvert.DeserializeObject<CallAction>(e.Message);
                     var originateAction = new OriginateAction(callAction.Exten + "/" + callAction.Number, "default",
-                        callAction.Number, 1) {Tag = NativeModulesTags.Asterisk + NativeModulesTags.Incoming};
+                        callAction.Number, 1)
+                    { Tag = NativeModulesTags.Asterisk + NativeModulesTags.Incoming };
                     ProxyEngine.MailPost.PostMessage(originateAction);
+                    break;
+                case "Subscribe":
+                    var subPidor = JsonConvert.DeserializeObject<SubscribeMessage>(e.Message);
+                    ProxyEngine.MailPost.PostMessage(new SubscribeMethod(this)
+                    {
+                        SubscribeTag = subPidor.Tag
+                    });
                     break;
                 default:
                     break;

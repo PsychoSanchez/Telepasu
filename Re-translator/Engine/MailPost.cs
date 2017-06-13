@@ -50,7 +50,7 @@ namespace Proxy
             var entitySubs = _subscriptions.GetOrAdd(entity.UserName, new List<string>());
             entitySubs.Add(tag);
         }
-        public void Unsubscrive(EntityManager entity, string tag)
+        public void Unsubscribe(EntityManager entity, string tag)
         {
             var subs = _subscribers.GetOrAdd(tag, new ConcurrentList());
             subs.Remove(entity);
