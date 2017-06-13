@@ -1,8 +1,10 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Proxy.Engine;
 using Proxy.Helpers;
 using Proxy.Messages.API.Admin;
 using Proxy.Messages.API.Light;
+using Proxy.ServerEntities.Messages;
 
 namespace Proxy.ServerEntities.Application
 {
@@ -40,6 +42,10 @@ namespace Proxy.ServerEntities.Application
                     Console.WriteLine(e.Message);
                     break;
                 case "AsteriskCall":
+                    var callAction = JsonConvert.DeserializeObject<CallAction>(e.Message);
+                    var originateAction = new OriginateAction(callAction.Exten + "/" + callAction.Number, "default",
+                        callAction.Number, 1) {Tag = NativeModulesTags.Asterisk + NativeModulesTags.Incoming};
+                    ProxyEngine.MailPost.PostMessage(originateAction);
                     break;
                 default:
                     break;
