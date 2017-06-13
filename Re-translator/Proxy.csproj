@@ -88,6 +88,7 @@
     <Compile Include="Messages\API\Admin\AuthResponse.cs" />
     <Compile Include="Messages\API\Light\CallBegin.cs" />
     <Compile Include="Messages\API\JsonMessage.cs" />
+    <Compile Include="Messages\API\Light\CallAction.cs" />
     <Compile Include="Messages\API\Light\Disconnected.cs" />
     <Compile Include="Messages\API\Light\Ping.cs" />
     <Compile Include="Messages\API\ResponseMessages.cs" />
