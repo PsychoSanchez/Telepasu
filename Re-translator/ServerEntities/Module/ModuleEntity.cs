@@ -37,7 +37,7 @@ namespace Proxy.ServerEntities.Module
                     });
                     break;
                 case "DBGetStatisticsResponse":
-
+                    ProxyEngine.MailPost.PostMessage(JsonConvert.DeserializeObject<DBGetStatisticsResponse>(e.Message));
                     break;
                 case "Unsubscribe":
                     var unsubscribe = JsonConvert.DeserializeObject<SubscribeMessage>(e.Message);
