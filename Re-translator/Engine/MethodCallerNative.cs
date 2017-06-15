@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Proxy.Engine;
 using Proxy.LocalDB.UsersTable;
 using Proxy.Messages.API.Admin;
 using Proxy.Messages.API.SystemCalls;
 using Proxy.ServerEntities.Application;
+using Proxy.ServerEntities.Module;
 
 namespace Proxy.ServerEntities.NativeModule
 {
@@ -119,6 +121,10 @@ namespace Proxy.ServerEntities.NativeModule
             else if (action.Type == "LocalDB")
             {
 
+            }
+            else if (action.Type == "Module")
+            {
+                _engine.ConnectModule(action);
             }
         }
 

@@ -6,6 +6,8 @@ using Proxy.ServerEntities;
 using Proxy.ServerEntities.Application;
 using Proxy.ServerEntities.NativeModule;
 using Proxy.LocalDB;
+using Proxy.Messages.API.Admin;
+using Proxy.ServerEntities.Module;
 
 namespace Proxy.Engine
 {
@@ -72,6 +74,23 @@ namespace Proxy.Engine
                 default:
                     break;
             }
+        }
+
+        public async void ConnectModule(AddModuleMethod action)
+        {
+            var tcp = new TcpClient();
+            tcp.Connect(action.Ip, action.Port);
+            var moduleEntity = new ModuleEntity(tcp);
+            ThreadPool.QueueUserWorkItem(ModuleThread, moduleEntity);
+        }
+
+        private void ModuleThread(object state)
+        {
+            EntityManager module = (EntityManager)state;
+            ProxyEngine.MailPost.Subscribe(module, NativeModulesTags.Asterisk);
+            ProxyEngine.MailPost.Subscribe(module, NativeModulesTags.INNER_CALLS);
+            ProxyEngine.MailPost.Subscribe(module, NativeModulesTags.DB);
+            module.StartWork();
         }
 
         private void AsteriskThread(object state)

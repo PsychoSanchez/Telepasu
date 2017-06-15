@@ -10,7 +10,7 @@ namespace Proxy.Engine
     {
         public const string Incoming = "Action";
         public const string Asterisk = "Asterisk Native";
-        public const string DB = "";
+        public const string DB = "DBTag";
         public const string INNER_CALLS = "Inner Calls";
     }
 }
