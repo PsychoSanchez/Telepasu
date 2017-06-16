@@ -7,6 +7,7 @@ using Proxy.Messages.API.Admin;
 using Proxy.Messages.API.SystemCalls;
 using Proxy.ServerEntities.Application;
 using Proxy.ServerEntities.Module;
+using Newtonsoft.Json;
 
 namespace Proxy.ServerEntities.NativeModule
 {
@@ -14,6 +15,7 @@ namespace Proxy.ServerEntities.NativeModule
     {
         private readonly ProxyEngine _engine;
 
+        private const string ModuleName = "#(Method Caller) ";
         public MethodCallerNative(ProxyEngine engine) : base()
         {
             _engine = engine;
@@ -21,8 +23,9 @@ namespace Proxy.ServerEntities.NativeModule
 
         public void HandleSystemCalls()
         {
+            telepasu.log(ModuleName + "Waiting message");
             MessagesReady.WaitOne();
-            MessagesReady.Reset();
+            telepasu.log(ModuleName + "Message recieved");
             var messages = GrabMessages();
             foreach (var serverMessage in messages)
             {
@@ -42,6 +45,10 @@ namespace Proxy.ServerEntities.NativeModule
                         });
                         break;
                     case "Get Modules List":
+                        Task.Run(() =>
+                        {
+                            GetModulesList(message);
+                        });
                         break;
                     case "Get Applications List":
                         break;
@@ -116,7 +123,7 @@ namespace Proxy.ServerEntities.NativeModule
                     Password = action.Pwd,
                     Port = action.Port,
                     Username = action.Username
-                });
+                }, message.Sender);
             }
             else if (action.Type == "LocalDB")
             {
@@ -135,6 +142,16 @@ namespace Proxy.ServerEntities.NativeModule
             {
                 ProxyEngine.MailPost.Subscribe(action.Sender, action.SubscribeTag);
             }
+            action?.Sender.SendMesage(JsonConvert.SerializeObject(message));
+        }
+
+        private void GetModulesList(MethodCall message)
+        {
+            var modules = ProxyEngine.MailPost.GetConnectedModules();
+            message.Sender.SendMesage(JsonConvert.SerializeObject(new GetModulesMessage()
+            {
+                Modules = modules
+            }));
         }
 
         private void Unsubscribe(MethodCall message)

@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Newtonsoft.Json;
 using Proxy.ServerEntities;
 using Proxy.ServerEntities.Application;
 using Proxy.ServerEntities.NativeModule;
@@ -39,7 +40,7 @@ namespace Proxy.Engine
             _cts.Cancel();
             _listener.Stop();
         }
-        public async void ConnectNativeModule(string type, ConnectionData data)
+        public async void ConnectNativeModule(string type, ConnectionData data, EntityManager sender)
         {
             switch (type)
             {
@@ -55,15 +56,32 @@ namespace Proxy.Engine
                             telepasu.log(ModuleName + "#Asterisk connected...");
                             ProxyEngine.MailPost.AddNativeModule("AsteriskServer1", asterisk);
                             ThreadPool.QueueUserWorkItem(AsteriskThread, asterisk);
+                            sender.SendMesage(JsonConvert.SerializeObject(new AddModuleResponse()
+                            {
+                                Connected = true,
+                                Status = "200",
+                                Type = "Native Module"
+                            }));
                             return;
                         }
 
+                        sender.SendMesage(JsonConvert.SerializeObject(new AddModuleResponse()
+                        {
+                            Connected = false,
+                            Status = "404",
+                            Type = "Native Module"
+                        }));
                         telepasu.log(ModuleName + "#Failed to connect asterisk...");
                     }
                     catch (SocketException e)
                     {
                         if (e.SocketErrorCode != SocketError.TimedOut) return;
-
+                        sender.SendMesage(JsonConvert.SerializeObject(new AddModuleResponse()
+                        {
+                            Connected = false,
+                            Status = "404",
+                            Type = "Native Module"
+                        }));
                         telepasu.log(ModuleName + "Сервер Asterisk недоступен");
                     }
                     break;
@@ -76,12 +94,32 @@ namespace Proxy.Engine
             }
         }
 
-        public async void ConnectModule(AddModuleMethod action)
+        public void ConnectModule(AddModuleMethod action)
         {
             var tcp = new TcpClient();
-            tcp.Connect(action.Ip, action.Port);
-            var moduleEntity = new ModuleEntity(tcp);
-            ThreadPool.QueueUserWorkItem(ModuleThread, moduleEntity);
+            try
+            {
+                tcp.Connect(action.Ip, action.Port);
+                var moduleEntity = new ModuleEntity(tcp);
+                ThreadPool.QueueUserWorkItem(ModuleThread, moduleEntity);
+                ProxyEngine.MailPost.AddModule("AnalyticsModule", moduleEntity, action);
+                action.Sender.SendMesage(JsonConvert.SerializeObject(new AddModuleResponse()
+                {
+                    Connected = true,
+                    Status = "200",
+                    Type = "Module"
+                }));
+            }
+            catch (Exception e)
+            {
+                action.Sender.SendMesage(JsonConvert.SerializeObject(new AddModuleResponse()
+                {
+                    Connected = false,
+                    Status = "404",
+                    Type = "Module"
+                }));
+                Console.WriteLine(e);
+            }
         }
 
         private void ModuleThread(object state)
@@ -91,6 +129,7 @@ namespace Proxy.Engine
             ProxyEngine.MailPost.Subscribe(module, NativeModulesTags.INNER_CALLS);
             ProxyEngine.MailPost.Subscribe(module, NativeModulesTags.DB);
             module.StartWork();
+            ProxyEngine.MailPost.Unsubscribe(module);
         }
 
         private void AsteriskThread(object state)

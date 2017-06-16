@@ -35,6 +35,7 @@ namespace Proxy.ServerEntities.Application
                     var addMessage = JsonConvert.DeserializeObject<AddModuleMessage>(e.Message);
                     ProxyEngine.MailPost.PostMessage(new AddModuleMethod(this)
                     {
+                        Action = "Add " + addMessage.Type,
                         Ip = addMessage.Ip,
                         Port = addMessage.Port,
                         Pwd = addMessage.Pwd,
@@ -46,6 +47,7 @@ namespace Proxy.ServerEntities.Application
                     var subscribe = JsonConvert.DeserializeObject<SubscribeMessage>(e.Message);
                     ProxyEngine.MailPost.PostMessage(new SubscribeMethod(this)
                     {
+                        Action = "Subscribe",
                         SubscribeTag = subscribe.Tag
                     });
                     break;
@@ -53,7 +55,20 @@ namespace Proxy.ServerEntities.Application
                     var unsubscribe = JsonConvert.DeserializeObject<SubscribeMessage>(e.Message);
                     ProxyEngine.MailPost.PostMessage(new SubscribeMethod(this)
                     {
+                        Action = "Unsubscribe",
                         SubscribeTag = unsubscribe.Tag
+                    });
+                    break;
+                case "Get Modules List":
+                    ProxyEngine.MailPost.PostMessage(new MethodCall(this)
+                    {
+                        Action = "Get Modules List"
+                    });
+                    break;
+                case "Get Applications List":
+                    ProxyEngine.MailPost.PostMessage(new MethodCall(this)
+                    {
+                        Action = "Get Applications List"
                     });
                     break;
                 case "Ping":
@@ -63,6 +78,15 @@ namespace Proxy.ServerEntities.Application
                     Disconnect();
                     break;
                 default:
+                    var tag = Helper.GetJsonValue(e.Message, "Tag");
+                    if (string.IsNullOrEmpty(tag))
+                    {
+                        return;
+                    }
+                    ProxyEngine.MailPost.PostMessage(new ServerMessage(e.Message)
+                    {
+                        Tag = tag
+                    });
                     break;
             }
         }

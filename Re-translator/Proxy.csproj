@@ -84,6 +84,8 @@
     <Compile Include="LocalDB\SubsTable\Subscribtions.cs" />
     <Compile Include="LocalDB\UsersTable\Users.cs" />
     <Compile Include="LocalDB\UsersTable\UsersMapper.cs" />
+    <Compile Include="Messages\API\Admin\GetModulesMessage.cs" />
+    <Compile Include="Messages\API\Admin\AddModuleResponse.cs" />
     <Compile Include="Messages\API\Admin\AddModuleMessage.cs" />
     <Compile Include="Messages\API\Inner Methods\AddModuleMethod.cs" />
     <Compile Include="Messages\API\Admin\AuthResponse.cs" />
@@ -93,6 +95,8 @@
     <Compile Include="Messages\API\Light\CallAction.cs" />
     <Compile Include="Messages\API\Light\Disconnected.cs" />
     <Compile Include="Messages\API\Light\Ping.cs" />
+    <Compile Include="Messages\API\Module\DBGetStatisticsResponse.cs" />
+    <Compile Include="Messages\API\Module\WelcomeMessage.cs" />
     <Compile Include="Messages\API\ResponseMessages.cs" />
     <Compile Include="Messages\API\MethodCall.cs" />
     <Compile Include="Messages\API\AuthAccepted.cs" />
@@ -147,6 +151,7 @@
     <Compile Include="Messages\Asterisk\Event\UnknownEvent.cs" />
     <Compile Include="Messages\ServerMessage.cs" />
     <Compile Include="ServerEntities\Asterisk\AsteriskEntity.cs" />
+    <Compile Include="ServerEntities\Module\ModuleEntity.cs" />
     <Compile Include="ServerEntities\NativeModule\AsteriskNative.cs" />
     <Compile Include="Engine\MethodCallerNative.cs" />
     <Compile Include="ServerEntities\NativeModule\PostgresNative.cs" />
@@ -166,10 +171,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Messages\API\Module\" />
-    <Folder Include="ServerEntities\Module\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="LocalDB\AppTable\Applications.hbm.xml" />
     <Content Include="LocalDB\SubsTable\Subscribtions.hbm.xml" />

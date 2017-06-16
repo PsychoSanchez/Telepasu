@@ -117,6 +117,12 @@ namespace Proxy.ServerEntities
             MessagesReady.Set();
         }
 
+        public void SendMesage(string message)
+        {
+            Mailbox.Enqueue(new ServerMessage(message));
+            MessagesReady.Set();
+        }
+
         protected void StopListen()
         {
             telepasu.log(ModuleName + "Stopped listening" + UserName);

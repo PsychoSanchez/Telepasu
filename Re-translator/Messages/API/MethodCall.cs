@@ -8,7 +8,8 @@ namespace Proxy.Messages.API.Admin
     {
         public string Action;
         public EntityManager Sender;
-        protected MethodCall(EntityManager sender)
+
+        public MethodCall(EntityManager sender)
         {
             Sender = sender;
             Tag = NativeModulesTags.INNER_CALLS;
