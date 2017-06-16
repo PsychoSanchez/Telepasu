@@ -257,6 +257,19 @@ namespace Proxy.LocalDB
             }
         }
 
+        public List<Users> GetAllUsers()
+        {
+            try
+            {
+                return _sf.OpenSession().CreateCriteria<Users>().List<Users>() as List<Users>;
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return null;
+            } 
+        }
+
         public LocalDbResponse GetUser(string login, string secret, string actionChallenge)
         {
             try
