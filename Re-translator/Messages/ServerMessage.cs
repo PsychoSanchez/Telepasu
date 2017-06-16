@@ -2,11 +2,21 @@
 
 namespace Proxy.ServerEntities
 {
-    public abstract class ServerMessage
+    public class ServerMessage
     {
         public MessageType type = MessageType.InnerMessage;
         public string Tag;
         protected StringBuilder Message = new StringBuilder("");
+
+        public ServerMessage()
+        {
+            
+        }
+
+        public ServerMessage(string message)
+        {
+            Message.Append(message);
+        }
 
         public new virtual string ToString()
         {

@@ -3,7 +3,7 @@ using Proxy.ServerEntities;
 
 namespace Proxy.Messages.API.Admin
 {
-    internal class AddModuleMethod: MethodCall
+    public class AddModuleMethod: MethodCall
     {
         public string Type;
         public string Username;

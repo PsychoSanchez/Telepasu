@@ -50,6 +50,15 @@ namespace Proxy.ServerEntities.Module
                     Disconnect();
                     break;
                 default:
+                    var tag = Helper.GetJsonValue(e.Message, "Tag");
+                    if (string.IsNullOrEmpty(tag))
+                    {
+                        return;
+                    }
+                    ProxyEngine.MailPost.PostMessage(new ServerMessage(e.Message)
+                    {
+                        Tag = tag
+                    });
                     break;
             }
         }

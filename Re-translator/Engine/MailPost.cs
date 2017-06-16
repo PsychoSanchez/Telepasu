@@ -2,6 +2,10 @@
 using Proxy.ServerEntities;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Newtonsoft.Json;
+using Proxy.Messages.API.Admin;
 
 namespace Proxy
 {
@@ -12,7 +16,8 @@ namespace Proxy
         /// Key - Tag (string)
         /// </summary>
         private readonly ConcurrentDictionary<string, ConcurrentList> _subscribers = new ConcurrentDictionary<string, ConcurrentList>();
-        private readonly ConcurrentDictionary<string, List<string>> _subscriptions = new ConcurrentDictionary<string, List<string>>();
+        private readonly ConcurrentDictionary<EntityManager, List<string>> _subscriptions = new ConcurrentDictionary<EntityManager, List<string>>();
+        private readonly List<MethodCall> _modulesInfo = new List<MethodCall>();
         private readonly ConcurrentList _moduleList = new ConcurrentList();
         private readonly ConcurrentList _appsList = new ConcurrentList();
         private readonly ConcurrentList _innerModules = new ConcurrentList();
@@ -35,11 +40,17 @@ namespace Proxy
             // TODO: Change entity to nativemodule class
         }
 
-        public void AddModule(string uid, EntityManager entity)
+        public void AddModule(string uid, EntityManager entity, AddModuleMethod data)
         {
             var subs = _subscribers.GetOrAdd(uid, new ConcurrentList());
             subs.Add(entity);
             _moduleList.Add(entity);
+            _modulesInfo.Add(data);
+        }
+
+        public string GetConnectedModules()
+        {
+            return JsonConvert.SerializeObject(_modulesInfo);
         }
 
         public void Subscribe(EntityManager entity, string tag)
@@ -47,19 +58,33 @@ namespace Proxy
             telepasu.log(ModuleName + entity.UserName + " subscrived to tag: " + tag);
             var subscribers = _subscribers.GetOrAdd(tag, new ConcurrentList());
             subscribers.Add(entity);
-            var entitySubs = _subscriptions.GetOrAdd(entity.UserName, new List<string>());
+            var entitySubs = _subscriptions.GetOrAdd(entity, new List<string>());
             entitySubs.Add(tag);
         }
         public void Unsubscribe(EntityManager entity, string tag)
         {
             var subs = _subscribers.GetOrAdd(tag, new ConcurrentList());
             subs.Remove(entity);
-            var entitySubs = _subscriptions.GetOrAdd(entity.UserName, new List<string>());
+            var entitySubs = _subscriptions.GetOrAdd(entity, new List<string>());
             entitySubs.Remove(tag);
+        }
+        public void Unsubscribe(EntityManager entity)
+        {
+            var subs = _subscriptions.GetOrAdd(entity, new List<string>());
+            foreach (var sub in subs)
+            {
+                var entitySubs = _subscribers.GetOrAdd(sub, new ConcurrentList());
+                entitySubs.Remove(entity);
+            }
+            var a = new List<string>();
+            while (_subscriptions.TryRemove(entity, out a))
+            {
+                Thread.Sleep(5);
+            }
         }
         public List<string> GetSubscribtions(EntityManager entity)
         {
-            var entitySubs = _subscriptions.GetOrAdd(entity.UserName, new List<string>());
+            var entitySubs = _subscriptions.GetOrAdd(entity, new List<string>());
             return entitySubs;
         }
         public void PostMessage(ServerMessage message)
