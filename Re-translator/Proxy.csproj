@@ -91,6 +91,8 @@
     <Compile Include="Messages\API\Admin\RemoveWhiteListMethod.cs" />
     <Compile Include="Messages\API\Admin\AddWhiteListMethod.cs" />
     <Compile Include="Messages\API\Admin\AddModuleMessage.cs" />
+    <Compile Include="Messages\API\Admin\AddModuleMessage - Копировать.cs" />
+    <Compile Include="Messages\API\Admin\GetAllUsersMessage.cs" />
     <Compile Include="Messages\API\Admin\GetModulesMessage.cs" />
     <Compile Include="Messages\API\Admin\AddModuleResponse.cs" />
     <Compile Include="Messages\API\Admin\GetUsersOnlineMessage.cs" />
