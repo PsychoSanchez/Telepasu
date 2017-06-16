@@ -72,7 +72,9 @@ namespace Proxy.ServerEntities.Application
                         SubscribeTag = unsubscribe.Tag
                     });
                     break;
-
+                case "Get All Users":
+                    PersonalMail.SendMessage(JsonConvert.SerializeObject(new GetAllUsersMessage(ProxyEngine.LocalDb.GetAllUsers())));
+                    break;
                 case "Get Users Count":
                     PersonalMail.SendMessage(JsonConvert.SerializeObject(new GetUsersOnlineMessage()
                     {
