@@ -84,6 +84,8 @@
     <Compile Include="LocalDB\SubsTable\Subscribtions.cs" />
     <Compile Include="LocalDB\UsersTable\Users.cs" />
     <Compile Include="LocalDB\UsersTable\UsersMapper.cs" />
+    <Compile Include="LocalDB\WhiteList\WhiteList.cs" />
+    <Compile Include="LocalDB\WhiteList\WhiteListMapper.cs" />
     <Compile Include="Messages\API\Admin\GetModulesMessage.cs" />
     <Compile Include="Messages\API\Admin\AddModuleResponse.cs" />
     <Compile Include="Messages\API\Admin\AddModuleMessage.cs" />
@@ -176,6 +178,7 @@
     <Content Include="LocalDB\AppTable\Applications.hbm.xml" />
     <Content Include="LocalDB\SubsTable\Subscribtions.hbm.xml" />
     <Content Include="LocalDB\UsersTable\Users.hbm.xml" />
+    <Content Include="LocalDB\WhiteList\WhiteList.hbm.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

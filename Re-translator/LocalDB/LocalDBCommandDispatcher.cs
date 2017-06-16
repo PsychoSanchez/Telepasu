@@ -51,6 +51,7 @@ namespace Proxy.LocalDB
                 .Mappings(m => m.FluentMappings.AddFromAssemblyOf<SubscribtionMapper>())
                 .Mappings(m => m.FluentMappings.AddFromAssemblyOf<UsersMapper>())
                 .Mappings(m => m.FluentMappings.AddFromAssemblyOf<ApplicationsMapper>())
+                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<WhiteList.WhiteList>())
                 .BuildConfiguration();
             var exporter = new SchemaUpdate(createDBcofig);
             exporter.Execute(true, true);
@@ -77,6 +78,33 @@ namespace Proxy.LocalDB
             {
                 telepasu.exc(ex);
                 return new LocalDbResponse(false, 408);
+            }
+        }
+
+        public bool AddWhiteListItem(string address)
+        {
+            try
+            {
+                var whiteListRow =
+                    _sf.OpenSession()
+                        .QueryOver<WhiteList.WhiteList>()
+                        .Where(x => x.Address == address)
+                        .SingleOrDefault<WhiteList.WhiteList>();
+
+                if (whiteListRow == null)
+                {
+                    _sf.OpenSession().Save(new WhiteList.WhiteList
+                    {
+                        Address = address
+                    });
+                    return true;
+                }
+                else return false;
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return false;
             }
         }
 
@@ -154,6 +182,24 @@ namespace Proxy.LocalDB
         #endregion
 
         #region GetMethods
+
+        public bool CheckWhiteList(string address)
+        {
+            try
+            {
+                var whiteListRow =
+                    _sf.OpenSession()
+                        .QueryOver<WhiteList.WhiteList>()
+                        .Where(x => x.Address == address)
+                        .SingleOrDefault<WhiteList.WhiteList>();
+                return (whiteListRow != null);
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return false;
+            }
+        }
         public LocalDbResponse CheckAppUid(int uidToFind)
         {
             try
@@ -295,6 +341,22 @@ namespace Proxy.LocalDB
         #endregion
 
         #region DeleteMethods
+
+        public void DeleteWhiteList(string address)
+        {
+            try
+            {
+                var session = _sf.OpenSession();
+                session.BeginTransaction();
+                session.CreateSQLQuery("delete WhiteList where Address = " + address);
+                session.Close();
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+            }
+
+        }
         public void DeleteSub(string messageTag, int appId)
         {
             try
