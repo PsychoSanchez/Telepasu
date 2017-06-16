@@ -183,6 +183,19 @@ namespace Proxy.LocalDB
 
         #region GetMethods
 
+        public List<WhiteList.WhiteList> GetWhiteList()
+        {
+            try
+            {
+                return _sf.OpenSession().CreateCriteria<WhiteList.WhiteList>().List<WhiteList.WhiteList>() as List<WhiteList.WhiteList>;
+            }
+            catch (Exception ex)
+            {
+                telepasu.exc(ex);
+                return null;
+            }
+        }
+
         public bool CheckWhiteList(string address)
         {
             try
