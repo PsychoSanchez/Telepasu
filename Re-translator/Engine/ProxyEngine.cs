@@ -20,7 +20,7 @@ namespace Proxy.Engine
         private bool _working = true;
         private SocketServer _listener;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        public readonly LocalDbCommandDispatcher LocalDb = new LocalDbCommandDispatcher();
+        public static readonly LocalDbCommandDispatcher LocalDb = new LocalDbCommandDispatcher();
 
         public ProxyEngine()
         {

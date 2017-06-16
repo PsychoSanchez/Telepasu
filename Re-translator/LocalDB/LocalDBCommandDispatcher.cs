@@ -267,7 +267,7 @@ namespace Proxy.LocalDB
             {
                 telepasu.exc(ex);
                 return null;
-            } 
+            }
         }
 
         public LocalDbResponse GetUser(string login, string secret, string actionChallenge)
