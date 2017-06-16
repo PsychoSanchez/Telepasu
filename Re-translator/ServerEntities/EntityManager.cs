@@ -158,11 +158,20 @@ namespace Proxy.ServerEntities
         }
         protected void Disconnect()
         {
-            var subs = ProxyEngine.MailPost.GetSubscribtions(this);
-            foreach (string sub in subs)
+            try
             {
-                telepasu.log(ModuleName + UserName + " sub removed: " + sub);
-                ProxyEngine.MailPost.Unsubscribe(this, sub);
+                ProxyEngine.MailPost.Unsubscribe(this);
+                //var subs = ProxyEngine.MailPost.GetSubscribtions(this);
+                //foreach (string sub in subs)
+                //{
+                //    telepasu.log(ModuleName + UserName + " sub removed: " + sub);
+                //    ProxyEngine.MailPost.Unsubscribe(this, sub);
+                //}
+
+            }
+            catch (Exception e)
+            {
+                telepasu.exc(e);
             }
             PersonalMail.SendJsonMessage(new Disconnected()
             {

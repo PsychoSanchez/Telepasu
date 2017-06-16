@@ -101,7 +101,12 @@ namespace Proxy.Engine
                 telepasu.exc(e);
             }
             //Проверка наличия айпи в белом листе
-            //var oipi = ((IPEndPoint)temp.client.Client.RemoteEndPoint).Address.ToString();
+            var oipi = ((IPEndPoint)listener.LocalEndpoint).Address.ToString();
+            if (!ProxyEngine.LocalDb.CheckWhiteList(oipi))
+            {
+                telepasu.log(ModuleName + "User kicked: access denied");
+                return;
+            }
             //if(ipTable.Compare(oipi)){
             // TODO: Get threads count
             //ThreadPool.GetMaxThreads() ThreadPool.GetAvailableThreads()
