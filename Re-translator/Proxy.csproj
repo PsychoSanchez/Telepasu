@@ -84,11 +84,15 @@
     <Compile Include="LocalDB\SubsTable\Subscribtions.cs" />
     <Compile Include="LocalDB\UsersTable\Users.cs" />
     <Compile Include="LocalDB\UsersTable\UsersMapper.cs" />
+<<<<<<< HEAD
     <Compile Include="LocalDB\WhiteList\WhiteList.cs" />
     <Compile Include="LocalDB\WhiteList\WhiteListMapper.cs" />
+=======
+    <Compile Include="Messages\API\Admin\AddModuleMessage - Копировать.cs" />
+>>>>>>> 45e701489d06ec9bb8464121791c92501b8df01c
     <Compile Include="Messages\API\Admin\GetModulesMessage.cs" />
     <Compile Include="Messages\API\Admin\AddModuleResponse.cs" />
-    <Compile Include="Messages\API\Admin\AddModuleMessage.cs" />
+    <Compile Include="Messages\API\Admin\GetUsersOnlineMessage.cs" />
     <Compile Include="Messages\API\Inner Methods\AddModuleMethod.cs" />
     <Compile Include="Messages\API\Admin\AuthResponse.cs" />
     <Compile Include="Messages\API\Inner Methods\SubscribeMethod.cs" />

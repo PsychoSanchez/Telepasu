@@ -18,6 +18,7 @@ namespace Proxy
         private readonly ConcurrentDictionary<string, ConcurrentList> _subscribers = new ConcurrentDictionary<string, ConcurrentList>();
         private readonly ConcurrentDictionary<EntityManager, List<string>> _subscriptions = new ConcurrentDictionary<EntityManager, List<string>>();
         private readonly List<MethodCall> _modulesInfo = new List<MethodCall>();
+        private readonly List<MethodCall> _iinnerModulesInfo = new List<MethodCall>();
         private readonly ConcurrentList _moduleList = new ConcurrentList();
         private readonly ConcurrentList _appsList = new ConcurrentList();
         private readonly ConcurrentList _innerModules = new ConcurrentList();
@@ -48,9 +49,18 @@ namespace Proxy
             _modulesInfo.Add(data);
         }
 
+        struct ModulesInfo
+        {
+            public string Modules;
+            public string NativeModules;
+        }
         public string GetConnectedModules()
         {
-            return JsonConvert.SerializeObject(_modulesInfo);
+            return JsonConvert.SerializeObject(new ModulesInfo()
+            {
+                Modules = JsonConvert.SerializeObject(_modulesInfo),
+                NativeModules = JsonConvert.SerializeObject(_iinnerModulesInfo)
+            });
         }
 
         public void Subscribe(EntityManager entity, string tag)

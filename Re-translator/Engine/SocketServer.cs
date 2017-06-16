@@ -16,7 +16,7 @@ namespace Proxy.Engine
         private readonly ManualResetEvent _tcpClientConnected = new ManualResetEvent(true);
         private bool _stopProxy = false;
         private const string ModuleName = "#(Socket Server) ";
-        private int connectedUsers = 0;
+        public static int ConnectedUsers = 0;
 
         public void Stop()
         {
@@ -111,8 +111,8 @@ namespace Proxy.Engine
         }
         void ProcessIncomingData(object obj)
         {
-            connectedUsers++;
-            telepasu.log(ModuleName + "Users connected: " + connectedUsers);
+            ConnectedUsers++;
+            telepasu.log(ModuleName + "Users connected: " + ConnectedUsers);
             GuestEntity guest = (GuestEntity)obj;
             guest.AuthorizationOver += Guest_AuthorizationOver;
             guest.BeginAutorization();
@@ -141,8 +141,8 @@ namespace Proxy.Engine
             ProxyEngine.MailPost.AddApplication(client.UserName, client);
             client.StartWork();
             telepasu.log(ModuleName + "Client disconnected...");
-            connectedUsers--;
-            telepasu.log(ModuleName + "Users connected: " + connectedUsers);
+            ConnectedUsers--;
+            telepasu.log(ModuleName + "Users connected: " + ConnectedUsers);
         }
     }
 }
