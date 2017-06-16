@@ -105,7 +105,7 @@ namespace Proxy.ServerEntities.NativeModule
                                 {
                                     Action = "Get White List",
                                     Status = "true",
-                                    Answer = JsonConvert.SerializeObject(_engine.LocalDb.GetWhiteList())
+                                    Answer = JsonConvert.SerializeObject(ProxyEngine.LocalDb.GetWhiteList())
                                 }));
                         });
                         break;
@@ -113,7 +113,7 @@ namespace Proxy.ServerEntities.NativeModule
                         Task.Run(() =>
                         {
                             var addIp = (AddWhiteListMethod)message;
-                            _engine.LocalDb.AddWhiteListItem(addIp.Address);
+                            ProxyEngine.LocalDb.AddWhiteListItem(addIp.Address);
                             message.Sender.SendMesage(JsonConvert.SerializeObject(message));
                         });
                         break;
@@ -121,7 +121,7 @@ namespace Proxy.ServerEntities.NativeModule
                         Task.Run(() =>
                         {
                             var remove = (RemoveWhiteListMethod)message;
-                            _engine.LocalDb.DeleteWhiteList(remove.Address);
+                            ProxyEngine.LocalDb.DeleteWhiteList(remove.Address);
                             message.Sender.SendMesage(JsonConvert.SerializeObject(message));
                         });
                         break;
