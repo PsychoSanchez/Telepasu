@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Proxy.Engine;
 using Proxy.Helpers;
 using Proxy.Messages.API.Admin;
