@@ -21,6 +21,13 @@ namespace Proxy.ServerEntities.NativeModule
             _engine = engine;
         }
 
+        struct Response
+        {
+            public string Action;
+            public string Status;
+            public string Answer;
+        }
+
         public void HandleSystemCalls()
         {
             telepasu.log(ModuleName + "Waiting message");
@@ -89,6 +96,34 @@ namespace Proxy.ServerEntities.NativeModule
                     case "Update Password":
                         break;
                     case "Restart":
+                        break;
+                    case "Get White List":
+                        Task.Run(() =>
+                        {
+                            message.Sender.SendMesage(JsonConvert.SerializeObject(
+                                new Response()
+                                {
+                                    Action = "Get White List",
+                                    Status = "true",
+                                    Answer = JsonConvert.SerializeObject(_engine.LocalDb.GetWhiteList())
+                                }));
+                        });
+                        break;
+                    case "Add White List":
+                        Task.Run(() =>
+                        {
+                            var addIp = (AddWhiteListMethod)message;
+                            _engine.LocalDb.AddWhiteListItem(addIp.Address);
+                            message.Sender.SendMesage(JsonConvert.SerializeObject(message));
+                        });
+                        break;
+                    case "Remove White List":
+                        Task.Run(() =>
+                        {
+                            var remove = (RemoveWhiteListMethod)message;
+                            _engine.LocalDb.DeleteWhiteList(remove.Address);
+                            message.Sender.SendMesage(JsonConvert.SerializeObject(message));
+                        });
                         break;
                 }
             }

@@ -86,7 +86,11 @@
     <Compile Include="LocalDB\UsersTable\UsersMapper.cs" />
     <Compile Include="LocalDB\WhiteList\WhiteList.cs" />
     <Compile Include="LocalDB\WhiteList\WhiteListMapper.cs" />
-    <Compile Include="Messages\API\Admin\AddModuleMessage - Копировать.cs" />
+    <Compile Include="Messages\API\Admin\RemoveWhiteListMessage.cs" />
+    <Compile Include="Messages\API\Admin\AddWhiteListMessage.cs" />
+    <Compile Include="Messages\API\Admin\RemoveWhiteListMethod.cs" />
+    <Compile Include="Messages\API\Admin\AddWhiteListMethod.cs" />
+    <Compile Include="Messages\API\Admin\AddModuleMessage.cs" />
     <Compile Include="Messages\API\Admin\GetModulesMessage.cs" />
     <Compile Include="Messages\API\Admin\AddModuleResponse.cs" />
     <Compile Include="Messages\API\Admin\GetUsersOnlineMessage.cs" />

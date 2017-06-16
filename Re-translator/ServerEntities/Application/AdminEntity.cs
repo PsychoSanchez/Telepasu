@@ -85,6 +85,28 @@ namespace Proxy.ServerEntities.Application
                         Action = "Get Modules List"
                     });
                     break;
+                case "Get White List":
+                    ProxyEngine.MailPost.PostMessage(new MethodCall(this)
+                    {
+                        Action = "Get White List"
+                    });
+                    break;
+                case "Add White List":
+                    var addIp = JsonConvert.DeserializeObject<AddWhiteListMessage>(e.Message);
+                    ProxyEngine.MailPost.PostMessage(new AddWhiteListMethod(this)
+                    {
+                        Action = "Add White List",
+                        Address = addIp.Address
+                    });
+                    break;
+                case "Remove White List":
+                    var removeIp = JsonConvert.DeserializeObject<AddWhiteListMessage>(e.Message);
+                    ProxyEngine.MailPost.PostMessage(new RemoveWhiteListMethod(this)
+                    {
+                        Action = "Remove White List",
+                        Address = removeIp.Address
+                    });
+                    break;
                 case "Get Applications List":
                     ProxyEngine.MailPost.PostMessage(new MethodCall(this)
                     {
@@ -111,6 +133,6 @@ namespace Proxy.ServerEntities.Application
             }
         }
 
-       
+
     }
 }
