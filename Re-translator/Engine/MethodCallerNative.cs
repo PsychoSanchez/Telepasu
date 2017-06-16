@@ -115,23 +115,23 @@ namespace Proxy.ServerEntities.NativeModule
         private void AddModule(MethodCall message)
         {
             var action = (AddModuleMethod)message;
-            if (action.Type == "Asterisk")
+            switch (action.Type)
             {
-                _engine.ConnectNativeModule(action.Type, new ConnectionData()
-                {
-                    Ip = action.Ip,
-                    Password = action.Pwd,
-                    Port = action.Port,
-                    Username = action.Username
-                }, message.Sender);
-            }
-            else if (action.Type == "LocalDB")
-            {
+                case "Asterisk":
+                    _engine.ConnectNativeModule(action.Type, new ConnectionData()
+                    {
+                        Ip = action.Ip,
+                        Password = action.Pwd,
+                        Port = action.Port,
+                        Username = action.Username
+                    }, message.Sender, action);
+                    break;
+                case "LocalDB":
 
-            }
-            else if (action.Type == "Module")
-            {
-                _engine.ConnectModule(action);
+                    break;
+                case "Module":
+                    _engine.ConnectModule(action);
+                    break;
             }
         }
 

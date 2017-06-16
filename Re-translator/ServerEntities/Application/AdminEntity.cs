@@ -43,6 +43,18 @@ namespace Proxy.ServerEntities.Application
                         Username = addMessage.Username
                     });
                     break;
+                case "Add Native Module":
+                    var nativeModule = JsonConvert.DeserializeObject<AddModuleMessage>(e.Message);
+                    ProxyEngine.MailPost.PostMessage(new AddModuleMethod(this)
+                    {
+                        Action = "Add Native Module",
+                        Ip = nativeModule.Ip,
+                        Port = nativeModule.Port,
+                        Pwd = nativeModule.Pwd,
+                        Type = nativeModule.Type,
+                        Username = nativeModule.Username
+                    });
+                    break;
                 case "Subscribe":
                     var subscribe = JsonConvert.DeserializeObject<SubscribeMessage>(e.Message);
                     ProxyEngine.MailPost.PostMessage(new SubscribeMethod(this)
@@ -58,6 +70,13 @@ namespace Proxy.ServerEntities.Application
                         Action = "Unsubscribe",
                         SubscribeTag = unsubscribe.Tag
                     });
+                    break;
+
+                case "Get Users Count":
+                    PersonalMail.SendMessage(JsonConvert.SerializeObject(new GetUsersOnlineMessage()
+                    {
+                        Count = SocketServer.ConnectedUsers
+                    }));
                     break;
                 case "Get Modules List":
                     ProxyEngine.MailPost.PostMessage(new MethodCall(this)

@@ -36,9 +36,6 @@ namespace Proxy.ServerEntities.Module
                         SubscribeTag = subscribe.Tag
                     });
                     break;
-                case "DBGetStatisticsResponse":
-                    ProxyEngine.MailPost.PostMessage(JsonConvert.DeserializeObject<DBGetStatisticsResponse>(e.Message));
-                    break;
                 case "Unsubscribe":
                     var unsubscribe = JsonConvert.DeserializeObject<SubscribeMessage>(e.Message);
                     ProxyEngine.MailPost.PostMessage(new SubscribeMethod(this)
@@ -50,7 +47,7 @@ namespace Proxy.ServerEntities.Module
                     Disconnect();
                     break;
                 default:
-                    var tag = Helper.GetJsonValue(e.Message, "Tag");
+                    var tag = Helper.GetJsonValue(e.Message, "\"Tag");
                     if (string.IsNullOrEmpty(tag))
                     {
                         return;

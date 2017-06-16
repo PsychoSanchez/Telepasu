@@ -40,7 +40,7 @@ namespace Proxy.Engine
             _cts.Cancel();
             _listener.Stop();
         }
-        public async void ConnectNativeModule(string type, ConnectionData data, EntityManager sender)
+        public async void ConnectNativeModule(string type, ConnectionData data, EntityManager sender, AddModuleMethod method)
         {
             switch (type)
             {
@@ -54,7 +54,7 @@ namespace Proxy.Engine
                         if (await asterisk.Login(data.Username, data.Password))
                         {
                             telepasu.log(ModuleName + "#Asterisk connected...");
-                            ProxyEngine.MailPost.AddNativeModule("AsteriskServer1", asterisk);
+                            ProxyEngine.MailPost.AddModule("AsteriskServer1", asterisk, method);
                             ThreadPool.QueueUserWorkItem(AsteriskThread, asterisk);
                             sender.SendMesage(JsonConvert.SerializeObject(new AddModuleResponse()
                             {
