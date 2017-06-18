@@ -91,21 +91,25 @@ namespace Proxy.Engine
         void ProcessIncomingConnection(IAsyncResult ar)
         {
             TcpListener listener = (TcpListener)ar.AsyncState;
+            var tcp = listener.EndAcceptTcpClient(ar);
+
+            //Проверка наличия айпи в белом листе
+            //var oipi = ((IPEndPoint)tcp.Client.RemoteEndPoint).Address.ToString();
+            //if (!ProxyEngine.LocalDb.CheckWhiteList(oipi))
+            //{
+
+            //    telepasu.log(ModuleName + "User kicked: access denied");
+            //    _tcpClientConnected.Set();
+            //    return;
+            //}
             try
             {
-                EntityManager serverEntity = new GuestEntity(listener.EndAcceptTcpClient(ar), 5000);
+                EntityManager serverEntity = new GuestEntity(tcp, 5000);
                 ThreadPool.QueueUserWorkItem(ProcessIncomingData, serverEntity);
             }
             catch (Exception e)
             {
                 telepasu.exc(e);
-            }
-            //Проверка наличия айпи в белом листе
-            var oipi = ((IPEndPoint)listener.LocalEndpoint).Address.ToString();
-            if (!ProxyEngine.LocalDb.CheckWhiteList(oipi))
-            {
-                telepasu.log(ModuleName + "User kicked: access denied");
-                return;
             }
             //if(ipTable.Compare(oipi)){
             // TODO: Get threads count
@@ -134,6 +138,11 @@ namespace Proxy.Engine
             if (!e.Authentificated)
             {
                 telepasu.log(ModuleName + "Authentification failed... Client kicked.");
+                ConnectedUsers--;
+                if (ConnectedUsers < 1)
+                {
+                    ConnectedUsers = 1;
+                }
                 return;
             }
             ThreadPool.QueueUserWorkItem(ProcessUserData, e.Client);

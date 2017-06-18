@@ -286,7 +286,7 @@ namespace Proxy.LocalDB
                         }
                     }
                     if (item.Login != login) continue;
-                    var stringToHash = item.Password + actionChallenge;
+                    var stringToHash = actionChallenge + item.Password;
                     var hash = Encryptor.CalculateMD5Hash(stringToHash);
                     if (hash == secret) return new LocalDbResponse(item, 200);
                 }

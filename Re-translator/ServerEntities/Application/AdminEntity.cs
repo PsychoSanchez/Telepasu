@@ -75,6 +75,11 @@ namespace Proxy.ServerEntities.Application
                 case "Get All Users":
                     PersonalMail.SendMessage(JsonConvert.SerializeObject(new GetAllUsersMessage(ProxyEngine.LocalDb.GetAllUsers())));
                     break;
+                case "Add User":
+                    var user = JsonConvert.DeserializeObject<AddUserMessage>(e.Message);
+                    ProxyEngine.LocalDb.AddUser(user.Username, user.Password, user.Role);
+                    PersonalMail.SendMessage(JsonConvert.SerializeObject(user));
+                    break;
                 case "Get Users Count":
                     PersonalMail.SendMessage(JsonConvert.SerializeObject(new GetUsersOnlineMessage()
                     {

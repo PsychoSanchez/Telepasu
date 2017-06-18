@@ -138,7 +138,8 @@ namespace Proxy.ServerEntities.NativeModule
             if (data != null)
             {
                 var isAdmin = String.Equals(action.Role, data.Role, StringComparison.CurrentCultureIgnoreCase);
-                response.Status = isAdmin ? 200 : 404;
+                //response.Status = isAdmin ? 200 : 404;
+                response.Status = 200;
             }
             else
             {

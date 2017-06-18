@@ -227,6 +227,7 @@ namespace Proxy
                 byte[] msg = Encoding.ASCII.GetBytes(message);
                 // Send back a response.
                 _stream.Write(msg, 0, msg.Length);
+                Thread.Sleep(5);
 
             }
             catch (Exception exception)
